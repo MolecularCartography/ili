@@ -1,0 +1,11 @@
+{
+    "name": "`ili",
+    "description": "Scientific tool for mapping biology data on a 3D or 2D model",
+    "version": "0.1",
+    "manifest_version": 2,
+    "app": {
+        "background": {
+            "scripts": ["chromeapp-background.js"]
+        }
+    }
+}

@@ -1,0 +1,149 @@
+body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+#view-container {
+    overflow: hidden;
+    flex-grow: 1;
+    position: relative;
+    display:  flex;
+}
+
+#view-container > .view-welcome,
+#view-container > .view-2d,
+#view-container > .view-3d {
+    display: none;
+    width: 100%;
+    height:  100%;
+}
+
+#view-container[mode=''] > .view-welcome {
+    display: block;
+    display: flex;
+}
+
+body[drop-target] > #view-container[mode=''] > .view-welcome.view-welcome {
+    display: none;
+}
+
+#view-container[mode='2d'] > .view-2d {
+    display: block;
+}
+
+#view-container[mode='3d'] > .view-3d {
+    display: block;
+}
+
+#status {
+    color: black;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    background-color: silver;
+    opacity: 0.6;
+    padding: 0px 15px 0px 5px;
+    display: block;
+    transition: 0.5s 0.1s;
+}
+
+#status[hidden] {
+    opacity: 0;
+}
+
+#open-button {
+    color: blue;
+    cursor: pointer;
+}
+
+#current-map-label {
+    cursor: pointer;
+    -webkit-user-select: none;
+}
+
+#map-selector {
+    position: absolute;
+    right: 20px;
+    top: 30%;
+    width: 200px;
+    bottom: 100px;
+    background-color: silver;
+    overflow:  hidden;
+    z-index: 100;
+    display:  flex;
+    flex-direction: column;
+    border: 1px solid #002000;
+    font: 12px 'Lucida Grande', sans-serif;
+    transition: opacity 200ms;
+    box-sizing: border-box;
+}
+
+#map-selector[hidden] {
+    display: none;
+}
+
+#map-selector > input {
+    left: 2px;
+    right: 2px;
+}
+
+#map-selector > .items {
+    overflow-y: auto;
+    flex: 1;
+    background-color:  white;
+}
+
+#map-selector > .items > * {
+    cursor: pointer;
+    padding: 3px;
+}
+
+#map-selector > .items > *[selected] {
+    color: white;
+    background-color: blue;
+}
+
+#drop-target-informer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    background-color: rgba(255,255,255,0.8);
+}
+
+#drop-target-informer {
+    display: none
+}
+
+body[drop-target] > #drop-target-informer {
+    display: flex;
+}
+
+#drop-target-informer > .message {
+    border: 4px dashed #ddd;
+    pointer-events: none;
+}
+
+.message {
+    flex: auto;
+    font-size: 30px;
+    color: #999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px;
+}
+
+.view-legend {
+    width: 200px;
+    height: 80px;
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}
