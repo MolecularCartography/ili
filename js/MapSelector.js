@@ -18,10 +18,12 @@ function MapSelector(model, div, mapName) {
     this._measures = null;
     this._selectedIndex = -1;
     this._div.style.opacity = 0;
+    this._active = false;
     this._model.addEventListener('intensities-change', this._onModelIntencitiesChange.bind(this));
     this._input.addEventListener('input', this._onInput.bind(this));
     this._input.addEventListener('blur', this._onBlur.bind(this));
     this._input.addEventListener('keydown', this._onKeyDown.bind(this), false);
+    document.addEventListener('keydown', this._onDocumentKeyDown.bind(this), true);
     this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
     this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
     this._onModelIntencitiesChange();
@@ -66,31 +68,56 @@ MapSelector.prototype = Object.create(null, {
 
     activate: {
         value: function() {
-            this._div.hidden = false;
+            this._active = true;
+            var div = this._div;
+            div.hidden = false;
             this._input.focus();
             this._input.select();
-            this._deffer(function() {
-                this._div.style.opacity = 1;
-            }.bind(this), 0);
+            this._effect(0).then(function() {
+                div.style.opacity = 1;
+            });
         }
     },
 
     deactivate: {
         value: function() {
-            this._div.style.opacity = 0;
-            this._deffer(function() {
-                this._div.hidden = true;
-            }.bind(this), 200);
+            this._active = false;
+            var div = this._div;
+            div.style.opacity = 0;
+            this._effect(200).then(function() {
+                div.hidden = true;
+            });
         }
     },
 
-    _deffer: {
-        value: function(fn, timeout) {
+    blink: {
+        value: function() {
+            if (this._active) return;
+            var div = this._div;
+            div.hidden = false;
+            this._effect(0).then(function() {
+                div.style.opacity = 0.2;
+            })
+            .then(this._effect.bind(this, 400))
+            .then(function() {
+                div.style.opacity = 0;
+            })
+            .then(this._effect.bind(this, 200))
+            .then(function() {
+                div.hidden = true;
+            });
+        }
+    },
+
+    _effect: {
+        value: function(timeout) {
             if (this._effectTimeout) clearTimeout(this._effectTimeout);
-            this._effectTimeout = setTimeout(function() {
-                this._effectTimeout = 0;
-                fn();
-            }.bind(this), timeout);
+            return new Promise(function(resolve) {
+                this._effectTimeout = setTimeout(function() {
+                    this._effectTimeout = 0;
+                    resolve();
+                }.bind(this), timeout);
+            }.bind(this));
         }
     },
 
@@ -160,18 +187,43 @@ MapSelector.prototype = Object.create(null, {
         }
     },
 
+    _onDocumentKeyDown: {
+        value: function() {
+            if (event.altKey || !event.ctrlKey) return;
+
+            if (this._handleNavigationalKeyDown(event)) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.blink();
+            }
+        }
+    },
+
     _onKeyDown: {
+        value: function(event) {
+            if (event.ctrlKey || event.ctrlKey) return;
+
+            if (this._handleNavigationalKeyDown(event)) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else if (event.keyCode == 27 /* Escape */ || event.keyCode == 13 /* Enter */) {
+                this.deactivate();
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }
+    },
+
+    _handleNavigationalKeyDown: {
         value: function(event) {
             if (event.keyCode == 38 /* Up */) {
                 var prev = this.selectedItem;
                 var next = prev ? prev.previousElementSibling : this._itemsContainer.firstElementChild;
                 if (next) this.selectedItem = next;
-                event.preventDefault();
             } else if (event.keyCode == 40 /* Down */) {
                 var prev = this.selectedItem;
                 var next = prev ? prev.nextElementSibling : this._itemsContainer.firstElementChild;
                 if (next) this.selectedItem = next;
-                event.preventDefault();
             } else if (event.keyCode == 33 /* Page up */) {
                 var len = Math.max(10, this._itemsContainer.childElementCount / 10);
                 if (!len) return;
@@ -192,10 +244,10 @@ MapSelector.prototype = Object.create(null, {
                     item = item.nextElementSibling;
                 }
                 this.selectedItem = item;
-            } else if (event.keyCode == 27 /* Escape */ || event.keyCode == 13 /* Enter */) {
-                this.deactivate();
-                event.preventDefault();
+            } else {
+                return false;
             }
+            return true;
         }
     },
 
