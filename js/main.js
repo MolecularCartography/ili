@@ -61,6 +61,17 @@ function onModelStatusChange() {
 function initGUI() {
     g_gui = new dat.GUI();
 
+
+    var f2d = g_gui.addFolder('2D');
+    f2d.add(g_views.v2d, 'fontSize', {
+        'None': 0,
+        'Very small': 2,
+        'Small': 6,
+        'Medium': 11,
+        'Big': 16,
+    }).name('Font size');
+    f2d.addColor(g_views.v2d, 'fontColor').name('Font color');
+
     var f3d = g_gui.addFolder('3D');
     f3d.add(g_views.g3d, 'layout', {
         'Single view': ViewGroup3D.Layout.SINGLE,
@@ -78,6 +89,11 @@ function initGUI() {
     fMapping.add(g_model, 'scaleId', {'Linear': Model.Scale.LINEAR.id, 'Logarithmic': Model.Scale.LOG.id}).name('Scale');
     fMapping.add(g_model, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
     fMapping.add(g_model, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+
+    g_model.addEventListener('mode-change', function() {
+        f2d.closed = (g_model.mode != Model.Mode.MODE_2D);
+        f3d.closed = (g_model.mode != Model.Mode.MODE_3D);
+    });
 }
 
 /**

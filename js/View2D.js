@@ -8,6 +8,8 @@ function View2D(model, svg) {
     this._scale = 1.0;
     this._mouseAction = null;
     this._offset = {x: 0, y: 0};
+    this._fontSize = 0; // Hidden
+    this._fontColor = '#000000';
 
     // Binding with model.
     this._model = model;
@@ -61,16 +63,52 @@ View2D.prototype = Object.create(null, {
         }
     },
 
+    fontSize: {
+        get: function() {
+            return this._fontSize;
+        },
+
+        set: function(value) {
+            this._fontSize = Number(value);
+            if (this._graphics) this._applySettings();
+        }
+    },
+
+    fontColor: {
+        get: function() {
+            return this._fontColor;
+        },
+
+        set: function(value) {
+            this._fontColor = value;
+            if (this._graphics) this._applySettings();
+        }
+    },
+
+    _applySettings: {
+        value: function() {
+            var attrs = {
+                'fill': this._fontColor,
+                'font-size': this._fontSize,
+                'visibility': this._fontSize ? 'visible' : 'collapsed',
+            };
+            var group = this._graphics.querySelector('#labels');
+            for (var i in attrs) {
+                group.setAttribute(i, attrs[i]);
+            }
+        }
+    },
+
     _onModelSceneChange: {
         value: function() {
             if (this._graphics) {
                 this._svg.removeChild(this._graphics);
             }
-            var graphics = this._model.buildSVG(this._svg.ownerDocument);
-            this._graphics = graphics;
-            if (graphics) {
+            this._graphics = this._model.buildSVG(this._svg.ownerDocument);
+            if (this._graphics) {
+                this._applySettings();
                 this._reposition();
-                this._svg.appendChild(graphics);
+                this._svg.appendChild(this._graphics);
             }
         }
     },

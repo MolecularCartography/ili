@@ -224,6 +224,7 @@ Model.prototype = Object.create(null, {
 
             var spotsGroupElement = document.createElementNS(SVGNS, 'g');
             var labelsGroupElement = document.createElementNS(SVGNS, 'g');
+            labelsGroupElement.setAttribute('id', 'labels');
             groupElement.appendChild(spotsGroupElement);
             groupElement.appendChild(labelsGroupElement);
 
