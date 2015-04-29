@@ -7,7 +7,11 @@ function ViewLegend(model, svg) {
 }
 
 ViewLegend.prototype = Object.create(null, {
-    updateLayout: {
+    prepareUpdateLayout: {
+        value: function() {}
+    },
+
+    finishUpdateLayout: {
         value: function() {}
     },
 

@@ -70,9 +70,9 @@ function Model() {
 }
 
 Model.Mode = {
-    UNDEFINED: '',
-    MODE_2D: '2d',
-    MODE_3D: '3d',
+    UNDEFINED: 1,
+    MODE_2D: 2,
+    MODE_3D: 3,
 };
 
 Model.Scale = {

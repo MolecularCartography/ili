@@ -2,11 +2,14 @@
 <head>
   <title>`ili</title>
   <link rel="stylesheet" type="type/css" href="main.css">
+  <link rel="stylesheet" type="type/css" href="layout.css">
   <script src="js/ColorMaps.js"></script>
   <script src="js/MapSelector.js"></script>
   <script src="js/Model.js"></script>
   <script src="js/View2D.js"></script>
   <script src="js/View3D.js"></script>
+  <script src="js/ViewContainer.js"></script>
+  <script src="js/ViewGroup3D.js"></script>
   <script src="js/ViewLegend.js"></script>
   <script src="js/lib/dat.gui.min.js"></script>
   <script src="js/lib/jquery-2.1.3.min.js"></script>
@@ -15,12 +18,18 @@
   <script src="js/main.js"></script>
 </head>
 <body>
-<div id="view-container" mode="">
+<div id="view-container">
 <div class="view-welcome">
-<div class="message"><div><span id="open-button">Open</span> files or drag and drop them.</div></div>
+  <div class="message"><div><span id="open-button">Open</span> files or drag and drop them.</div></div>
 </div>
 <svg class="view-2d" xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink"></svg>
-<canvas class="view-3d"></canvas>
+<div class="view-group-3d" layout="single">
+  <canvas></canvas>
+  <div class="view-3d" id="view-3d-1"></div>
+  <div class="view-3d" id="view-3d-2"></div>
+  <div class="view-3d" id="view-3d-3"></div>
+  <div class="view-3d" id="view-3d-4"></div>
+</div>
 <svg class="view-legend" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="colorMapGradient" x1="0" y1="0" x2="100%" y2="0">
@@ -32,8 +41,8 @@
   <text id="current-map-label" x="100" y="20" fill="black" text-anchor="middle" cursor="pointer">map: <tspan id="current-map-name"/></text>
   <rect x="10" y="30" width="180" height="20" style="fill:url(#colorMapGradient)"/>
 </svg>
-<div id="status" hidden></div>
 </div>
+<div id="status" hidden></div>
 <div id="map-selector" hidden><input type="text"><div class="items"></div></div>
 <div id="drop-target-informer"><div class="message">Drop files here</div></div>
 </body>

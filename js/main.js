@@ -5,7 +5,7 @@
 
 // High level object. Could be easily accessed from Web Inspector.
 var g_model;
-var g_views = {};
+var g_views;
 var g_gui;
 var g_mapSelector;
 
@@ -14,17 +14,13 @@ var g_mapSelector;
  */
 function init() {
     g_model = new Model();
-    g_views.v3D = new View3D(g_model, $('#view-container canvas.view-3d')[0]);
-    g_views.v2D = new View2D(g_model, $('#view-container svg.view-2d')[0]);
-    g_views.vLegend = new ViewLegend(g_model, $('#view-container svg.view-legend')[0]);
+    g_views = new ViewContainer(g_model, $('#view-container')[0]);
     g_mapSelector = new MapSelector(g_model, $('#map-selector')[0], $('#current-map-name')[0]);
 
     initGUI();
 
-    g_model.addEventListener('mode-change', onModelModeChange);
     g_model.addEventListener('status-change', onModelStatusChange);
 
-    window.addEventListener('resize', updateLayout);
     document.addEventListener('keydown', onKeyDown, false);
 
     $('#open-button').click(chooseFilesToOpen);
@@ -33,18 +29,6 @@ function init() {
 
     for (var e in DragAndDrop) {
         document.addEventListener(e, DragAndDrop[e], true);
-    }
-
-    onModelModeChange();
-}
-
-/**
- * Propogates the event to all views. This method whould be called if visual location of views has changed. 
- * So views may update scale and canvas size.
- */
-function updateLayout() {
-    for (name in g_views) {
-        g_views[name].updateLayout();
     }
 }
 
@@ -62,11 +46,6 @@ function onKeyDown(event) {
     }
 }
 
-function onModelModeChange() {
-    $('#view-container').attr('mode', g_model.mode);
-    updateLayout();
-}
-
 function onModelStatusChange() {
     if (g_model.status) {
         $('#status').text(g_model.status);
@@ -81,9 +60,16 @@ function onModelStatusChange() {
  */
 function initGUI() {
     g_gui = new dat.GUI();
+
     var f3d = g_gui.addFolder('3D');
+    f3d.add(g_views.g3d, 'layout', {
+        'Single view': ViewGroup3D.Layout.SINGLE,
+        'Double view': ViewGroup3D.Layout.DOUBLE,
+        'Triple view': ViewGroup3D.Layout.TRIPLE,
+        'Quadriple view': ViewGroup3D.Layout.QUADRIPLE,
+    }).name('Layout');
     f3d.addColor(g_model, 'color').name('Color');
-    f3d.addColor(g_model, 'backgroundColor').name('Background color');
+    f3d.addColor(g_model, 'backgroundColor').name('Background');
     f3d.add(g_model, 'lightIntensity1', 0, 1).name('Light 1');
     f3d.add(g_model, 'lightIntensity2', 0, 1).name('Light 2');
     f3d.add(g_model, 'lightIntensity3', 0, 1).name('Light 3');

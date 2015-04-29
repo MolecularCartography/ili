@@ -21,10 +21,15 @@ function View2D(model, svg) {
 View2D.SCALE_CHANGE = 1.2;
 
 View2D.prototype = Object.create(null, {
-    updateLayout: {
+    prepareUpdateLayout: {
         value: function() {
             this._width = this._svg.clientWidth;
             this._height = this._svg.clientHeight;
+        }
+    },
+
+    finishUpdateLayout: {
+        value: function() {
             if (this._graphics) this.offset = this._offset;
         }
     },
