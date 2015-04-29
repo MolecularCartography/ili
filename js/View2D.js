@@ -13,8 +13,11 @@ function View2D(model, svg) {
 
     // Binding with model.
     this._model = model;
-    this._model.addEventListener('2d-scene-change', this._onModelSceneChange.bind(this));
-    this._model.addEventListener('2d-scene-needs-recoloring', this._onModelSceneNeedsRecoloring.bind(this));
+    this._model.addEventListener(
+            '2d-scene-change', this._onModelSceneChange.bind(this));
+    this._model.addEventListener(
+            '2d-scene-needs-recoloring',
+            this._onModelSceneNeedsRecoloring.bind(this));
 
     this._svg.addEventListener('mousewheel', this._onMouseWheel.bind(this));
     this._svg.addEventListener('mousedown', this._onMouseDown.bind(this));
@@ -32,7 +35,7 @@ View2D.prototype = Object.create(null, {
 
     finishUpdateLayout: {
         value: function() {
-            if (this._graphics) this.offset = this._offset;
+            if (this._graphics) this.adjustOffset();
         }
     },
 
@@ -45,20 +48,27 @@ View2D.prototype = Object.create(null, {
             this._offset.x = offset.x;
             this._offset.y = offset.y;
 
+            this._reposition();
+        }
+    },
+
+    adjustOffset: {
+        value: function() {
             var imageSize = this._model.imageSize;
             if (this._width > imageSize.width * this._scale) {
                 this._offset.x = 0;
             } else {
-                var max = Math.ceil((imageSize.width * this._scale - this._width) * 0.5);
+                var max = Math.ceil(
+                        (imageSize.width * this._scale - this._width) * 0.5);
                 this._offset.x = Math.max(-max, Math.min(max, this._offset.x));
             }
             if (this._height > imageSize.height * this._scale) {
                 this._offset.y = 0;
             } else {
-                var max = Math.ceil((imageSize.height * this._scale - this._height) * 0.5);
+                var max = Math.ceil(
+                        (imageSize.height * this._scale - this._height) * 0.5);
                 this._offset.y = Math.max(-max, Math.min(max, this._offset.y));
             }
-
             this._reposition();
         }
     },
@@ -121,10 +131,10 @@ View2D.prototype = Object.create(null, {
 
     _reposition: {
         value: function() {
-            var imageSize = this._model.imageSize;
-            var x = (this._width - imageSize.width * this._scale) / 2 +
+            var image = this._model.imageSize;
+            var x = (this._width - image.width * this._scale) / 2 +
                     this._offset.x;
-            var y = (this._height - imageSize.height * this._scale) / 2 +
+            var y = (this._height - image.height * this._scale) / 2 +
                     this._offset.y;
             this._graphics.setAttribute('transform',
                     'translate(' + x + ', ' + y + ') scale(' + this._scale +
@@ -132,19 +142,59 @@ View2D.prototype = Object.create(null, {
         }
     },
 
+    screenToImage: {
+        value: function(point) {
+            var image = this._model.imageSize;
+            var local = {
+                    x: point.x - this._svg.offsetLeft - this._svg.clientLeft,
+                    y: point.y - this._svg.offsetTop - this._svg.clientTop
+            };
+
+            return {
+                    x: (local.x - this._offset.x -
+                            (this._width - image.width * this._scale) / 2) /
+                            this._scale,
+                    y: (local.y - this._offset.y -
+                            (this._height - image.height * this._scale) / 2) /
+                            this._scale
+            };
+        }
+    },
+
+    scrollToAndScale: {
+        value: function(imagePoint, screenPoint, scaleChange) {
+            this._scale *= scaleChange;
+
+            var local = {
+                    x: screenPoint.x - this._svg.offsetLeft -
+                            this._svg.clientLeft,
+                    y: screenPoint.y - this._svg.offsetTop -
+                            this._svg.clientTop
+            };
+
+            var image = this._model.imageSize;
+            this.offset = {
+                    x: local.x - (this._width - image.width * this._scale) /
+                            2 - this._scale * imagePoint.x,
+                    y: local.y - (this._height - image.height * this._scale) /
+                            2 - this._scale * imagePoint.y
+            };
+        }
+    },
+
     _onMouseWheel: {
         value: function(event) {
+            if (this._mouseAction) return;
+
             event.preventDefault();
             event.stopPropagation();
 
-            if (this._mouseAction) return;
-
             if (event.wheelDelta > 0) {
                 this._scale *= View2D.SCALE_CHANGE;
-                this.offset = this._offset;
+                this.adjustOffset();
             } else if (event.wheelDelta < 0) {
                 this._scale /= View2D.SCALE_CHANGE;
-                this.offset = this._offset;
+                this.adjustOffset();
             }
         }
     },
@@ -164,83 +214,76 @@ View2D.prototype = Object.create(null, {
     },
 });
 
-View2D.MouseActionBase = function() {
+View2D.MoveMouseAction = function() {
     this._view = null;
-    this._startX = 0;
-    this._startY = 0;
-    this._onMouseMoveBound = this._onMouseMove.bind(this);
-    this._onMouseUpBound = this._onMouseUp.bind(this);
+    this._imagePoint = null;
+    this._handlers = {
+            'mousemove': this._onMouseMove.bind(this),
+            'mouseup': this._onMouseUp.bind(this),
+            'mousewheel': this._onMouseWheel.bind(this),
+    };
 };
 
-View2D.MouseActionBase.prototype = Object.create(null, {
+View2D.MoveMouseAction.prototype = Object.create(null, {
     _onMouseMove: {
         value: function(event) {
-            var dx = event.clientX - this._startX;
-            var dy = event.clientY - this._startY;
-            this.onmove(dx, dy);
+            this._onMoveAndScale(event, 1);
+            event.stopPropagation();
+            event.preventDefault();
         }
     },
 
     _onMouseUp: {
         value: function(event) {
             this.stop();
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    },
+
+    _onMouseWheel: {
+        value: function(event) {
+            if (event.wheelDelta > 0) {
+                this._onMoveAndScale(event, View2D.SCALE_CHANGE);
+            } else if (event.wheelDelta < 0) {
+                this._onMoveAndScale(event, 1 / View2D.SCALE_CHANGE);
+            }
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    },
+
+    _onMoveAndScale: {
+        value: function(event, scaleFactor) {
+            this._view.scrollToAndScale(
+                      this._imagePoint,
+                      {x: event.pageX, y: event.pageY},
+                      scaleFactor);
         }
     },
 
     start: {
         value: function(view, event) {
-            this._startX = event.clientX;
-            this._startY = event.clientY;
             this._view = view;
-            this._view._mouseAction = this;
-            document.addEventListener('mousemove', this._onMouseMoveBound, false);
-            document.addEventListener('mouseup', this._onMouseUpBound, false);
 
-            this.init();
+            this._imagePoint = view.screenToImage(
+                  {x: event.pageX, y: event.pageY});
+
+            this._view._mouseAction = this;
+            for (var i in this._handlers) {
+                document.addEventListener(i, this._handlers[i], false);
+            }
         }
     },
 
     stop: {
         value: function() {
-            document.removeEventListener('mousemove', this._onMouseMoveBound, false);
-            document.removeEventListener('mouseup', this._onMouseUpBound, false);
+            for (var i in this._handlers) {
+                document.removeEventListener(i, this._handlers[i]);
+            }
+            this._view.adjustOffset();
             this._view._mouseAction = null;
             this._view = null;
-        }
-    },
-
-    onmove: {
-        value: function(dx, dy) {}
-    },
-
-    init: {
-        value: function() {},
-    },
-});
-
-View2D.MoveMouseAction = function() {
-    View2D.MouseActionBase.call(this);
-};
-
-View2D.MoveMouseAction.prototype = Object.create(View2D.MouseActionBase.prototype, {
-    /**
-     * @override
-     */
-    init: {
-        value: function() {
-            this._offset = this._view.offset;
-        }
-    },
-
-    /**
-     * @override
-     */
-    onmove: {
-        value: function(dx, dy) {
-            this._view.offset = {
-                    x: this._offset.x + dx,
-                    y: this._offset.y + dy
-            };
         }
     },
 });
