@@ -10,7 +10,6 @@
  *    built SVG could be updated via recolorSVG (faster than rebuilding SVG
  *    from the ground).
  * 3. MODE_3D. It has a THREE.js scene with a mesh, light souces ets.
- *    Canvas must be redrawn then '3d-scene-change' fired.
  *
  * Model tracks changes in measures, images and meshes and fires appropriates
  * events to allow updates. Model may have multiple views (2D and 3D view
@@ -28,42 +27,20 @@ function Model() {
         'mode-change': [],
         '2d-scene-change': [],
         '2d-scene-needs-recoloring': [],
-        '3d-scene-change': [],
         'intensities-change': [],
     };
     this._mode = Model.Mode.UNDEFINED;
-    this._mesh = null;
     this._spots = null;
     this._mapping = null;
     this._measures = null;
     this._image = null;
     this._activeMeasure = null;
-    this._color = new THREE.Color('#001eb2');
-    this._backgroundColor = new THREE.Color('black');
     this._colorMap = new JetColorMap();
     this._scale = Model.Scale.LOG;
     this._hotspotQuantile = 0.995;
     this._spotBorder = 0.05;
-
-    // 3D scene
-    this._scene = new THREE.Scene();
-    this._material = new THREE.MeshLambertMaterial({
-        vertexColors: THREE.VertexColors,
-        transparent: true,
-        opacity: 0.9,
-        shininess: 3,
-        shading: THREE.SmoothShading
-    });
-    this._light1 = new THREE.PointLight(0xffffff, 1, 0);
-    this._light1.position.set(-100, 100, 500);
-    this._light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-    this._light2.position.set(0, 1, 0);
-    this._light3 = new THREE.DirectionalLight(0xffffff, 1);
-    this._light3.position.set(0, -1, 0);
-    this._scene.add(this._light1);
-    this._scene.add(this._light2);
-    this._scene.add(this._light3);
-    this._scene.add(new THREE.AxisHelper(20));
+    this._scene = new Scene3D();
+    this._scene.colorMap = this._colorMap;
 
     this._status = '';
     this._tasks = {};
@@ -161,9 +138,11 @@ Model.prototype = Object.create(null, {
                     geometry.addAttribute(name, new THREE.BufferAttribute(
                             attribute.array, attribute.itemSize));
                 }
-                this._recolorGeometry(geometry, null, null);
-                this.mesh = new THREE.Mesh(geometry, this._material);
-                this._mapMesh();
+                this._scene.geometry = geometry;
+                if (this._spots) {
+                    this._scene.spots = this._spots;
+                    this._mapMesh();
+                }
             }.bind(this));
         }
     },
@@ -179,8 +158,7 @@ Model.prototype = Object.create(null, {
                 this._measures = result.measures;
                 this._activeMeasure = null;
                 if (this._mode == Model.Mode.MODE_3D) {
-                    this._mapping = null;
-                    this._recolor();
+                    this._scene.spots = result.spots;
                     this._mapMesh();
                 } else if (this._mode == Model.Mode.MODE_2D) {
                     this._notifyChange('2d-scene-change');
@@ -278,19 +256,17 @@ Model.prototype = Object.create(null, {
      */
     _mapMesh: {
         value: function() {
-            if (!this._mesh || !this._spots) return;
+            if (!this._scene.geometry || !this._spots) return;
             var args = {
-                verteces: this._mesh.geometry.getAttribute(
+                verteces: this._scene.geometry.getAttribute(
                         'original-position').array,
                 spots: this._spots
             };
             this._doTask(Model.TaskType.MAP, args).then(function(results) {
-                this._mapping = {
+                this._scene.mapping = {
                         closestSpotIndeces: event.data.closestSpotIndeces,
                         closestSpotDistances: event.data.closestSpotDistances
                 };
-                this._recolor();
-                this._mapper = null;
             }.bind(this));
         }
     },
@@ -436,62 +412,17 @@ Model.prototype = Object.create(null, {
                 this._spots[i].intensity = isNaN(v) || v == -Infinity ?
                         NaN : Math.min(1.0, (v - min) / (max - min));
             }
+            this._scene.updateIntensities(this._spots);
             this._recolor();
         }
     },
 
     _recolor: {
         value: function() {
-            if (this._mode == Model.Mode.MODE_3D && this._mesh) {
-                this._recolorGeometry(
-                        this._mesh.geometry, this._mapping, this._spots);
-                this._notifyChange('3d-scene-change');
+            if (this._mode == Model.Mode.MODE_3D && this._scene.mesh) {
             } else if (this._mode == Model.Mode.MODE_2D) {
                 this._notifyChange('2d-scene-needs-recoloring');
             }
-        }
-    },
-
-    _recolorGeometry: {
-        value: function(geometry, mapping, spots) {
-            if (!geometry) return;
-
-            var startTime = new Date();
-
-            var position = geometry.getAttribute('position');
-            var positionCount = position.array.length / position.itemSize;
-
-            var intensityColor = new THREE.Color();
-            var currentColor = new THREE.Color();
-
-            if (!geometry.getAttribute('color')) {
-                geometry.addAttribute('color', new THREE.BufferAttribute(
-                        new Float32Array(positionCount * 3), 3));
-            }
-            var color = geometry.getAttribute('color').array;
-
-            for (var i = 0; i < positionCount; i++) {
-                var index = mapping ? mapping.closestSpotIndeces[i] : -1;
-                currentColor.set(this._color);
-                if (index >= 0 && !isNaN(spots[index].intensity)) {
-                    this._colorMap.map(
-                            intensityColor, spots[index].intensity);
-                    var alpha = 1.0 - (1.0 - this._spotBorder) *
-                            mapping.closestSpotDistances[i];
-                    alpha = alpha;
-                    currentColor.lerp(intensityColor, alpha);
-                }
-
-                color[i * 3] = currentColor.r;
-                color[i * 3 + 1] = currentColor.g;
-                color[i * 3 + 2] = currentColor.b;
-            }
-
-            geometry.getAttribute('color').needsUpdate = true;
-
-            var endTime = new Date();
-            console.log('Recoloring time: ' +
-                    (endTime.valueOf() - startTime.valueOf()) / 1000);
         }
     },
 
@@ -525,7 +456,7 @@ Model.prototype = Object.create(null, {
                 this._cancelTask(Model.TaskType.LOAD_IMAGE);
             }
             if (this._mode != Model.Mode.MODE_3D) {
-                this.mesh = null;
+                this._scene.geometry = null;
                 this._cancelTask(Model.TaskType.LOAD_MESH);
             }
 
@@ -533,57 +464,9 @@ Model.prototype = Object.create(null, {
         }
     },
 
-    color: {
-        get: function() {
-            return '#' + this._color.getHexString();
-        },
-
-        set: function(value) {
-            var color = new THREE.Color(value);
-            if (color.equals(this._color)) return;
-            this._color.set(color);
-            if (this._mesh) this._recolor();
-        }
-    },
-
-    backgroundColor: {
-        get: function() {
-            return '#' + this._backgroundColor.getHexString();
-        },
-
-        set: function(value) {
-            var color = new THREE.Color(value);
-            if (color.equals(this._backgroundColor)) return;
-            this._backgroundColor.set(color);
-            if (this._mode == Model.Mode.MODE_3D) {
-                this._notifyChange('3d-scene-change');
-            }
-        }
-    },
-
-    backgroundColorValue: {
-        get: function() {
-            return this._backgroundColor;
-        }
-    },
-
     scene: {
         get: function() {
             return this._scene;
-        }
-    },
-
-    mesh: {
-        get: function() {
-            return this._mesh;
-        },
-
-        set: function(value) {
-            if (this._mesh === value) return;
-            if (this._mesh) this._scene.remove(this._mesh);
-            if (value) this._scene.add(value);
-            this._mesh = value;
-            this._notifyChange('3d-scene-change');
         }
     },
 
@@ -645,39 +528,6 @@ Model.prototype = Object.create(null, {
             if (this._scale.id == value) return;
             this._scale = Model.getScaleById(value);
             this._updateIntensities();
-        }
-    },
-
-    lightIntensity1: {
-        get: function() {
-            return this._light1.intensity;
-        },
-
-        set: function(value) {
-            this._light1.intensity = value;
-            this._notifyChange('3d-scene-change');
-        }
-    },
-
-    lightIntensity2: {
-        get: function() {
-            return this._light2.intensity;
-        },
-
-        set: function(value) {
-            this._light2.intensity = value;
-            this._notifyChange('3d-scene-change');
-        }
-    },
-
-    lightIntensity3: {
-        get: function() {
-            return this._light3.intensity;
-        },
-
-        set: function(value) {
-            return this._light3.intensity = value;
-            this._notifyChange('3d-scene-change');
         }
     },
 

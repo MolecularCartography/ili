@@ -57,6 +57,29 @@ ViewContainer.prototype = Object.create(null, {
         }
     },
 
+    export: {
+        value: function() {
+            var canvas = document.createElement('canvas');
+            if (this._model.mode == Model.Mode.MODE_3D) {
+                canvas.width = this._div.clientWidth;
+                canvas.height = this._div.clientHeight;
+                this.g3d.export(canvas, 1);
+                var data = canvas.toDataURL();
+            }
+
+            var data = canvas.toDataURL();
+            var byteString = atob(data.split(',')[1]);
+            var mimeString = data.split(',')[0].split(':')[1].split(';')[0]
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+            }
+
+            return new Blob([ab], {type: mimeString});
+        }
+    },
+
     _onModelModeChange: {
         value: function() {
             this._div.setAttribute('layout', this.layoutName);

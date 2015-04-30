@@ -33,8 +33,14 @@ function init() {
 }
 
 var KEYBOARD_SHORTCUTS = {
-    "U+004F": chooseFilesToOpen, // Ctrl + O
-    "U+0046": function() { g_mapSelector.activate(); } // Ctrl + F
+    'U+004F': chooseFilesToOpen, // Ctrl + O
+    'U+0046': function() { // Ctrl + F
+        g_mapSelector.activate();
+     },
+    'U+0053': function() { // Ctrl + S
+        var blob = g_views.export();
+        if (blob) saveAs(blob, 'export');
+     },
 };
 
 function onKeyDown(event) {
@@ -71,6 +77,7 @@ function initGUI() {
         'Big': 16,
     }).name('Font size');
     f2d.addColor(g_views.v2d, 'fontColor').name('Font color');
+    f2d.add(g_model, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var f3d = g_gui.addFolder('3D');
     f3d.add(g_views.g3d, 'layout', {
@@ -79,16 +86,16 @@ function initGUI() {
         'Triple view': ViewGroup3D.Layout.TRIPLE,
         'Quadriple view': ViewGroup3D.Layout.QUADRIPLE,
     }).name('Layout');
-    f3d.addColor(g_model, 'color').name('Color');
-    f3d.addColor(g_model, 'backgroundColor').name('Background');
-    f3d.add(g_model, 'lightIntensity1', 0, 1).name('Light 1');
-    f3d.add(g_model, 'lightIntensity2', 0, 1).name('Light 2');
-    f3d.add(g_model, 'lightIntensity3', 0, 1).name('Light 3');
+    f3d.addColor(g_model.scene, 'color').name('Color');
+    f3d.addColor(g_model.scene, 'backgroundColor').name('Background');
+    f3d.add(g_model.scene, 'lightIntensity1', 0, 1).name('Light 1');
+    f3d.add(g_model.scene, 'lightIntensity2', 0, 1).name('Light 2');
+    f3d.add(g_model.scene, 'lightIntensity3', 0, 1).name('Light 3');
+    f3d.add(g_model.scene, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_model, 'scaleId', {'Linear': Model.Scale.LINEAR.id, 'Logarithmic': Model.Scale.LOG.id}).name('Scale');
     fMapping.add(g_model, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
-    fMapping.add(g_model, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     g_model.addEventListener('mode-change', function() {
         f2d.closed = (g_model.mode != Model.Mode.MODE_2D);

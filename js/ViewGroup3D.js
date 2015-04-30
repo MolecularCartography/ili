@@ -21,8 +21,8 @@ function ViewGroup3D(model, div) {
 
     // Binding to model.
     this._model = model;
-    this._model.addEventListener('3d-scene-change',
-                                 this._onSceneChange.bind(this));
+    this._model.scene.addEventListener(
+                'change', this._onSceneChange.bind(this));
 
     var divs = this._div.querySelectorAll('.view-3d');
     for (var i = 0; i < divs.length; i++) {
@@ -33,15 +33,21 @@ function ViewGroup3D(model, div) {
 ViewGroup3D.prototype = Object.create(null, {
     redraw: {
         value: function() {
-            this._renderer.setClearColor(this._model.backgroundColorValue);
+            this._renderTo(this._renderer, this._model.scene);
+        }
+    },
+
+    _renderTo: {
+        value: function(renderer, scene) {
+            this._renderer.setClearColor(scene.backgroundColorValue);
             for (var i = 0; i < this._views.length; i++) {
                 var v = this._views[i];
                 if (!v.width || !v.height) continue;
                 var viewportBottom = this._height - v.top - v.height;
-                this._renderer.setViewport(v.left, viewportBottom, v.width, v.height);
-                this._renderer.setScissor(v.left, viewportBottom, v.width, v.height);
-                this._renderer.enableScissorTest(true);
-                this._renderer.render(this._model.scene, v.camera);
+                renderer.setViewport(v.left, viewportBottom, v.width, v.height);
+                renderer.setScissor(v.left, viewportBottom, v.width, v.height);
+                renderer.enableScissorTest(true);
+                scene.render(renderer, v.camera);
             }
         }
     },
@@ -80,6 +86,22 @@ ViewGroup3D.prototype = Object.create(null, {
             this._div.setAttribute('layout', value);
             this.prepareUpdateLayout();
             this.finishUpdateLayout();
+        }
+    },
+
+    export: {
+        value: function(canvas, pixelRatio) {
+            var renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                canvas: canvas,
+                preserveDrawingBuffer: true
+            });
+            renderer.setPixelRatio(pixelRatio);
+            renderer.setSize(this._width, this._height);
+
+            var scene = this._model.scene.clone();
+
+            this._renderTo(renderer, scene);
         }
     },
 
