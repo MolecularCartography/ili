@@ -33,14 +33,15 @@ function Model() {
     this._spots = null;
     this._mapping = null;
     this._measures = null;
-    this._image = null;
     this._activeMeasure = null;
     this._colorMap = new JetColorMap();
     this._scale = Model.Scale.LOG;
     this._hotspotQuantile = 0.995;
     this._spotBorder = 0.05;
-    this._scene = new Scene3D();
-    this._scene.colorMap = this._colorMap;
+    this._scene3d = new Scene3D();
+    this._scene2d = new Scene2D();
+    this._scene3d.colorMap = this._colorMap;
+    this._scene2d.colorMap = this._colorMap;
 
     this._status = '';
     this._tasks = {};
@@ -115,10 +116,10 @@ Model.prototype = Object.create(null, {
         value: function(file) {
             this.mode = Model.Mode.MODE_2D;
 
-            this._setImage(null);
+            this._scene2d.resetImage();
             this._doTask(Model.TaskType.LOAD_IMAGE, file).
                     then(function(result) {
-                this._setImage(result.url, result.width, result.height);
+                this._scene2d.setImage(result.url, result.width, result.height);
             }.bind(this));
         }
     },
@@ -138,9 +139,9 @@ Model.prototype = Object.create(null, {
                     geometry.addAttribute(name, new THREE.BufferAttribute(
                             attribute.array, attribute.itemSize));
                 }
-                this._scene.geometry = geometry;
+                this._scene3d.geometry = geometry;
                 if (this._spots) {
-                    this._scene.spots = this._spots;
+                    this._scene3d.spots = this._spots;
                     this._mapMesh();
                 }
             }.bind(this));
@@ -158,10 +159,10 @@ Model.prototype = Object.create(null, {
                 this._measures = result.measures;
                 this._activeMeasure = null;
                 if (this._mode == Model.Mode.MODE_3D) {
-                    this._scene.spots = result.spots;
+                    this._scene3d.spots = this._spots;
                     this._mapMesh();
                 } else if (this._mode == Model.Mode.MODE_2D) {
-                    this._notifyChange('2d-scene-change');
+                    this._scene2d.spots = this._spots;
                 }
                 this._notifyChange('intensities-change');
             }.bind(this));
@@ -181,132 +182,22 @@ Model.prototype = Object.create(null, {
     },
 
     /**
-     * Build SVG for 2D mode (see Model class description). Since SVG elements
-     * couldn't be shared among views each view should build it's own.
-     *
-     * @return {SVGGElement}
-     */
-    buildSVG: {
-        value: function(document) {
-            if (!this._image) return null;
-            var SVGNS = 'http://www.w3.org/2000/svg';
-            var groupElement = document.createElementNS(SVGNS, 'g');
-            var imageElement = document.createElementNS(SVGNS, 'image');
-            imageElement.href.baseVal = this._image.url;
-            imageElement.width.baseVal.value = this._image.width;
-            imageElement.height.baseVal.value = this._image.height;
-            groupElement.appendChild(imageElement);
-
-            var defsElement = document.createElementNS(SVGNS, 'defs');
-            groupElement.appendChild(defsElement);
-
-            var spotsGroupElement = document.createElementNS(SVGNS, 'g');
-            var labelsGroupElement = document.createElementNS(SVGNS, 'g');
-            labelsGroupElement.setAttribute('id', 'labels');
-            groupElement.appendChild(spotsGroupElement);
-            groupElement.appendChild(labelsGroupElement);
-
-            if (this._spots) {
-                this._createSVGSpots(
-                        spotsGroupElement, labelsGroupElement, defsElement);
-                this.recolorSVG(groupElement);
-            }
-
-            return groupElement;
-        }
-    },
-
-    /**
-     * Updates SVG to reflect current colors.
-     *
-     * @param {SVGGElement} Element previously built by 'buildSVG'.
-     */
-    recolorSVG: {
-        value: function(svg) {
-            var startTime = new Date();
-
-            var gradients = svg.getElementsByTagName('radialGradient');
-            var intensityColor = new THREE.Color();
-            for (var i = 0; i < gradients.length; i++) {
-                var g = gradients[i];
-                var stop0 = gradients[i].children[0];
-                var stop1 = gradients[i].children[1];
-
-                var spot = this._spots[i];
-                if (spot && !isNaN(spot.intensity)) {
-                    this._colorMap.map(intensityColor, spot.intensity);
-                    stop0.style.stopColor = stop1.style.stopColor =
-                            intensityColor.getStyle();
-                    stop0.style.stopOpacity = 1.0;
-                    stop1.style.stopOpacity = this._spotBorder;
-                } else {
-                    stop0.style.stopColor = stop1.style.stopColor = '';
-                    stop0.style.stopOpacity = stop1.style.stopOpacity = 0;
-                }
-            }
-
-            var endTime = new Date();
-            console.log('Recoloring time: ' +
-                    (endTime.valueOf() - startTime.valueOf()) / 1000);
-        }
-    },
-
-    /**
      * Prepares this._mapping for fast recoloring the mesh.
      */
     _mapMesh: {
         value: function() {
-            if (!this._scene.geometry || !this._spots) return;
+            if (!this._scene3d.geometry || !this._spots) return;
             var args = {
-                verteces: this._scene.geometry.getAttribute(
+                verteces: this._scene3d.geometry.getAttribute(
                         'original-position').array,
                 spots: this._spots
             };
             this._doTask(Model.TaskType.MAP, args).then(function(results) {
-                this._scene.mapping = {
+                this._scene3d.mapping = {
                         closestSpotIndeces: event.data.closestSpotIndeces,
                         closestSpotDistances: event.data.closestSpotDistances
                 };
             }.bind(this));
-        }
-    },
-
-    _createSVGSpots: {
-        value: function(spotsGrpupElement, lablesGroupElement, defsElement) {
-            var SVGNS = 'http://www.w3.org/2000/svg';
-
-            var document = spotsGrpupElement.ownerDocument;
-
-            for (var i = 0; i < this._spots.length; i++) {
-                var spot = this._spots[i];
-
-                var gradientElement = document.createElementNS(
-                    SVGNS, 'radialGradient');
-                gradientElement.cx.baseVal = "50%";
-                gradientElement.cy.baseVal = "50%";
-                gradientElement.r.baseVal = "50%";
-                gradientElement.fx.baseVal = "50%";
-                gradientElement.fy.baseVal = "50%";
-                gradientElement.id = "spot" + i;
-
-                gradientElement.innerHTML = '<stop offset="0%" />' +
-                                            '<stop offset="100%" />';
-                defsElement.appendChild(gradientElement);
-
-                var spotElement = document.createElementNS(SVGNS, 'ellipse');
-                spotElement.rx.baseVal.value = spot.r;
-                spotElement.ry.baseVal.value = spot.r;
-                spotElement.cx.baseVal.value = spot.x;
-                spotElement.cy.baseVal.value = spot.y;
-                spotElement.style.fill = 'url(#spot' + i + ')';
-                spotsGrpupElement.appendChild(spotElement);
-
-                var labelElement = document.createElementNS(SVGNS, 'text');
-                labelElement.textContent = spot.name;
-                labelElement.setAttribute('x', spot.x + 5);
-                labelElement.setAttribute('y', spot.y);
-                lablesGroupElement.appendChild(labelElement);
-            }
         }
     },
 
@@ -366,24 +257,6 @@ Model.prototype = Object.create(null, {
         }
     },
 
-    _setImage: {
-        value: function(url, width, height) {
-            if (this._image) {
-                URL.revokeObjectURL(this._image.url);
-            }
-            if (url) {
-                this._image = {
-                    url: url,
-                    width: width,
-                    height: height,
-                };
-            } else {
-                this._image = null;
-            }
-            this._notifyChange('2d-scene-change');
-        }
-    },
-
     _updateIntensities: {
         value: function() {
             if (!this._activeMeasure || !this._spots) return;
@@ -412,17 +285,8 @@ Model.prototype = Object.create(null, {
                 this._spots[i].intensity = isNaN(v) || v == -Infinity ?
                         NaN : Math.min(1.0, (v - min) / (max - min));
             }
-            this._scene.updateIntensities(this._spots);
-            this._recolor();
-        }
-    },
-
-    _recolor: {
-        value: function() {
-            if (this._mode == Model.Mode.MODE_3D && this._scene.mesh) {
-            } else if (this._mode == Model.Mode.MODE_2D) {
-                this._notifyChange('2d-scene-needs-recoloring');
-            }
+            this._scene3d.updateIntensities(this._spots);
+            this._scene2d.updateIntensities(this._spots);
         }
     },
 
@@ -456,7 +320,7 @@ Model.prototype = Object.create(null, {
                 this._cancelTask(Model.TaskType.LOAD_IMAGE);
             }
             if (this._mode != Model.Mode.MODE_3D) {
-                this._scene.geometry = null;
+                this._scene3d.geometry = null;
                 this._cancelTask(Model.TaskType.LOAD_MESH);
             }
 
@@ -464,9 +328,15 @@ Model.prototype = Object.create(null, {
         }
     },
 
-    scene: {
+    scene2d: {
         get: function() {
-            return this._scene;
+            return this._scene2d;
+        }
+    },
+
+    scene3d: {
+        get: function() {
+            return this._scene3d;
         }
     },
 
@@ -531,9 +401,9 @@ Model.prototype = Object.create(null, {
         }
     },
 
-    colorMapGradient: {
+    colorMap: {
         get: function() {
-            return this._colorMap.gradient;
+            return this._colorMap;
         }
     }
 });

@@ -69,15 +69,15 @@ function initGUI() {
 
 
     var f2d = g_gui.addFolder('2D');
-    f2d.add(g_views.v2d, 'fontSize', {
+    f2d.add(g_model.scene2d, 'fontSize', {
         'None': 0,
         'Very small': 2,
         'Small': 6,
         'Medium': 11,
         'Big': 16,
     }).name('Font size');
-    f2d.addColor(g_views.v2d, 'fontColor').name('Font color');
-    f2d.add(g_model, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+    f2d.addColor(g_model.scene2d, 'fontColor').name('Font color');
+    f2d.add(g_model.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var f3d = g_gui.addFolder('3D');
     f3d.add(g_views.g3d, 'layout', {
@@ -86,12 +86,12 @@ function initGUI() {
         'Triple view': ViewGroup3D.Layout.TRIPLE,
         'Quadriple view': ViewGroup3D.Layout.QUADRIPLE,
     }).name('Layout');
-    f3d.addColor(g_model.scene, 'color').name('Color');
-    f3d.addColor(g_model.scene, 'backgroundColor').name('Background');
-    f3d.add(g_model.scene, 'lightIntensity1', 0, 1).name('Light 1');
-    f3d.add(g_model.scene, 'lightIntensity2', 0, 1).name('Light 2');
-    f3d.add(g_model.scene, 'lightIntensity3', 0, 1).name('Light 3');
-    f3d.add(g_model.scene, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+    f3d.addColor(g_model.scene3d, 'color').name('Color');
+    f3d.addColor(g_model.scene3d, 'backgroundColor').name('Background');
+    f3d.add(g_model.scene3d, 'lightIntensity1', 0, 1).name('Light 1');
+    f3d.add(g_model.scene3d, 'lightIntensity2', 0, 1).name('Light 2');
+    f3d.add(g_model.scene3d, 'lightIntensity3', 0, 1).name('Light 3');
+    f3d.add(g_model.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_model, 'scaleId', {'Linear': Model.Scale.LINEAR.id, 'Logarithmic': Model.Scale.LOG.id}).name('Scale');

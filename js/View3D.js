@@ -19,10 +19,10 @@ function View3D(group, div) {
     this._camera.position.x = -30;
     this._camera.position.y = 40;
     this._camera.position.z = 30;
-    this._camera.lookAt(this._group._model.scene.position);
+    this._camera.lookAt(this._group._scene.position);
 
     this._controls = new THREE.OrbitControls(this._camera, this._div);
-    this._controls.target = this._group._model.scene.position;
+    this._controls.target = this._group._scene.position;
     this._controls.noKeys = true;
     this._controls.update();
     this._controls.addEventListener('change', group.redraw.bind(group));

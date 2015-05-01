@@ -2,22 +2,15 @@
 
 function View2D(model, svg) {
     this._svg = svg;
-    this._graphics = null;
+    this._contentElement = svg.querySelector('#contentElement');
     this._width = 0;
     this._height = 0;
     this._scale = 1.0;
     this._mouseAction = null;
     this._offset = {x: 0, y: 0};
-    this._fontSize = 0; // Hidden
-    this._fontColor = '#000000';
+    this._scene = model.scene2d;
 
-    // Binding with model.
-    this._model = model;
-    this._model.addEventListener(
-            '2d-scene-change', this._onModelSceneChange.bind(this));
-    this._model.addEventListener(
-            '2d-scene-needs-recoloring',
-            this._onModelSceneNeedsRecoloring.bind(this));
+    this._scene.view = this;
 
     this._svg.addEventListener('mousewheel', this._onMouseWheel.bind(this));
     this._svg.addEventListener('mousedown', this._onMouseDown.bind(this));
@@ -33,9 +26,15 @@ View2D.prototype = Object.create(null, {
         }
     },
 
+    contentElement: {
+        get: function() {
+            return this._contentElement;
+        }
+    },
+
     finishUpdateLayout: {
         value: function() {
-            if (this._graphics) this.adjustOffset();
+            this.adjustOffset();
         }
     },
 
@@ -54,89 +53,37 @@ View2D.prototype = Object.create(null, {
 
     adjustOffset: {
         value: function() {
-            var imageSize = this._model.imageSize;
-            if (this._width > imageSize.width * this._scale) {
+            if (this._width > this._scene.width * this._scale) {
                 this._offset.x = 0;
             } else {
                 var max = Math.ceil(
-                        (imageSize.width * this._scale - this._width) * 0.5);
+                        (this._scene.width * this._scale - this._width) * 0.5);
                 this._offset.x = Math.max(-max, Math.min(max, this._offset.x));
             }
-            if (this._height > imageSize.height * this._scale) {
+            if (this._height > this._scene.height * this._scale) {
                 this._offset.y = 0;
             } else {
                 var max = Math.ceil(
-                        (imageSize.height * this._scale - this._height) * 0.5);
+                        (this._scene.height * this._scale - this._height) * 0.5);
                 this._offset.y = Math.max(-max, Math.min(max, this._offset.y));
             }
             this._reposition();
         }
     },
 
-    fontSize: {
-        get: function() {
-            return this._fontSize;
-        },
-
-        set: function(value) {
-            this._fontSize = Number(value);
-            if (this._graphics) this._applySettings();
-        }
-    },
-
-    fontColor: {
-        get: function() {
-            return this._fontColor;
-        },
-
-        set: function(value) {
-            this._fontColor = value;
-            if (this._graphics) this._applySettings();
-        }
-    },
-
-    _applySettings: {
+    _onSceneChange: {
         value: function() {
-            var attrs = {
-                'fill': this._fontColor,
-                'font-size': this._fontSize,
-                'visibility': this._fontSize ? 'visible' : 'collapsed',
-            };
-            var group = this._graphics.querySelector('#labels');
-            for (var i in attrs) {
-                group.setAttribute(i, attrs[i]);
-            }
-        }
-    },
-
-    _onModelSceneChange: {
-        value: function() {
-            if (this._graphics) {
-                this._svg.removeChild(this._graphics);
-            }
-            this._graphics = this._model.buildSVG(this._svg.ownerDocument);
-            if (this._graphics) {
-                this._applySettings();
-                this._reposition();
-                this._svg.appendChild(this._graphics);
-            }
-        }
-    },
-
-    _onModelSceneNeedsRecoloring: {
-        value: function() {
-            if (this._graphics) this._model.recolorSVG(this._graphics);
+            this._reposition();
         }
     },
 
     _reposition: {
         value: function() {
-            var image = this._model.imageSize;
-            var x = (this._width - image.width * this._scale) / 2 +
+            var x = (this._width - this._scene.width * this._scale) / 2 +
                     this._offset.x;
-            var y = (this._height - image.height * this._scale) / 2 +
+            var y = (this._height - this._scene.height * this._scale) / 2 +
                     this._offset.y;
-            this._graphics.setAttribute('transform',
+            this._contentElement.setAttribute('transform',
                     'translate(' + x + ', ' + y + ') scale(' + this._scale +
                             ')');
         }
@@ -144,7 +91,6 @@ View2D.prototype = Object.create(null, {
 
     screenToImage: {
         value: function(point) {
-            var image = this._model.imageSize;
             var local = {
                     x: point.x - this._svg.offsetLeft - this._svg.clientLeft,
                     y: point.y - this._svg.offsetTop - this._svg.clientTop
@@ -152,10 +98,10 @@ View2D.prototype = Object.create(null, {
 
             return {
                     x: (local.x - this._offset.x -
-                            (this._width - image.width * this._scale) / 2) /
+                            (this._width - this._scene.width * this._scale) / 2) /
                             this._scale,
                     y: (local.y - this._offset.y -
-                            (this._height - image.height * this._scale) / 2) /
+                            (this._height - this._scene.height * this._scale) / 2) /
                             this._scale
             };
         }
@@ -172,11 +118,11 @@ View2D.prototype = Object.create(null, {
                             this._svg.clientTop
             };
 
-            var image = this._model.imageSize;
+            var image = this._scene.imageSize;
             this.offset = {
-                    x: local.x - (this._width - image.width * this._scale) /
+                    x: local.x - (this._width - this._scene.width * this._scale) /
                             2 - this._scale * imagePoint.x,
-                    y: local.y - (this._height - image.height * this._scale) /
+                    y: local.y - (this._height - this._scene.height * this._scale) /
                             2 - this._scale * imagePoint.y
             };
         }

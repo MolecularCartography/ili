@@ -3,7 +3,7 @@
 /**
  * Group of View3D's. Manages shared objects: model, renderer, canvas.
  *
- * @param {Model} model
+ * @param {Model} scene
  * @param {HTMLDivElement} div Container element with a canvas and
  *                             several .view-3d elements.
  */
@@ -19,10 +19,8 @@ function ViewGroup3D(model, div) {
     this._pixelRatio = 1;
     this._views = [];
 
-    // Binding to model.
-    this._model = model;
-    this._model.scene.addEventListener(
-                'change', this._onSceneChange.bind(this));
+    this._scene = model.scene3d;
+    this._scene.addEventListener('change', this._onSceneChange.bind(this));
 
     var divs = this._div.querySelectorAll('.view-3d');
     for (var i = 0; i < divs.length; i++) {
@@ -33,7 +31,7 @@ function ViewGroup3D(model, div) {
 ViewGroup3D.prototype = Object.create(null, {
     redraw: {
         value: function() {
-            this._renderTo(this._renderer, this._model.scene);
+            this._renderTo(this._renderer, this._scene);
         }
     },
 
@@ -99,7 +97,7 @@ ViewGroup3D.prototype = Object.create(null, {
             renderer.setPixelRatio(pixelRatio);
             renderer.setSize(this._width, this._height);
 
-            var scene = this._model.scene.clone();
+            var scene = this._scene.clone();
 
             this._renderTo(renderer, scene);
         }
