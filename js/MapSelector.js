@@ -23,7 +23,6 @@ function MapSelector(model, div, mapName) {
     this._input.addEventListener('input', this._onInput.bind(this));
     this._input.addEventListener('blur', this._onBlur.bind(this));
     this._input.addEventListener('keydown', this._onKeyDown.bind(this), false);
-    document.addEventListener('keydown', this._onDocumentKeyDown.bind(this), true);
     this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
     this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
     this._onModelIntencitiesChange();
@@ -201,53 +200,77 @@ MapSelector.prototype = Object.create(null, {
 
     _onKeyDown: {
         value: function(event) {
-            if (event.ctrlKey || event.ctrlKey) return;
+            if (event.ctrlKey || event.ctrlKey || event.metaKey) return;
 
-            if (this._handleNavigationalKeyDown(event)) {
-                event.preventDefault();
-                event.stopPropagation();
-            } else if (event.keyCode == 27 /* Escape */ || event.keyCode == 13 /* Enter */) {
-                this.deactivate();
-                event.preventDefault();
-                event.stopPropagation();
+            switch (event.keyIdentifier) {
+                case 'Up':
+                    this.navigate(MapSelector.Direction.UP);
+                    break;
+
+                case 'Down':
+                    this.navigate(MapSelector.Direction.DOWN);
+                    break;
+
+                case 'PageUp':
+                    this.navigate(MapSelector.Direction.PAGE_UP);
+                    break;
+
+                case 'PageDown':
+                    this.navigate(MapSelector.Direction.PAGE_DOWN);
+                    break;
+
+                case 'Enter':
+                case 'U+001B' /* Escape */:
+                    this.deactivate();
+                    break;
+
+                default:
+                    return;
             }
+            event.preventDefault();
+            event.stopPropagation();
         }
     },
 
-    _handleNavigationalKeyDown: {
-        value: function(event) {
-            if (event.keyCode == 38 /* Up */) {
-                var prev = this.selectedItem;
-                var next = prev ? prev.previousElementSibling : this._itemsContainer.firstElementChild;
-                if (next) this.selectedItem = next;
-            } else if (event.keyCode == 40 /* Down */) {
-                var prev = this.selectedItem;
-                var next = prev ? prev.nextElementSibling : this._itemsContainer.firstElementChild;
-                if (next) this.selectedItem = next;
-            } else if (event.keyCode == 33 /* Page up */) {
-                var len = Math.max(10, this._itemsContainer.childElementCount / 10);
-                if (!len) return;
-                var item = this.selectedItem;
-                if (!item) item = this._itemsContainer.lastElementChild;
-                for (var i = 0; i < len; i++) {
-                    if (!item.previousElementSibling) break;
-                    item = item.previousElementSibling;
-                }
-                this.selectedItem = item;
-            } else if (event.keyCode == 34 /* Page down */) {
-                var len = Math.max(10, this._itemsContainer.childElementCount / 10);
-                if (!len) return;
-                var item = this.selectedItem;
-                if (!item) item = this._itemsContainer.firstElementChild;
-                for (var i = 0; i < len; i++) {
-                    if (!item.nextElementSibling) break;
-                    item = item.nextElementSibling;
-                }
-                this.selectedItem = item;
-            } else {
-                return false;
+    navigate: {
+        value: function(direction) {
+            switch (direction) {
+                case MapSelector.Direction.UP:
+                    var prev = this.selectedItem;
+                    var next = prev ? prev.previousElementSibling : this._itemsContainer.firstElementChild;
+                    if (next) this.selectedItem = next;
+                    break;
+
+                case MapSelector.Direction.DOWN:
+                    var prev = this.selectedItem;
+                    var next = prev ? prev.nextElementSibling : this._itemsContainer.firstElementChild;
+                    if (next) this.selectedItem = next;
+                    break;
+
+                case MapSelector.Direction.PAGE_UP:
+                    var len = Math.max(10, this._itemsContainer.childElementCount / 10);
+                    if (!len) return;
+                    var item = this.selectedItem;
+                    if (!item) item = this._itemsContainer.lastElementChild;
+                    for (var i = 0; i < len; i++) {
+                        if (!item.previousElementSibling) break;
+                        item = item.previousElementSibling;
+                    }
+                    this.selectedItem = item;
+                    break;
+
+                case MapSelector.Direction.PAGE_DOWN:
+                    var len = Math.max(10, this._itemsContainer.childElementCount / 10);
+                    if (!len) return;
+                    var item = this.selectedItem;
+                    if (!item) item = this._itemsContainer.firstElementChild;
+                    for (var i = 0; i < len; i++) {
+                        if (!item.nextElementSibling) break;
+                        item = item.nextElementSibling;
+                    }
+                    this.selectedItem = item;
+                    break;
             }
-            return true;
         }
     },
 
@@ -287,3 +310,10 @@ MapSelector.prototype = Object.create(null, {
         }
     }
 });
+
+MapSelector.Direction = {
+    UP: 1,
+    DOWN: 2,
+    PAGE_UP: 3,
+    PAGE_DOWN: 4
+};

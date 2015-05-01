@@ -17,7 +17,7 @@ ViewLegend.prototype = Object.create(null, {
 
     updateColorMap: {
         value: function() {
-            var description = this._model.colorMapGradient;
+            var description = this._model.colorMap.gradient;
             var stops = [];
             for (var i in description) {
                 stops.push('<stop offset="' + i + '" style="stop-color:' +

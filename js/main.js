@@ -36,15 +36,29 @@ var KEYBOARD_SHORTCUTS = {
     'U+004F': chooseFilesToOpen, // Ctrl + O
     'U+0046': function() { // Ctrl + F
         g_mapSelector.activate();
-     },
+    },
     'U+0053': function() { // Ctrl + S
         var blob = g_views.export();
         if (blob) saveAs(blob, 'export');
-     },
+    },
+    'Up': function() {
+        g_mapSelector.blink();
+        g_mapSelector.navigate(MapSelector.Direction.UP);
+    },
+    'Down': function() {
+        g_mapSelector.blink();
+        g_mapSelector.navigate(MapSelector.Direction.DOWN);
+    },
 };
 
 function onKeyDown(event) {
-    if (event.ctrlKey && !event.altKey && event.keyIdentifier in KEYBOARD_SHORTCUTS) {
+    if ((/^Mac/i).test(navigator.platform) && (event.ctrlKey || event.altKey || !event.metaKey)) {
+        return;
+    } else if (!event.ctrlKey || event.altKey || event.metaKey) {
+        return;
+    }
+
+    if (event.keyIdentifier in KEYBOARD_SHORTCUTS) {
         var handler = KEYBOARD_SHORTCUTS[event.keyIdentifier];
         handler();
         event.stopPropagation();
