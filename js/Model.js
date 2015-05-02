@@ -316,11 +316,13 @@ Model.prototype = Object.create(null, {
             this._mode = value;
 
             if (this._mode != Model.Mode.MODE_2D) {
-                this._setImage(null);
+                this._scene2d.resetImage();
+                this._scene2d.spots = null;
                 this._cancelTask(Model.TaskType.LOAD_IMAGE);
             }
             if (this._mode != Model.Mode.MODE_3D) {
                 this._scene3d.geometry = null;
+                this._scene3d.spots = null;
                 this._cancelTask(Model.TaskType.LOAD_MESH);
             }
 
@@ -349,15 +351,6 @@ Model.prototype = Object.create(null, {
     measures: {
         get: function() {
             return this._measures || [];
-        }
-    },
-
-    imageSize: {
-        get: function() {
-            return this._image && {
-                width: this._image.width,
-                height: this._image.height
-            };
         }
     },
 

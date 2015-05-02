@@ -5,7 +5,7 @@
  *
  * @param {Model} scene
  * @param {HTMLDivElement} div Container element with a canvas and
- *                             several .view-3d elements.
+ *                             several .View3D elements.
  */
 function ViewGroup3D(model, div) {
     this._div = div;
@@ -22,7 +22,7 @@ function ViewGroup3D(model, div) {
     this._scene = model.scene3d;
     this._scene.addEventListener('change', this._onSceneChange.bind(this));
 
-    var divs = this._div.querySelectorAll('.view-3d');
+    var divs = this._div.querySelectorAll('.View3d');
     for (var i = 0; i < divs.length; i++) {
         this._views.push(new View3D(this, divs[i]));
     }

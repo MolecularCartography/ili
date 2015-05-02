@@ -2,7 +2,7 @@
 
 function View2D(model, svg) {
     this._svg = svg;
-    this._contentElement = svg.querySelector('#contentElement');
+    this._svg.innerHTML = '<g id="contentElement" />';
     this._width = 0;
     this._height = 0;
     this._scale = 1.0;
@@ -28,7 +28,7 @@ View2D.prototype = Object.create(null, {
 
     contentElement: {
         get: function() {
-            return this._contentElement;
+            return this._svg.querySelector('#contentElement');
         }
     },
 
@@ -83,7 +83,7 @@ View2D.prototype = Object.create(null, {
                     this._offset.x;
             var y = (this._height - this._scene.height * this._scale) / 2 +
                     this._offset.y;
-            this._contentElement.setAttribute('transform',
+            this.contentElement.setAttribute('transform',
                     'translate(' + x + ', ' + y + ') scale(' + this._scale +
                             ')');
         }

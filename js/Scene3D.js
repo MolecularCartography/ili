@@ -151,15 +151,19 @@ Scene3D.prototype = Object.create(null, {
         },
 
         set: function(value) {
-            this._spots = new Array(value.length);
-            for (var i = 0; i < value.length; i++) {
-                this._spots[i] = {
-                    x: value[i].x,
-                    y: value[i].y,
-                    z: value[i].z,
-                    r: value[i].r,
-                    intensity: value[i].intensity,
-                };
+            if (value) {
+                this._spots = new Array(value.length);
+                for (var i = 0; i < value.length; i++) {
+                    this._spots[i] = {
+                        x: value[i].x,
+                        y: value[i].y,
+                        z: value[i].z,
+                        r: value[i].r,
+                        intensity: value[i].intensity,
+                    };
+                }
+            } else {
+                this._spots = null;
             }
             if (this._mapping) {
                 this._mapping = null; // Mapping is obsolete.
@@ -175,6 +179,7 @@ Scene3D.prototype = Object.create(null, {
     updateIntensities: {
         value: function(spots) {
             if (!this._spots) return;
+
             for (var i = 0; i < this._spots.length; i++) {
                 this._spots[i].intensity = spots[i].intensity;
             }

@@ -4,9 +4,9 @@ function ViewContainer(model, div) {
     this._model = model;
     this._div = div;
 
-    this.v2d = this._createView(View2D, 'svg.view-2d');
-    this.g3d = this._createView(ViewGroup3D, 'div.view-group-3d');
-    this.legend = this._createView(ViewLegend, 'svg.view-legend');
+    this.v2d = this._createView(View2D, 'svg.View2D');
+    this.g3d = this._createView(ViewGroup3D, 'div.ViewGroup3D');
+    this.legend = this._createView(ViewLegend, 'svg.ViewLegend');
 
     this._model.addEventListener(
             'mode-change', this._onModelModeChange.bind(this));

@@ -6,7 +6,7 @@ function Scene2D() {
     this._imageURL = null;
     this._width = 0;
     this._height = 0;
-    this._spots = [];
+    this._spots = null;
 };
 
 Scene2D.prototype = Object.create(null, {
@@ -109,15 +109,19 @@ Scene2D.prototype = Object.create(null, {
         },
 
         set: function(value) {
-            this._spots = value.map(function(s) {
-                return {
-                    x: s.x,
-                    y: s.y,
-                    r: s.r,
-                    name: s.name,
-                    intensity: s.intensity,
-                };
-            });
+            if (value) {
+                this._spots = value.map(function(s) {
+                    return {
+                        x: s.x,
+                        y: s.y,
+                        r: s.r,
+                        name: s.name,
+                        intensity: s.intensity,
+                    };
+                });
+            } else {
+                this._spots = null;
+            }
 
             if (!this.hasImage) return;
             for (var i = 0; i < this._views.length; i++) {
@@ -128,16 +132,20 @@ Scene2D.prototype = Object.create(null, {
                 spotsGroupElement.textContent = '';
                 labelsGroupElement.textContent = '';
                 defsElement.textContent = '';
-                this._createSpots(
-                                spotsGroupElement, labelsGroupElement, defsElement);
+                if (this._spots) {
+                    this._createSpots(
+                                    spotsGroupElement, labelsGroupElement, defsElement);
+                }
             }
         }
     },
 
     updateIntensities: {
         value: function(spots) {
+            if (!this._spots) return;
+
             for (var i = 0; i < this._spots.length; i++) {
-                this._spots[i].intensity = spots[i].intensity;
+                this._spots[i].intensity = spots[i] && spots[i].intensity;
             }
             this._updateSpots();
         }
