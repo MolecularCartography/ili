@@ -160,6 +160,7 @@ Scene3D.prototype = Object.create(null, {
                         z: value[i].z,
                         r: value[i].r,
                         intensity: value[i].intensity,
+                        color: new THREE.Color(),
                     };
                 }
             } else {
@@ -261,8 +262,15 @@ Scene3D.prototype = Object.create(null, {
             var position = geometry.getAttribute('position');
             var positionCount = position.array.length / position.itemSize;
 
-            var intensityColor = new THREE.Color();
             var currentColor = new THREE.Color();
+
+            if (mapping) {
+                for (var i = 0; i < spots.length; i++) {
+                    if (!isNaN(spots[i].intensity)) {
+                        this._colorMap.map(spots[i].color, spots[i].intensity);
+                    }
+                }
+            }
 
             if (!geometry.getAttribute('color')) {
                 geometry.addAttribute('color', new THREE.BufferAttribute(
@@ -274,12 +282,10 @@ Scene3D.prototype = Object.create(null, {
                 var index = mapping ? mapping.closestSpotIndeces[i] : -1;
                 currentColor.set(this._color);
                 if (index >= 0 && !isNaN(spots[index].intensity)) {
-                    this._colorMap.map(
-                            intensityColor, spots[index].intensity);
                     var alpha = 1.0 - (1.0 - this._spotBorder) *
                             mapping.closestSpotDistances[i];
                     alpha = alpha;
-                    currentColor.lerp(intensityColor, alpha);
+                    currentColor.lerp(spots[index].color, alpha);
                 }
 
                 color[i * 3] = currentColor.r;
