@@ -88,7 +88,10 @@ ViewGroup3D.prototype = Object.create(null, {
     },
 
     export: {
-        value: function(canvas, pixelRatio) {
+        value: function(canvas) {
+            var pixelRatio = 1.0;
+            canvas.width = this._div.clientWidth;
+            canvas.height = this._div.clientHeight;
             var renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 canvas: canvas,

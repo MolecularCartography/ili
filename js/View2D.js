@@ -71,6 +71,28 @@ View2D.prototype = Object.create(null, {
         }
     },
 
+    export: {
+        value: function(canvas) {
+            return new Promise(function(accept, reject) {
+
+                canvas.width = this._scene.width;
+                canvas.height = this._scene.height;
+
+                this._scene.exportImage(canvas).then(function() {
+                    this._scene.exportSpots(canvas).then(accept).catch(reject);
+                }.bind(this)).catch(reject);
+            }.bind(this));
+
+            function loadImage(image, src) {
+                return new Promise(function(accept, reject) {
+                    image.onload = accept;
+                    image.onerror = reject;
+                    image.src = src;
+                });
+            }
+        }
+    },
+
     _onSceneChange: {
         value: function() {
             this._reposition();

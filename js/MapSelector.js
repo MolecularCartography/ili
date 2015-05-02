@@ -165,7 +165,7 @@ MapSelector.prototype = Object.create(null, {
         value: function(value) {
             this._selectedIndex = value;
             if (value >= 0) {
-                this._model.selectMeasure(value);
+                this._model.selectMap(value);
                 this._mapName.textContent = this._measures[value].name;
             } else {
                 this._mapName.textContent = '';

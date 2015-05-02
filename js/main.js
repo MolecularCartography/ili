@@ -38,8 +38,11 @@ var KEYBOARD_SHORTCUTS = {
         g_mapSelector.activate();
     },
     'U+0053': function() { // Ctrl + S
-        var blob = g_views.export();
-        if (blob) saveAs(blob, 'export');
+        var name = g_model.mapName;
+        if (!name) return;
+        g_views.export().then(function(blob) {
+            saveAs(blob, name);
+        });
     },
     'Up': function() {
         g_mapSelector.blink();

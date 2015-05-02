@@ -194,6 +194,67 @@ Scene2D.prototype = Object.create(null, {
         }
     },
 
+    exportImage: {
+        value: function(canvas) {
+            return new Promise(function(accept, reject) {
+                if (!this._imageURL) {
+                    reject();
+                    return;
+                }
+                var image = new Image();
+                image.width = this.width;
+                image.height = this.height;
+                image.onload = function() {
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0);
+                    accept();
+                };
+                image.onerror = function(event) {
+                    console.log('Failed to load SVG', event);
+                    reject();
+                }
+                image.src = this._imageURL;
+            }.bind(this));
+        }
+    },
+
+    exportSpots: {
+        value: function(canvas) {
+            return new Promise(function(accept, reject) {
+                if (!this.width || !this.height) {
+                    reject();
+                    return;
+                }
+
+                var SVGNS = 'http://www.w3.org/2000/svg';
+                var svgElement = document.createElementNS(SVGNS, 'svg');
+                this._buildContent(svgElement);
+                svgElement.removeChild(svgElement.querySelector('image'));
+                var source =
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="' +
+                        this.width + '" height="' + this.height + '">' +
+                        svgElement.innerHTML +
+                        '</svg>';
+                var blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
+                var image = new Image();
+                image.width = this.width;
+                image.height = this.height;
+                image.onload = function() {
+                    var ctx = canvas.getContext('2d');
+                    ctx.drawImage(image, 0, 0);
+                    URL.revokeObjectURL(image.src);
+                    accept();
+                };
+                image.onerror = function(event) {
+                    URL.revokeObjectURL(image.src);
+                    console.log('Failed to load SVG', event);
+                    reject();
+                }
+                image.src = URL.createObjectURL(blob);
+            }.bind(this));
+        }
+    },
+
     _updateSpots: {
         value: function() {
             this._forContentElement(function(contentElement) {

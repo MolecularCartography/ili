@@ -167,12 +167,18 @@ Model.prototype = Object.create(null, {
     /*
      * @param {index} Index in the this.measures list.
      */
-    selectMeasure: {
+    selectMap: {
         value: function(index) {
             if (!this._measures) return;
 
             this._activeMeasure = this._measures[index];
             this._updateIntensities();
+        }
+    },
+
+    mapName: {
+        get: function() {
+            return this._activeMeasure ? this._activeMeasure.name : '';
         }
     },
 
