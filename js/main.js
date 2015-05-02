@@ -110,6 +110,11 @@ function initGUI() {
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_model, 'scaleId', {'Linear': Model.Scale.LINEAR.id, 'Logarithmic': Model.Scale.LOG.id}).name('Scale');
     fMapping.add(g_model, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
+    var colorMaps = Object.keys(ColorMap.Maps).reduce(function(m, k) {
+        m[ColorMap.Maps[k].name] = k;
+        return m;
+    }, {});
+    fMapping.add(g_model, 'colorMapId', colorMaps).name('Color map');
 
     g_model.addEventListener('mode-change', function() {
         f2d.closed = (g_model.mode != Model.Mode.MODE_2D);

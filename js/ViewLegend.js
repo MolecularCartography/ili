@@ -3,7 +3,8 @@
 function ViewLegend(model, svg) {
     this._model = model;
     this._svg = svg;
-    this.updateColorMap();
+    this._model.addEventListener('mapping-change', this.update.bind(this));
+    this.update();
 }
 
 ViewLegend.prototype = Object.create(null, {
@@ -15,7 +16,7 @@ ViewLegend.prototype = Object.create(null, {
         value: function() {}
     },
 
-    updateColorMap: {
+    update: {
         value: function() {
             var description = this._model.colorMap.gradient;
             var stops = [];

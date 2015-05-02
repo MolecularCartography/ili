@@ -13,7 +13,7 @@ Scene2D.prototype = Object.create(null, {
     view: {
         set: function(value) {
             this._views = [value];
-            this._buildContent(value);
+            this._buildContent(value.contentElement);
         }
     },
 
@@ -45,8 +45,7 @@ Scene2D.prototype = Object.create(null, {
             this._height = height;
 
             for (var i = 0; i < this._views.length; i++) {
-                this._views[i].contentElement.textContent = '';
-                this._buildContent(this._views[i].contentElement);
+                this._updateImage(this._views[i].contentElement.querySelector('image'));
                 this._views[i].adjustOffset();
             }
         }
@@ -58,15 +57,19 @@ Scene2D.prototype = Object.create(null, {
         }
     },
 
-    _buildContent: {
-        value: function(contentElement) {
-            if (!this._imageURL) return null;
-            var document = contentElement.ownerDocument;
-            var SVGNS = 'http://www.w3.org/2000/svg';
-            var imageElement = document.createElementNS(SVGNS, 'image');
-            imageElement.href.baseVal = this._imageURL;
+    _updateImage: {
+        value: function(imageElement) {
+            imageElement.href.baseVal = this._imageURL || '';
             imageElement.width.baseVal.value = this._width;
             imageElement.height.baseVal.value = this._height;
+        }
+    },
+
+    _buildContent: {
+        value: function(contentElement) {
+            var SVGNS = 'http://www.w3.org/2000/svg';
+            var imageElement = document.createElementNS(SVGNS, 'image');
+            this._updateImage(imageElement);
             contentElement.appendChild(imageElement);
 
             var defsElement = document.createElementNS(SVGNS, 'defs');
@@ -99,7 +102,7 @@ Scene2D.prototype = Object.create(null, {
             if (value < 0.0) value = 0.0;
             if (value > 1.0) value = 1.0;
             this._spotBorder = value;
-            this._updateSpots();
+            if (this._spots) this._updateSpots();
         }
     },
 
@@ -121,9 +124,9 @@ Scene2D.prototype = Object.create(null, {
                 });
             } else {
                 this._spots = null;
+                return;
             }
 
-            if (!this.hasImage) return;
             for (var i = 0; i < this._views.length; i++) {
                 var c = this._views[i].contentElement;
                 var spotsGroupElement = c.querySelector('#spots');
@@ -158,9 +161,7 @@ Scene2D.prototype = Object.create(null, {
 
         set: function(value) {
             this._colorMap = value;
-            if (this.hasImage) {
-
-            }
+            if (this._spots) this._updateSpots();
         }
     },
 

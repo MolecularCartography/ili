@@ -4,11 +4,7 @@
  * Main application model. It works in 3 modes:
  * 1. UNDEFINED. In may have measures but with no visual representation.
  * 2. MODE_2D. It has image. Spots are mapped on this image using X and Y
- *    coordinates (Z ignored). It can buildSVG which represents the image and
- *    the spots (must be rebuild on '2d-scene-change'). If ony spots colors
- *    changed then the '2d-scene-needs-recoloring' event fires and previously
- *    built SVG could be updated via recolorSVG (faster than rebuilding SVG
- *    from the ground).
+ *    coordinates (Z ignored).
  * 3. MODE_3D. It has a THREE.js scene with a mesh, light souces ets.
  *
  * Model tracks changes in measures, images and meshes and fires appropriates
@@ -25,8 +21,7 @@ function Model() {
     this._listeners = {
         'status-change': [],
         'mode-change': [],
-        '2d-scene-change': [],
-        '2d-scene-needs-recoloring': [],
+        'mapping-change': [],
         'intensities-change': [],
     };
     this._mode = Model.Mode.UNDEFINED;
@@ -34,7 +29,7 @@ function Model() {
     this._mapping = null;
     this._measures = null;
     this._activeMeasure = null;
-    this._colorMap = new JetColorMap();
+    this._colorMap = ColorMap.Maps.JET;
     this._scale = Model.Scale.LOG;
     this._hotspotQuantile = 0.995;
     this._spotBorder = 0.05;
@@ -315,10 +310,16 @@ Model.prototype = Object.create(null, {
             if (this._mode == value) return;
             this._mode = value;
 
+            if (this._mode == Model.Mode.MODE_2D) {
+                this._scene2d.spots = this._spots;
+            }
             if (this._mode != Model.Mode.MODE_2D) {
                 this._scene2d.resetImage();
                 this._scene2d.spots = null;
                 this._cancelTask(Model.TaskType.LOAD_IMAGE);
+            }
+            if (this._mode == Model.Mode.MODE_3D) {
+                this._scene3d.spots = this._spots;
             }
             if (this._mode != Model.Mode.MODE_3D) {
                 this._scene3d.geometry = null;
@@ -397,6 +398,24 @@ Model.prototype = Object.create(null, {
     colorMap: {
         get: function() {
             return this._colorMap;
+        }
+    },
+
+    colorMapId: {
+        get: function() {
+            for (var i in ColorMap.Maps) {
+                if (this._colorMap === ColorMap.Maps[i]) return i;
+            }
+
+        },
+
+        set: function(value) {
+            if (value in ColorMap.Maps) {
+                this._colorMap = ColorMap.Maps[value];
+                this._scene2d.colorMap = this._colorMap;
+                this._scene3d.colorMap = this._colorMap;
+                this._notifyChange('mapping-change');
+            }
         }
     }
 });
