@@ -4,7 +4,7 @@
 'use strict';
 
 // High level object. Could be easily accessed from Web Inspector.
-var g_model;
+var g_workspace;
 var g_views;
 var g_gui;
 var g_mapSelector;
@@ -13,13 +13,13 @@ var g_mapSelector;
  * On load initialization.
  */
 function init() {
-    g_model = new Model();
-    g_views = new ViewContainer(g_model, $('#view-container')[0]);
-    g_mapSelector = new MapSelector(g_model, $('#map-selector')[0], $('#current-map-name')[0]);
+    g_workspace = new Workspace();
+    g_views = new ViewContainer(g_workspace, $('#view-container')[0]);
+    g_mapSelector = new MapSelector(g_workspace, $('#map-selector')[0], $('#current-map-name')[0]);
 
     initGUI();
 
-    g_model.addEventListener('status-change', onModelStatusChange);
+    g_workspace.addEventListener('status-change', onWorkspaceStatusChange);
 
     document.addEventListener('keydown', onKeyDown, false);
 
@@ -38,7 +38,7 @@ var KEYBOARD_SHORTCUTS = {
         g_mapSelector.activate();
     },
     'U+0053': function() { // Ctrl + S
-        var name = g_model.mapName;
+        var name = g_workspace.mapName;
         if (!name) return;
         g_views.export().then(function(blob) {
             saveAs(blob, name);
@@ -69,9 +69,9 @@ function onKeyDown(event) {
     }
 }
 
-function onModelStatusChange() {
-    if (g_model.status) {
-        $('#status').text(g_model.status);
+function onWorkspaceStatusChange() {
+    if (g_workspace.status) {
+        $('#status').text(g_workspace.status);
         $('#status').prop('hidden', false);
     } else {
         $('#status').prop('hidden', true);
@@ -86,15 +86,15 @@ function initGUI() {
 
 
     var f2d = g_gui.addFolder('2D');
-    f2d.add(g_model.scene2d, 'fontSize', {
+    f2d.add(g_workspace.scene2d, 'fontSize', {
         'None': 0,
         'Very small': 2,
         'Small': 6,
         'Medium': 11,
         'Big': 16,
     }).name('Font size');
-    f2d.addColor(g_model.scene2d, 'fontColor').name('Font color');
-    f2d.add(g_model.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+    f2d.addColor(g_workspace.scene2d, 'fontColor').name('Font color');
+    f2d.add(g_workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var f3d = g_gui.addFolder('3D');
     f3d.add(g_views.g3d, 'layout', {
@@ -103,25 +103,25 @@ function initGUI() {
         'Triple view': ViewGroup3D.Layout.TRIPLE,
         'Quadriple view': ViewGroup3D.Layout.QUADRIPLE,
     }).name('Layout');
-    f3d.addColor(g_model.scene3d, 'color').name('Color');
-    f3d.addColor(g_model.scene3d, 'backgroundColor').name('Background');
-    f3d.add(g_model.scene3d, 'lightIntensity1', 0, 1).name('Light 1');
-    f3d.add(g_model.scene3d, 'lightIntensity2', 0, 1).name('Light 2');
-    f3d.add(g_model.scene3d, 'lightIntensity3', 0, 1).name('Light 3');
-    f3d.add(g_model.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+    f3d.addColor(g_workspace.scene3d, 'color').name('Color');
+    f3d.addColor(g_workspace.scene3d, 'backgroundColor').name('Background');
+    f3d.add(g_workspace.scene3d, 'lightIntensity1', 0, 1).name('Light 1');
+    f3d.add(g_workspace.scene3d, 'lightIntensity2', 0, 1).name('Light 2');
+    f3d.add(g_workspace.scene3d, 'lightIntensity3', 0, 1).name('Light 3');
+    f3d.add(g_workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var fMapping = g_gui.addFolder('Mapping');
-    fMapping.add(g_model, 'scaleId', {'Linear': Model.Scale.LINEAR.id, 'Logarithmic': Model.Scale.LOG.id}).name('Scale');
-    fMapping.add(g_model, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
+    fMapping.add(g_workspace, 'scaleId', {'Linear': Workspace.Scale.LINEAR.id, 'Logarithmic': Workspace.Scale.LOG.id}).name('Scale');
+    fMapping.add(g_workspace, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
     var colorMaps = Object.keys(ColorMap.Maps).reduce(function(m, k) {
         m[ColorMap.Maps[k].name] = k;
         return m;
     }, {});
-    fMapping.add(g_model, 'colorMapId', colorMaps).name('Color map');
+    fMapping.add(g_workspace, 'colorMapId', colorMaps).name('Color map');
 
-    g_model.addEventListener('mode-change', function() {
-        f2d.closed = (g_model.mode != Model.Mode.MODE_2D);
-        f3d.closed = (g_model.mode != Model.Mode.MODE_3D);
+    g_workspace.addEventListener('mode-change', function() {
+        f2d.closed = (g_workspace.mode != Workspace.Mode.MODE_2D);
+        f3d.closed = (g_workspace.mode != Workspace.Mode.MODE_3D);
     });
 }
 
@@ -171,11 +171,11 @@ function findFileHandlers(files) {
         var file = files[i];
 
         if ((/\.png$/i.test(file.name))) {
-            result.push(g_model.loadImage.bind(g_model, file));
+            result.push(g_workspace.loadImage.bind(g_workspace, file));
         } else if (/\.stl$/i.test(file.name)) {
-            result.push(g_model.loadMesh.bind(g_model, file));
+            result.push(g_workspace.loadMesh.bind(g_workspace, file));
         } else if (/\.csv$/i.test(file.name)) {
-            result.push(g_model.loadIntensities.bind(g_model, file));
+            result.push(g_workspace.loadIntensities.bind(g_workspace, file));
         }
     }
     return result;

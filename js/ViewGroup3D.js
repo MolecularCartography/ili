@@ -1,13 +1,13 @@
 'use strict';
 
 /**
- * Group of View3D's. Manages shared objects: model, renderer, canvas.
+ * Group of View3D's. Manages shared objects: workspace, renderer, canvas.
  *
- * @param {Model} scene
+ * @param {Workspace} workspace
  * @param {HTMLDivElement} div Container element with a canvas and
  *                             several .View3D elements.
  */
-function ViewGroup3D(model, div) {
+function ViewGroup3D(workspace, div) {
     this._div = div;
     this._canvas = div.querySelector('canvas');
     this._renderer = new THREE.WebGLRenderer({
@@ -19,7 +19,7 @@ function ViewGroup3D(model, div) {
     this._pixelRatio = 1;
     this._views = [];
 
-    this._scene = model.scene3d;
+    this._scene = workspace.scene3d;
     this._scene.addEventListener('change', this._onSceneChange.bind(this));
 
     var divs = this._div.querySelectorAll('.View3d');

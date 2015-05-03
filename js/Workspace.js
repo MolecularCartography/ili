@@ -1,14 +1,14 @@
 'use strict';
 
 /**
- * Main application model. It works in 3 modes:
+ * Main application workspace. It works in 3 modes:
  * 1. UNDEFINED. In may have measures but with no visual representation.
  * 2. MODE_2D. It has image. Spots are mapped on this image using X and Y
  *    coordinates (Z ignored).
  * 3. MODE_3D. It has a THREE.js scene with a mesh, light souces ets.
  *
- * Model tracks changes in measures, images and meshes and fires appropriates
- * events to allow updates. Model may have multiple views (2D and 3D view
+ * Workspace tracks changes in measures, images and meshes and fires appropriates
+ * events to allow updates. Workspace may have multiple views (2D and 3D view
  * shouldn't be mixed). Different 3D view for instance may show the same scene
  * from different perspectives.
  *
@@ -17,20 +17,20 @@
  *
  * 'measures'/'intensities-change' lets to update the map-list.
  */
-function Model() {
+function Workspace() {
     this._listeners = {
         'status-change': [],
         'mode-change': [],
         'mapping-change': [],
         'intensities-change': [],
     };
-    this._mode = Model.Mode.UNDEFINED;
+    this._mode = Workspace.Mode.UNDEFINED;
     this._spots = null;
     this._mapping = null;
     this._measures = null;
     this._activeMeasure = null;
     this._colorMap = ColorMap.Maps.JET;
-    this._scale = Model.Scale.LOG;
+    this._scale = Workspace.Scale.LOG;
     this._hotspotQuantile = 0.995;
     this._spotBorder = 0.05;
     this._scene3d = new Scene3D();
@@ -42,13 +42,13 @@ function Model() {
     this._tasks = {};
 }
 
-Model.Mode = {
+Workspace.Mode = {
     UNDEFINED: 1,
     MODE_2D: 2,
     MODE_3D: 3,
 };
 
-Model.Scale = {
+Workspace.Scale = {
     LOG: {
         id: 'log',
         function: Math.log,
@@ -62,9 +62,9 @@ Model.Scale = {
     }
 };
 
-Model.getScaleById = function(id) {
-    for (var i in Model.Scale) {
-        if (Model.Scale[i].id == id) return Model.Scale[i];
+Workspace.getScaleById = function(id) {
+    for (var i in Workspace.Scale) {
+        if (Workspace.Scale[i].id == id) return Workspace.Scale[i];
     }
     throw 'Invalid scale id: ' + id;
 };
@@ -75,10 +75,10 @@ Model.getScaleById = function(id) {
  * 'worker' is name of JS file in 'js/workers' or constructor of a Worker-like
  * class.
  */
-Model.TaskType = {
+Workspace.TaskType = {
     LOAD_IMAGE: {
         key: 'load-image',
-        worker: null // Model.ImageLoader
+        worker: null // Workspace.ImageLoader
     },
 
     LOAD_MESH: {
@@ -97,7 +97,7 @@ Model.TaskType = {
     },
 };
 
-Model.prototype = Object.create(null, {
+Workspace.prototype = Object.create(null, {
     addEventListener: {
         value: function(eventName, listener) {
             this._listeners[eventName].push(listener);
@@ -105,14 +105,14 @@ Model.prototype = Object.create(null, {
     },
 
     /**
-     * Switches the model to MODE_2D and starts image loading.
+     * Switches the workspace to MODE_2D and starts image loading.
      */
     loadImage: {
         value: function(file) {
-            this.mode = Model.Mode.MODE_2D;
+            this.mode = Workspace.Mode.MODE_2D;
 
             this._scene2d.resetImage();
-            this._doTask(Model.TaskType.LOAD_IMAGE, file).
+            this._doTask(Workspace.TaskType.LOAD_IMAGE, file).
                     then(function(result) {
                 this._scene2d.setImage(result.url, result.width, result.height);
             }.bind(this));
@@ -120,14 +120,14 @@ Model.prototype = Object.create(null, {
     },
 
     /**
-     * Switches the model to MODE_3D and starts mesh loading.
+     * Switches the workspace to MODE_3D and starts mesh loading.
      */
     loadMesh: {
         value: function(file) {
-            this.mode = Model.Mode.MODE_3D;
+            this.mode = Workspace.Mode.MODE_3D;
 
             this.mesh = null;
-            this._doTask(Model.TaskType.LOAD_MESH, file).then(function(result) {
+            this._doTask(Workspace.TaskType.LOAD_MESH, file).then(function(result) {
                 var geometry = new THREE.BufferGeometry();
                 for (var name in event.data.attributes) {
                     var attribute = event.data.attributes[name];
@@ -148,15 +148,15 @@ Model.prototype = Object.create(null, {
      */
     loadIntensities: {
         value: function(file) {
-            this._doTask(Model.TaskType.LOAD_MEASURES, file).
+            this._doTask(Workspace.TaskType.LOAD_MEASURES, file).
                     then(function(result) {
                 this._spots = result.spots;
                 this._measures = result.measures;
                 this._activeMeasure = null;
-                if (this._mode == Model.Mode.MODE_3D) {
+                if (this._mode == Workspace.Mode.MODE_3D) {
                     this._scene3d.spots = this._spots;
                     this._mapMesh();
-                } else if (this._mode == Model.Mode.MODE_2D) {
+                } else if (this._mode == Workspace.Mode.MODE_2D) {
                     this._scene2d.spots = this._spots;
                 }
                 this._notifyChange('intensities-change');
@@ -193,7 +193,7 @@ Model.prototype = Object.create(null, {
                         'original-position').array,
                 spots: this._spots
             };
-            this._doTask(Model.TaskType.MAP, args).then(function(results) {
+            this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
                 this._scene3d.mapping = {
                         closestSpotIndeces: event.data.closestSpotIndeces,
                         closestSpotDistances: event.data.closestSpotDistances
@@ -214,7 +214,7 @@ Model.prototype = Object.create(null, {
     /**
      * Starts a new task (cancels an old one it it's running).
      *
-     * @param {Model.TaskType} taskType Task to run.
+     * @param {Workspace.TaskType} taskType Task to run.
      * @param {Object} args Arguments to post to the task's worker.
      * @return {Promise}
      **/
@@ -316,21 +316,21 @@ Model.prototype = Object.create(null, {
             if (this._mode == value) return;
             this._mode = value;
 
-            if (this._mode == Model.Mode.MODE_2D) {
+            if (this._mode == Workspace.Mode.MODE_2D) {
                 this._scene2d.spots = this._spots;
             }
-            if (this._mode != Model.Mode.MODE_2D) {
+            if (this._mode != Workspace.Mode.MODE_2D) {
                 this._scene2d.resetImage();
                 this._scene2d.spots = null;
-                this._cancelTask(Model.TaskType.LOAD_IMAGE);
+                this._cancelTask(Workspace.TaskType.LOAD_IMAGE);
             }
-            if (this._mode == Model.Mode.MODE_3D) {
+            if (this._mode == Workspace.Mode.MODE_3D) {
                 this._scene3d.spots = this._spots;
             }
-            if (this._mode != Model.Mode.MODE_3D) {
+            if (this._mode != Workspace.Mode.MODE_3D) {
                 this._scene3d.geometry = null;
                 this._scene3d.spots = null;
-                this._cancelTask(Model.TaskType.LOAD_MESH);
+                this._cancelTask(Workspace.TaskType.LOAD_MESH);
             }
 
             this._notifyChange('mode-change');
@@ -396,7 +396,7 @@ Model.prototype = Object.create(null, {
 
         set: function(value) {
             if (this._scale.id == value) return;
-            this._scale = Model.getScaleById(value);
+            this._scale = Workspace.getScaleById(value);
             this._updateIntensities();
         }
     },
@@ -430,7 +430,7 @@ Model.prototype = Object.create(null, {
  * Worker-like object what loads an image and calculate it sizes
  * (can't be a worker because uses Image).
  */
-Model.ImageLoader = function() {
+Workspace.ImageLoader = function() {
     this.onmessage = null;
     this._reader = new FileReader();
     this._reader.onload = this._onFileLoad.bind(this);
@@ -441,9 +441,9 @@ Model.ImageLoader = function() {
     this._fileType = null;
 };
 
-Model.TaskType.LOAD_IMAGE.worker = Model.ImageLoader;
+Workspace.TaskType.LOAD_IMAGE.worker = Workspace.ImageLoader;
 
-Model.ImageLoader.prototype = {
+Workspace.ImageLoader.prototype = {
     terminate: function() {
         this._terminated = true;
         this._reader.abort();

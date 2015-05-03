@@ -3,12 +3,12 @@
  * (measurement). Text input lets type filter for map name. Item list (.items)
  * shows only items that contain the filter's substring (and highlights it).
  *
- * @param {Model} model.
+ * @param {Workspace} workspace.
  * @param {HTMLDivElement} div Main HTML element (#map-selector).
  * @mapName {HTMLElement|SGVElement} mapName Element to show current map name.
  */
-function MapSelector(model, div, mapName) {
-    this._model = model;
+function MapSelector(workspace, div, mapName) {
+    this._workspace = workspace;
     this._div = div;
     this._mapName = mapName;
     this._input = this._div.querySelector('input');
@@ -19,25 +19,27 @@ function MapSelector(model, div, mapName) {
     this._selectedIndex = -1;
     this._div.style.opacity = 0;
     this._active = false;
-    this._model.addEventListener('intensities-change', this._onModelIntencitiesChange.bind(this));
+    this._workspace.addEventListener(
+            'intensities-change', this._onWorkspaceIntencitiesChange.bind(this));
     this._input.addEventListener('input', this._onInput.bind(this));
     this._input.addEventListener('blur', this._onBlur.bind(this));
     this._input.addEventListener('keydown', this._onKeyDown.bind(this), false);
-    this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
+    this._itemsContainer.addEventListener(
+            'mousedown', this._onItemMouseDown.bind(this), false);
     this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
-    this._onModelIntencitiesChange();
+    this._onWorkspaceIntencitiesChange();
 }
 
 MapSelector.prototype = Object.create(null, {
-    _onModelIntencitiesChange: {
+    _onWorkspaceIntencitiesChange: {
         value: function() {
-            if (!this._model.measures) {
+            if (!this._workspace.measures) {
                 this._measures = [];
                 return;
             }
             var escape = this._escapeHTML.bind(this);
 
-            this._measures = this._model.measures.map(function(x) {
+            this._measures = this._workspace.measures.map(function(x) {
                 var e = escape(x.name);
                 return {
                     name: x.name,
@@ -165,7 +167,7 @@ MapSelector.prototype = Object.create(null, {
         value: function(value) {
             this._selectedIndex = value;
             if (value >= 0) {
-                this._model.selectMap(value);
+                this._workspace.selectMap(value);
                 this._mapName.textContent = this._measures[value].name;
             } else {
                 this._mapName.textContent = '';

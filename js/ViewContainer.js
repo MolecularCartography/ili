@@ -1,18 +1,18 @@
 'use strict';
 
-function ViewContainer(model, div) {
-    this._model = model;
+function ViewContainer(workspace, div) {
+    this._workspace = workspace;
     this._div = div;
 
     this.v2d = this._createView(View2D, 'svg.View2D');
     this.g3d = this._createView(ViewGroup3D, 'div.ViewGroup3D');
     this.legend = this._createView(ViewLegend, 'svg.ViewLegend');
 
-    this._model.addEventListener(
-            'mode-change', this._onModelModeChange.bind(this));
+    this._workspace.addEventListener(
+            'mode-change', this._onWorkspaceModeChange.bind(this));
     window.addEventListener('resize', this.updateLayout.bind(this));
 
-    this._onModelModeChange();
+    this._onWorkspaceModeChange();
     this.updateLayout();
 }
 
@@ -36,7 +36,7 @@ ViewContainer.prototype = Object.create(null, {
     _createView: {
         value: function(constructor, selector) {
             var view = new constructor(
-                    this._model, this._div.querySelector(selector));
+                    this._workspace, this._div.querySelector(selector));
             this.all.push(view);
             return view;
         }
@@ -44,14 +44,14 @@ ViewContainer.prototype = Object.create(null, {
 
     layoutName: {
         get: function() {
-            switch (this._model.mode) {
-                case Model.Mode.UNDEFINED:
+            switch (this._workspace.mode) {
+                case Workspace.Mode.UNDEFINED:
                     return 'welcome';
 
-                case Model.Mode.MODE_2D:
+                case Workspace.Mode.MODE_2D:
                     return 'mode-2d';
 
-                case Model.Mode.MODE_3D:
+                case Workspace.Mode.MODE_3D:
                     return 'mode-3d';
             }
         }
@@ -61,7 +61,7 @@ ViewContainer.prototype = Object.create(null, {
         value: function() {
             return new Promise(function(accept, reject) {
                 var canvas = document.createElement('canvas');
-                if (this._model.mode == Model.Mode.MODE_3D) {
+                if (this._workspace.mode == Workspace.Mode.MODE_3D) {
                     var pixelRatio = 1.0;
                     var width = this._div.clientWidth * pixelRatio;
                     var height = this._div.clientHeight * pixelRatio;
@@ -82,9 +82,9 @@ ViewContainer.prototype = Object.create(null, {
                     }.bind(this);
                     image.onerror = reject;
                     image.src = canvas.toDataURL();
-                } else if (this._model.mode == Model.Mode.MODE_2D) {
-                    canvas.width = this._model.scene2d.width;
-                    canvas.height = this._model.scene2d.width;
+                } else if (this._workspace.mode == Workspace.Mode.MODE_2D) {
+                    canvas.width = this._workspace.scene2d.width;
+                    canvas.height = this._workspace.scene2d.width;
                     this.v2d.export(canvas).then(function() {
                         this.legend.export(canvas, 1 / this.v2d.scale).then(makeBlob.bind(this, canvas)).catch(reject);
                     }.bind(this)).catch(reject);
@@ -108,7 +108,7 @@ ViewContainer.prototype = Object.create(null, {
         }
     },
 
-    _onModelModeChange: {
+    _onWorkspaceModeChange: {
         value: function() {
             this._div.setAttribute('layout', this.layoutName);
             this.updateLayout();

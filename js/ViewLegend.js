@@ -1,9 +1,9 @@
 'use strict';
 
-function ViewLegend(model, svg) {
-    this._model = model;
+function ViewLegend(workspace, svg) {
+    this._workspace = workspace;
     this._svg = svg;
-    this._model.addEventListener('mapping-change', this.update.bind(this));
+    this._workspace.addEventListener('mapping-change', this.update.bind(this));
     this.update();
 }
 
@@ -18,7 +18,7 @@ ViewLegend.prototype = Object.create(null, {
 
     update: {
         value: function() {
-            var description = this._model.colorMap.gradient;
+            var description = this._workspace.colorMap.gradient;
             var stops = [];
             for (var i in description) {
                 stops.push('<stop offset="' + i + '" style="stop-color:' +

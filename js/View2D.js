@@ -1,6 +1,6 @@
 'use strict';
 
-function View2D(model, svg) {
+function View2D(workspace, svg) {
     this._svg = svg;
     this._svg.innerHTML = '<g id="contentElement" />';
     this._width = 0;
@@ -8,7 +8,7 @@ function View2D(model, svg) {
     this._scale = 1.0;
     this._mouseAction = null;
     this._offset = {x: 0, y: 0};
-    this._scene = model.scene2d;
+    this._scene = workspace.scene2d;
 
     this._scene.view = this;
 
