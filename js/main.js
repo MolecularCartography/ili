@@ -55,10 +55,10 @@ var KEYBOARD_SHORTCUTS = {
 };
 
 function onKeyDown(event) {
-    if ((/^Mac/i).test(navigator.platform) && (event.ctrlKey || event.altKey || !event.metaKey)) {
-        return;
-    } else if (!event.ctrlKey || event.altKey || event.metaKey) {
-        return;
+    if ((/^Mac/i).test(navigator.platform)) {
+        if (event.ctrlKey || event.altKey || !event.metaKey) return;
+    } else {
+        if (!event.ctrlKey || event.altKey || event.metaKey) return;
     }
 
     if (event.keyIdentifier in KEYBOARD_SHORTCUTS) {
