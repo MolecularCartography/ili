@@ -32,6 +32,12 @@ View2D.prototype = Object.create(null, {
         }
     },
 
+    scale: {
+        get: function() {
+            return this._scale;
+        }
+    },
+
     finishUpdateLayout: {
         value: function() {
             this.adjustOffset();

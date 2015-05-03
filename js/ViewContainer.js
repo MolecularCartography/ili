@@ -62,16 +62,38 @@ ViewContainer.prototype = Object.create(null, {
             return new Promise(function(accept, reject) {
                 var canvas = document.createElement('canvas');
                 if (this._model.mode == Model.Mode.MODE_3D) {
-                    this.g3d.export(canvas);
-                    makeBlob();
+                    var pixelRatio = 1.0;
+                    var width = this._div.clientWidth * pixelRatio;
+                    var height = this._div.clientHeight * pixelRatio;
+                    canvas.width = width;
+                    canvas.height = height;
+                    this.g3d.export(canvas, pixelRatio);
+                    var image = new Image();
+                    image.width = width;
+                    image.height = height;
+                    image.onload = function() {
+                        // Canvas has 3D content. We cant have 2D context for it. So cerate another canvas.
+                        var canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        var ctx = canvas.getContext('2d');
+                        ctx.drawImage(image, 0, 0);
+                        this.legend.export(canvas, pixelRatio).then(makeBlob.bind(this, canvas)).catch(reject);
+                    }.bind(this);
+                    image.onerror = reject;
+                    image.src = canvas.toDataURL();
                 } else if (this._model.mode == Model.Mode.MODE_2D) {
-                    this.v2d.export(canvas).then(makeBlob);
+                    canvas.width = this._model.scene2d.width;
+                    canvas.height = this._model.scene2d.width;
+                    this.v2d.export(canvas).then(function() {
+                        this.legend.export(canvas, 1 / this.v2d.scale).then(makeBlob.bind(this, canvas)).catch(reject);
+                    }.bind(this)).catch(reject);
                 } else {
                     reject();
                     return;
                 }
 
-                function makeBlob() {
+                function makeBlob(canvas) {
                     var data = canvas.toDataURL();
                     var byteString = atob(data.split(',')[1]);
                     var mimeString = data.split(',')[0].split(':')[1].split(';')[0]
