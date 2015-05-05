@@ -497,6 +497,7 @@ Workspace.ImageLoader = function() {
     this.onmessage = null;
     this._reader = new FileReader();
     this._reader.onload = this._onFileLoad.bind(this);
+    this._reader.onerror = this._onError.bind(this);
     this._image = new Image();
     this._image.onload = this._onImageLoad.bind(this);
     this._image.onerror = this._onError.bind(this);
@@ -523,7 +524,7 @@ Workspace.ImageLoader.prototype = {
     },
 
     _send: function(message) {
-        if (!this._terminated || this.onmessage)
+        if (!this._terminated && this.onmessage)
             this.onmessage({data: message});
     },
 
@@ -542,7 +543,6 @@ Workspace.ImageLoader.prototype = {
                 width: this._image.width,
                 height: this._image.height
         });
-        this._image.src = '';
     },
 
     _onError: function(event) {
