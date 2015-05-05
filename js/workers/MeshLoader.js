@@ -7,15 +7,23 @@ importScripts('../lib/three.min.js', '../lib/STLLoader.js');
 onmessage = function(e) {
     var blob = e.data;
     var reader = new FileReader();
-    reader.addEventListener('load', function(event) {
-        // TODO: handle errors.
+    reader.onload = function(event) {
         readContents(event.target.result);
-    });
+    };
+    reader.onerror = console.error.bind(console);
     reader.readAsArrayBuffer(blob);
 };
 
-function readContents(contents, fileName) {
-    var geometry = new THREE.STLLoader().parse(contents);
+function readContents(contents) {
+    try {
+        var geometry = new THREE.STLLoader().parse(contents);
+    } catch (e) {
+        console.info('Failure parsing STL file', e);
+        postMessage({
+                status: 'failed',
+                message: 'Can not parse STL file. See log for details.',
+        });
+    }
     geometry.addAttribute('original-position', cloneBufferAttribute(geometry.getAttribute('position')));
     geometry.center();
 
@@ -31,7 +39,7 @@ function readContents(contents, fileName) {
     postMessage({
             status: 'completed',
             attributes: attributes,
-        });
+    });
 }
 
 function cloneBufferAttribute(origin) {

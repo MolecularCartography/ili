@@ -114,3 +114,7 @@ body[drop-target] > #drop-target-informer {
     align-items: center;
     margin: 20px;
 }
+
+dialog#errors > ul {
+    color: red;
+}

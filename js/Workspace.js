@@ -23,8 +23,10 @@ function Workspace() {
         'mode-change': [],
         'mapping-change': [],
         'intensities-change': [],
+        'errors-change': [],
     };
     this._mode = Workspace.Mode.UNDEFINED;
+    this._errors = [];
     this._spots = null;
     this._mapping = null;
     this._measures = null;
@@ -192,7 +194,7 @@ Workspace.prototype = Object.create(null, {
                             if (/\.stl$/i.test(fileName)) {
                                 this.loadMesh(blob);
                             } else {
-                                consol.error('Unrecognized file type: ' + fileName +
+                                console.info('Unrecognized file type: ' + fileName +
                                              ' (' + blob.type + ')');
                             }
                         }
@@ -217,6 +219,26 @@ Workspace.prototype = Object.create(null, {
     mapName: {
         get: function() {
             return this._activeMeasure ? this._activeMeasure.name : '';
+        }
+    },
+
+    errors: {
+        get: function() {
+            return this._errors;
+        }
+    },
+
+    clearErrors: {
+        value: function() {
+            this._errors = [];
+            this._notifyChange('errors-change');
+        }
+    },
+
+    _addError: {
+        value: function(message) {
+            this._errors.push(message);
+            this._notifyChange('errors-change');
         }
     },
 
@@ -270,6 +292,7 @@ Workspace.prototype = Object.create(null, {
             };
             this._tasks[taskType.key] = task;
             var setStatus = this._setStatus.bind(this);
+            var addError = this._addError.bind(this);
 
             task.worker.postMessage(args);
             return new Promise(function(resolve, reject) {
@@ -285,15 +308,16 @@ Workspace.prototype = Object.create(null, {
                         reject(event.data);
                         task.cancel();
                         setStatus('');
-                        alert('Operation failed: ' + event.data.message);
+                        addError('Operation failed: ' + event.data.message);
                     } else if (event.data.status == 'working') {
                         setStatus(event.data.message);
                     }
                 };
                 task.worker.onerror = function(event) {
-                    alert('Operation failed. See log for details.');
-                };
-            });
+                    setStatus('');
+                    addError('Operation failed. See log for details.');
+                }.bind(this);
+            }.bind(this));
         }
     },
 
@@ -475,6 +499,7 @@ Workspace.ImageLoader = function() {
     this._reader.onload = this._onFileLoad.bind(this);
     this._image = new Image();
     this._image.onload = this._onImageLoad.bind(this);
+    this._image.onerror = this._onError.bind(this);
     this._terminated = false;
     this._url = null;
     this._fileType = null;
@@ -518,5 +543,13 @@ Workspace.ImageLoader.prototype = {
                 height: this._image.height
         });
         this._image.src = '';
+    },
+
+    _onError: function(event) {
+        console.info('Failure loading image', event);
+        this._send({
+                status: 'failed',
+                message: 'Can not read image. See log for details.',
+        });
     },
 };

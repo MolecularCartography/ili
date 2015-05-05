@@ -20,12 +20,14 @@ function init() {
     initGUI();
 
     g_workspace.addEventListener('status-change', onWorkspaceStatusChange);
+    g_workspace.addEventListener('errors-change', onWorkspaceErrorsChange);
 
     document.addEventListener('keydown', onKeyDown, false);
 
     $('#open-button').click(chooseFilesToOpen);
     $('#current-map-label').click(function() {g_mapSelector.activate();});
     $('#view-container').mousedown(function(event) {g_mapSelector.deactivate();});
+    $('dialog#errors #close').click(clearErrors);
 
     for (var e in DragAndDrop) {
         document.addEventListener(e, DragAndDrop[e], true);
@@ -89,6 +91,28 @@ function onWorkspaceStatusChange() {
     } else {
         $('#status').prop('hidden', true);
     }
+}
+
+function onWorkspaceErrorsChange() {
+    var dialog = document.querySelector('dialog#errors');
+    var list = dialog.querySelector('ul');
+    list.textContent = '';
+    g_workspace.errors.forEach(function(error) {
+        var item = document.createElement('li');
+        item.textContent = error;
+        list.appendChild(item);
+    });
+    if (g_workspace.errors.length == 0) {
+        dialog.close();
+        dialog.hidden = true;
+    } else {
+        dialog.hidden = false;
+        if (!dialog.open) dialog.showModal();
+    }
+}
+
+function clearErrors() {
+    g_workspace.clearErrors();
 }
 
 /*
