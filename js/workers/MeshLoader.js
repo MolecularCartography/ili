@@ -5,13 +5,13 @@
 importScripts('../lib/three.min.js', '../lib/STLLoader.js');
 
 onmessage = function(e) {
-    var file = e.data;
+    var blob = e.data;
     var reader = new FileReader();
     reader.addEventListener('load', function(event) {
         // TODO: handle errors.
         readContents(event.target.result);
     });
-    reader.readAsArrayBuffer(e.data);
+    reader.readAsArrayBuffer(blob);
 };
 
 function readContents(contents, fileName) {

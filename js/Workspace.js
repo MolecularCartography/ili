@@ -76,6 +76,11 @@ Workspace.getScaleById = function(id) {
  * class.
  */
 Workspace.TaskType = {
+    DOWNLOAD: {
+        key: 'download',
+        worker: 'Downloader.js'
+    },
+
     LOAD_IMAGE: {
         key: 'load-image',
         worker: null // Workspace.ImageLoader
@@ -108,11 +113,11 @@ Workspace.prototype = Object.create(null, {
      * Switches the workspace to MODE_2D and starts image loading.
      */
     loadImage: {
-        value: function(file) {
+        value: function(blob) {
             this.mode = Workspace.Mode.MODE_2D;
 
             this._scene2d.resetImage();
-            this._doTask(Workspace.TaskType.LOAD_IMAGE, file).
+            this._doTask(Workspace.TaskType.LOAD_IMAGE, blob).
                     then(function(result) {
                 this._scene2d.setImage(result.url, result.width, result.height);
             }.bind(this));
@@ -123,11 +128,11 @@ Workspace.prototype = Object.create(null, {
      * Switches the workspace to MODE_3D and starts mesh loading.
      */
     loadMesh: {
-        value: function(file) {
+        value: function(blob) {
             this.mode = Workspace.Mode.MODE_3D;
 
             this.mesh = null;
-            this._doTask(Workspace.TaskType.LOAD_MESH, file).then(function(result) {
+            this._doTask(Workspace.TaskType.LOAD_MESH, blob).then(function(result) {
                 var geometry = new THREE.BufferGeometry();
                 for (var name in event.data.attributes) {
                     var attribute = event.data.attributes[name];
@@ -147,8 +152,8 @@ Workspace.prototype = Object.create(null, {
      * Starts loading intensities file.
      */
     loadIntensities: {
-        value: function(file) {
-            this._doTask(Workspace.TaskType.LOAD_MEASURES, file).
+        value: function(blob) {
+            this._doTask(Workspace.TaskType.LOAD_MEASURES, blob).
                     then(function(result) {
                 this._spots = result.spots;
                 this._measures = result.measures;
@@ -160,6 +165,39 @@ Workspace.prototype = Object.create(null, {
                     this._scene2d.spots = this._spots;
                 }
                 this._notifyChange('intensities-change');
+            }.bind(this));
+        }
+    },
+
+    download: {
+        value: function(urls) {
+            if (!urls || !urls.length) return;
+
+            this._doTask(Workspace.TaskType.DOWNLOAD, urls).
+                    then(function(result) {
+                for (var i = 0; i < result.items.length; i++) {
+                    var blob = result.items[i].blob;
+                    switch (blob.type) {
+                        case 'text/csv':
+                            this.loadIntensities(blob);
+                            break;
+
+                        case 'image/jpeg':
+                        case 'image/png':
+                            this.loadImage(blob);
+                            break;
+
+                        default: {
+                            var fileName = result.items[i].fileName;
+                            if (/\.stl$/i.test(fileName)) {
+                                this.loadMesh(blob);
+                            } else {
+                                consol.error('Unrecognized file type: ' + fileName +
+                                             ' (' + blob.type + ')');
+                            }
+                        }
+                    }
+                }
             }.bind(this));
         }
     },
@@ -246,7 +284,8 @@ Workspace.prototype = Object.create(null, {
                     } else if (event.data.status == 'failed') {
                         reject(event.data);
                         task.cancel();
-                        alert('Operation failed: ' + event.message);
+                        setStatus('');
+                        alert('Operation failed: ' + event.data.message);
                     } else if (event.data.status == 'working') {
                         setStatus(event.data.message);
                     }
@@ -453,9 +492,9 @@ Workspace.ImageLoader.prototype = {
         }
     },
 
-    postMessage: function(file) {
-        this._fileType = file.type;
-        this._reader.readAsArrayBuffer(file);
+    postMessage: function(blob) {
+        this._fileType = blob.type;
+        this._reader.readAsArrayBuffer(blob);
     },
 
     _send: function(message) {

@@ -30,6 +30,19 @@ function init() {
     for (var e in DragAndDrop) {
         document.addEventListener(e, DragAndDrop[e], true);
     }
+
+    if (window.location.search) {
+        var files = window.location.search.substr(1).split(';');
+        var filtered = [];
+        for (var i = 0; i < files.length; i++) {
+            // Require file name to start with \w (word letter or digit)
+            // to prevent XSS.
+            if (/^\w[\w\.-]*$/.test(files[i])) {
+                filtered.push(files[i]);
+            }
+        }
+        g_workspace.download(filtered);
+    }
 }
 
 var KEYBOARD_SHORTCUTS = {

@@ -18,8 +18,8 @@
 importScripts('../lib/papaparse.min.js');
 
 onmessage = function(e) {
-    var file = e.data;
-    Papa.parse(file, new Handler());
+    var blob = e.data;
+    Papa.parse(blob, new Handler());
 };
 
 function Handler() {
