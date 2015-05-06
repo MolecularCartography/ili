@@ -9,7 +9,7 @@
 
 Hello bee
 ------------
-For the first demo, open in Google Chrome [the bee example](http://ili-toolbox.github.io/?bee.stl;bee.full.csv).
+For the first demo, open in Google Chrome [the bee example](http://ili-toolbox.github.io/?bee.stl;bee.full.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD).
 
 Installation
 ------------
