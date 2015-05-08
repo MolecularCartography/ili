@@ -172,10 +172,13 @@ Workspace.prototype = Object.create(null, {
     },
 
     download: {
-        value: function(urls) {
-            if (!urls || !urls.length) return;
+        value: function(fileNames) {
+            if (!fileNames) return;
 
-            this._doTask(Workspace.TaskType.DOWNLOAD, urls).
+            fileNames = fileNames.filter(function(name) { return name != ''; });
+            if (!fileNames.length) return;
+
+            this._doTask(Workspace.TaskType.DOWNLOAD, fileNames).
                     then(function(result) {
                 for (var i = 0; i < result.items.length; i++) {
                     var blob = result.items[i].blob;

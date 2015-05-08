@@ -16,7 +16,7 @@ function View2D(workspace, svg) {
     this._svg.addEventListener('mousedown', this._onMouseDown.bind(this));
 }
 
-View2D.SCALE_CHANGE = 1.2;
+View2D.SCALE_CHANGE = 1.1;
 
 View2D.prototype = Object.create(null, {
     prepareUpdateLayout: {

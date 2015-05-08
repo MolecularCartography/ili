@@ -4,11 +4,18 @@ onmessage = function(e) {
     var fileNames = e.data;
     var downloader = new Downloader();
 
-    for (var i = 0; i < fileNames.length; i++) {
-        downloader.add(fileNames[i]);
-    }
+    try {
+        for (var i = 0; i < fileNames.length; i++) {
+            downloader.add(fileNames[i]);
+        }
 
-    downloader.start();
+        downloader.start();
+    } catch (e) {
+        postMessage({
+            status: 'failed',
+            message: e.toString(),
+        });
+    }
 };
 
 function Downloader() {
@@ -16,6 +23,8 @@ function Downloader() {
     this.completed = 0;
     this.failed = false;
 }
+
+Downloader.DATA_PATH = '../../data';
 
 Downloader.prototype = {
     add: function(fileName) {
@@ -51,11 +60,11 @@ Downloader.prototype = {
         if (this.failed) return;
         this.failed = true;
 
-		console.info('Error loading ' + item.fileName + ': ' + item.request.statusText, event);
-		this.items.forEach(function(item) { item.request.abort(); });
+        console.info('Error loading ' + item.fileName + ': ' + item.request.statusText, event);
+        this.items.forEach(function(item) { item.request.abort(); });
 
-		postMessage({
-		    status: 'failed',
+        postMessage({
+            status: 'failed',
             message: 'Can not download ' + item.fileName + '. See log for details.',
         });
     },
@@ -89,9 +98,16 @@ Downloader.prototype = {
 };
 
 Downloader.Item = function(fileName) {
+    var path = Downloader.DATA_PATH.split('/');
+    fileName.split('/').forEach(function(chunk) {
+        if (!/^\w[\w\.-]*$/.test(chunk)) {
+            throw 'File "' + fileName + '" can\'t be downloaded';
+        }
+        path.push(chunk);
+    });
     this.fileName = fileName;
     this.request = new XMLHttpRequest();
-    this.request.open('GET', '../../demo/' + fileName, true);
+    this.request.open('GET', path.join('/'), true);
     this.request.responseType = 'blob';
     this.total = NaN;
     this.loaded = 0;
