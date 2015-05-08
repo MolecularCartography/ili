@@ -20,6 +20,10 @@ function Scene3D() {
 
     this._spotBorder = 0.05;
     this._colorMap = null;
+    this._rotation = new THREE.Euler();
+    this._rotation.onChange(this._onRotationChange.bind(this));
+    this._autoRotation = 0.0;
+    this._animationFrameStart = undefined;
 
     this._spots = null;
     this._mapping = null;
@@ -142,6 +146,23 @@ Scene3D.prototype = Object.create(null, {
                 this._recolor();
                 this._notifyChange();
             }
+        }
+    },
+
+    rotation: {
+        get: function() {
+            return this._rotation;
+        },
+    },
+
+    autoRotation: {
+        get: function() {
+            return this._autoRotation;
+        },
+
+        set: function(value) {
+            this._autoRotation = Math.round(value);
+            this._updateAnimation();
         }
     },
 
@@ -298,6 +319,36 @@ Scene3D.prototype = Object.create(null, {
             var endTime = new Date();
             console.log('Recoloring time: ' +
                     (endTime.valueOf() - startTime.valueOf()) / 1000);
+        }
+    },
+
+    _onRotationChange: {
+        value: function() {
+            if (this._mesh) {
+                this._mesh.rotation.x = this._rotation.x * Math.PI / 180;
+                this._mesh.rotation.y = this._rotation.y * Math.PI / 180;
+                this._mesh.rotation.z = this._rotation.z * Math.PI / 180;
+                this._mesh.updateMatrix();
+                this._notifyChange();
+            }
+        }
+    },
+
+    _updateAnimation: {
+        value: function() {
+            if (this._animationFrameStart !== undefined || this._autoRotation == 0.0) return;
+            this._animationFrameStart = performance.now();
+            requestAnimationFrame(this._onAnimationFrame.bind(this));
+        }
+    },
+
+    _onAnimationFrame: {
+        value: function() {
+            var delta = performance.now() - this._animationFrameStart;
+            this._animationFrameStart = undefined;
+            this._updateAnimation();
+
+            this.rotation.y += this._autoRotation * delta / 100;
         }
     },
 
