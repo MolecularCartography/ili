@@ -8,6 +8,8 @@ function ViewContainer(workspace, div) {
     this.g3d = this._createView(ViewGroup3D, 'div.ViewGroup3D');
     this.legend = this._createView(ViewLegend, 'svg.ViewLegend');
 
+    this._exportPixelRatio3d = 1.0;
+
     this._workspace.addEventListener(
             'mode-change', this._onWorkspaceModeChange.bind(this));
     window.addEventListener('resize', this.updateLayout.bind(this));
@@ -62,7 +64,7 @@ ViewContainer.prototype = Object.create(null, {
             return new Promise(function(accept, reject) {
                 var canvas = document.createElement('canvas');
                 if (this._workspace.mode == Workspace.Mode.MODE_3D) {
-                    var pixelRatio = 1.0;
+                    var pixelRatio = window.devicePixelRatio * this._exportPixelRatio3d;
                     var width = this._div.clientWidth * pixelRatio;
                     var height = this._div.clientHeight * pixelRatio;
                     canvas.width = width;
@@ -105,6 +107,19 @@ ViewContainer.prototype = Object.create(null, {
                     accept(new Blob([ab], {type: mimeString}));
                 }
             }.bind(this));
+        }
+    },
+
+    exportPixelRatio3d: {
+        get: function() {
+            return this._exportPixelRatio3d;
+        },
+
+        set: function(value) {
+            if (value <= 0.0 || value > 4.0) {
+                throw 'Invalud value range';
+            }
+            this._exportPixelRatio3d = value;
         }
     },
 

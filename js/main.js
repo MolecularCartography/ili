@@ -138,6 +138,7 @@ function initGUI() {
     f3d.add(g_workspace.scene3d, 'lightIntensity2', 0, 1).name('Light 2');
     f3d.add(g_workspace.scene3d, 'lightIntensity3', 0, 1).name('Light 3');
     f3d.add(g_workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+    f3d.add(g_views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
 
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_workspace, 'scaleId', {'Linear': Workspace.Scale.LINEAR.id, 'Logarithmic': Workspace.Scale.LOG.id}).name('Scale');
