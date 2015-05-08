@@ -33,8 +33,8 @@ function Workspace() {
     this._activeMeasure = null;
     this._colorMap = ColorMap.Maps.JET;
     this._scale = Workspace.Scale.LOG;
-    this._hotspotQuantile = 0.995;
-    this._spotBorder = 0.05;
+    this._hotspotQuantile = 0.95;
+    this._spotBorder = 0.0;
     this._scene3d = new Scene3D();
     this._scene2d = new Scene2D();
     this._scene3d.colorMap = this._colorMap;
