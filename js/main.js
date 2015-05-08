@@ -149,10 +149,28 @@ function initGUI() {
     }, {});
     fMapping.add(g_workspace, 'colorMapId', colorMaps).name('Color map');
 
+    var mapping = {
+        flag: fMapping.add(g_workspace, 'autoMinMax').name('Auto MinMax'),
+        min: fMapping.add(g_workspace, 'minValue').name('Min value'),
+        max: fMapping.add(g_workspace, 'maxValue').name('Max value')
+    };
+    g_workspace.addEventListener('auto-mapping-change', onAutoMappingChange.bind(null, mapping));
+    onAutoMappingChange(mapping);
+
     g_workspace.addEventListener('mode-change', function() {
         f2d.closed = (g_workspace.mode != Workspace.Mode.MODE_2D);
         f3d.closed = (g_workspace.mode != Workspace.Mode.MODE_3D);
     });
+}
+
+function onAutoMappingChange(mapping) {
+    var disabled = g_workspace.autoMinMax ? '' : null;
+    $(mapping.min.domElement).find('input').attr('disabled', disabled);
+    $(mapping.max.domElement).find('input').attr('disabled', disabled);
+    if (g_workspace.autoMinMax) {
+        mapping.min.updateDisplay();
+        mapping.max.updateDisplay();
+    }
 }
 
 /**

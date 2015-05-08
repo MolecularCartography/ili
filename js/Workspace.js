@@ -24,6 +24,7 @@ function Workspace() {
         'mapping-change': [],
         'intensities-change': [],
         'errors-change': [],
+        'auto-mapping-change': [],
     };
     this._mode = Workspace.Mode.UNDEFINED;
     this._errors = [];
@@ -35,6 +36,9 @@ function Workspace() {
     this._scale = Workspace.Scale.LOG;
     this._hotspotQuantile = 0.95;
     this._spotBorder = 0.0;
+    this._autoMinMax = true;
+    this._minValue = 0.0;
+    this._maxValue = 0.0;
     this._scene3d = new Scene3D();
     this._scene2d = new Scene2D();
     this._scene3d.colorMap = this._colorMap;
@@ -215,6 +219,7 @@ Workspace.prototype = Object.create(null, {
             if (!this._measures) return;
 
             this._activeMeasure = this._measures[index];
+            if (this._autoMinMax) this._updateMinMaxValues();
             this._updateIntensities();
         }
     },
@@ -222,6 +227,44 @@ Workspace.prototype = Object.create(null, {
     mapName: {
         get: function() {
             return this._activeMeasure ? this._activeMeasure.name : '';
+        }
+    },
+
+    autoMinMax: {
+        get: function() {
+            return this._autoMinMax;
+        },
+
+        set: function(value) {
+            this._autoMinMax = !!value;
+            if (this._autoMinMax) {
+                this._updateMinMaxValues() && this._updateIntensities();
+            }
+            this._notifyChange('auto-mapping-change');
+        }
+    },
+
+    minValue: {
+        get: function() {
+            return this._minValue.toString();
+        },
+
+        set: function(value) {
+            if (this._autoMinMax) return;
+            this._minValue = Number(value);
+            this._updateIntensities();
+        }
+    },
+
+    maxValue: {
+        get: function() {
+            return this._maxValue.toString();
+        },
+
+        set: function(value) {
+            if (this._autoMinMax) return;
+            this._maxValue = Number(value);
+            this._updateIntensities();
         }
     },
 
@@ -324,33 +367,51 @@ Workspace.prototype = Object.create(null, {
         }
     },
 
+    _updateMinMaxValues: {
+        value: function() {
+            var values =  this._activeMeasure ? this._activeMeasure.values : [];
+
+            var values = Array.prototype.filter.call(values, function(x) {
+                return x > -Infinity && x < Infinity;
+            }).sort(function(a, b) {
+                return a - b;
+            });
+
+            var minValue = values.length > 0 ? values[0] : 0.0;
+            var maxValue = values.length > 0 ?
+                    values[Math.ceil((values.length - 1) *
+                           this._hotspotQuantile)] :
+                    0.0;
+
+            if (this._minValue != minValue && this._maxValue != maxValue) {
+                this._minValue = minValue;
+                this._maxValue = maxValue;
+                this._notifyChange('auto-mapping-change');
+                return true;
+            } else {
+                return false;
+            }
+        }
+    },
+
     _updateIntensities: {
         value: function() {
-            if (!this._activeMeasure || !this._spots) return;
+            if (!this._spots) return;
 
-            function compareNumbers(a, b) {
-                return a - b;
-            }
+            var scaledMinValue = this._scale.function(this._minValue);
+            var scaledMaxValue = this._scale.function(this._maxValue);
 
-            // Apply the scale function.
-            var values = Array.prototype.slice.call(
-                    this._activeMeasure.values, 0, this._spots.length);
-            values = values.map(this._scale.function);
+            for (var i = 0; i < this._spots.length; i++) {
+                var scaledValue = this._activeMeasure &&
+                        this._scale.function(this._activeMeasure.values[i]);
+                var intensity = NaN;
 
-            // Make a copy without NaNs and inifinities. Sort it.
-            var sorted = values.filter(function(x) {
-                return x > -Infinity && x < Infinity;
-            }).sort(compareNumbers);
-            var min = sorted.length > 0 ? sorted[0] : NaN;
-            var max = sorted.length > 0 ?
-                    sorted[Math.ceil((sorted.length - 1) *
-                           this._hotspotQuantile)] :
-                    NaN;
-
-            for (var i = 0; i < values.length; i++) {
-                var v = values[i];
-                this._spots[i].intensity = isNaN(v) || v == -Infinity ?
-                        NaN : Math.min(1.0, (v - min) / (max - min));
+                if (scaledValue >= scaledMaxValue) {
+                    intensity = 1.0;
+                } else if (scaledValue >= scaledMinValue) {
+                    intensity = (scaledValue - scaledMinValue) / (scaledMaxValue - scaledMinValue);
+                }
+                this._spots[i].intensity = intensity;
             }
             this._scene3d.updateIntensities(this._spots);
             this._scene2d.updateIntensities(this._spots);
@@ -437,7 +498,9 @@ Workspace.prototype = Object.create(null, {
             if (value < 0.0) value = 0.0;
             if (value > 1.0) value = 1.0;
             this._hotspotQuantile = value;
-            this._updateIntensities();
+            if (this._autoMinMax) {
+                this._updateMinMaxValues() && this._updateIntensities();
+            }
         }
     },
 
