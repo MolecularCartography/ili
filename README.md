@@ -1,6 +1,6 @@
 `ili
 -----------
-`ili is a toolbox for molecular mapping in 2D and 3D in Chrome.
+`ili is a toolbox for 2D and 3D molecular mapping in Chrome.
 
 `ili is developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg.
 
