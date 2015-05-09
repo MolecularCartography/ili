@@ -18,13 +18,13 @@ There are 3 ways of running `ili: from this website, using an http server, or as
 Input
 ------------
 `ili takes two files: 
-* PNG and CSV for 2D mapping
-* STL and CSV for 3D mapping
+* PNG and CSV for 2D mapping (the format and examples to be added here soon)
+* STL and CSV for 3D mapping (the format and examples to be added here soon)
 
 How to use
 ------------
 `ili can be used for 
-* flipping through molecular maps (Ctrl/Cmd-up or -down)
+* showing molecular maps (Ctrl/Cmd-up or -down)
 * searching for a molecular map by the name substring by Ctrl-f
 * adjusting visualizaiton of a map including colors, scaling, hotspot removal using quantile thresholding
 * interactive visualization in 2D using mouse (zoom by wheeling, zoom into particular region by click-and-wheeling)
