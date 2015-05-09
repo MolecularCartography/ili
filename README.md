@@ -13,7 +13,7 @@ For a demonstration, open in Google Chrome [the bee example](http://ili-toolbox.
 
 Installation
 ------------
-There are 3 ways of running `ili: from this website, using an http server, or as a Chrome App.
+There are 3 ways of running `ili in Chrome: [from this website](http://ili-toolbox.github.io/), using your http server, or as a Chrome App.
 
 Input
 ------------
