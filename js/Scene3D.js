@@ -91,7 +91,7 @@ Scene3D.prototype = Object.create(null, {
         },
 
         set: function(value) {
-            return this._light3.intensity = value;
+            this._light3.intensity = value;
             this._notifyChange();
         }
     },
