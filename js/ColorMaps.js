@@ -71,15 +71,15 @@ ColorMap.Maps = {
             '#7F0000']),
 
     HOT: new ColorMap('Hot', [
-            '#ffffcc',
-            '#ffeda0',
-            '#fed976',
-            '#feb24c',
-            '#fd8d3c',
-            '#fc4e2a',
-            '#e31a1c',
+            '#800026',
             '#bd0026',
-            '#800026']),
+            '#e31a1c',
+            '#fc4e2a',
+            '#fd8d3c',
+            '#feb24c',
+            '#fed976',
+            '#ffeda0',
+            '#ffffcc']),
 
     RDBU: new ColorMap('RdBu', [
             '#b2182b',
