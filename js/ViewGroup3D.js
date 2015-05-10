@@ -18,9 +18,10 @@ function ViewGroup3D(workspace, div) {
     this._height = 0;
     this._pixelRatio = 1;
     this._views = [];
+    this._animationFrameRequested = false;
 
     this._scene = workspace.scene3d;
-    this._scene.addEventListener('change', this._onSceneChange.bind(this));
+    this._scene.addEventListener('change', this.requestAnimationFrame.bind(this));
 
     var divs = this._div.querySelectorAll('.View3d');
     for (var i = 0; i < divs.length; i++) {
@@ -29,9 +30,12 @@ function ViewGroup3D(workspace, div) {
 }
 
 ViewGroup3D.prototype = Object.create(null, {
-    redraw: {
+    requestAnimationFrame: {
         value: function() {
-            this._renderTo(this._renderer, this._scene);
+            if (this._animationFrameRequested) return;
+
+            requestAnimationFrame(this._onAnimationFrame.bind(this), this._canvas);
+            this._animationFrameRequested = true;
         }
     },
 
@@ -71,7 +75,7 @@ ViewGroup3D.prototype = Object.create(null, {
                 this._views[i].finishUpdateLayout();
             }
 
-            this.redraw();
+            this.requestAnimationFrame();
         }
     },
 
@@ -103,9 +107,13 @@ ViewGroup3D.prototype = Object.create(null, {
         }
     },
 
-    _onSceneChange: {
-        value: function() {
-            this.redraw();
+    _onAnimationFrame: {
+        value: function(now) {
+            this._animationFrameRequested = false;
+            for (var i = 0; i < this._views.length; i++) {
+                this._views[i].onAnimationFrame(now);
+            }
+            this._renderTo(this._renderer, this._scene);
         }
     },
 });

@@ -139,11 +139,10 @@ function initGUI() {
     f3d.add(g_workspace.scene3d, 'lightIntensity3', 0, 1).name('Light 3');
     f3d.add(g_workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
     f3d.add(g_views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
-    var rotation = f3d.addFolder('Rotation');
-    rotation.add(g_workspace.scene3d.rotation, 'x', -180.0, 180.0).name('X').step(1);
-    rotation.add(g_workspace.scene3d.rotation, 'y', -180.0, 180.0).name('Y').step(1);
-    rotation.add(g_workspace.scene3d.rotation, 'z', -180.0, 180.0).name('Z').step(1);
-    rotation.add(g_workspace.scene3d, 'autoRotation', -10, 10).name('Autorotation');
+    var rotation = f3d.addFolder('Adjustment');
+    rotation.add(g_workspace.scene3d.rotation, 'x', -180.0, 180.0).name('0X rotation').step(1);
+    rotation.add(g_workspace.scene3d.rotation, 'y', -180.0, 180.0).name('0Y rotation').step(1);
+    rotation.add(g_workspace.scene3d.rotation, 'z', -180.0, 180.0).name('0Z rotation').step(1);
 
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_workspace, 'scaleId', {'Linear': Workspace.Scale.LINEAR.id, 'Logarithmic': Workspace.Scale.LOG.id}).name('Scale');

@@ -22,7 +22,6 @@ function Scene3D() {
     this._colorMap = null;
     this._rotation = new THREE.Euler();
     this._rotation.onChange(this._onRotationChange.bind(this));
-    this._autoRotation = 0.0;
     this._animationFrameStart = undefined;
 
     this._spots = null;
@@ -153,17 +152,6 @@ Scene3D.prototype = Object.create(null, {
         get: function() {
             return this._rotation;
         },
-    },
-
-    autoRotation: {
-        get: function() {
-            return this._autoRotation;
-        },
-
-        set: function(value) {
-            this._autoRotation = Math.round(value);
-            this._updateAnimation();
-        }
     },
 
     spots: {
@@ -331,24 +319,6 @@ Scene3D.prototype = Object.create(null, {
                 this._mesh.updateMatrix();
                 this._notifyChange();
             }
-        }
-    },
-
-    _updateAnimation: {
-        value: function() {
-            if (this._animationFrameStart !== undefined || this._autoRotation == 0.0) return;
-            this._animationFrameStart = performance.now();
-            requestAnimationFrame(this._onAnimationFrame.bind(this));
-        }
-    },
-
-    _onAnimationFrame: {
-        value: function() {
-            var delta = performance.now() - this._animationFrameStart;
-            this._animationFrameStart = undefined;
-            this._updateAnimation();
-
-            this.rotation.y += this._autoRotation * delta / 100;
         }
     },
 

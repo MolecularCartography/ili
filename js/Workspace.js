@@ -253,6 +253,7 @@ Workspace.prototype = Object.create(null, {
             if (this._autoMinMax) return;
             this._minValue = Number(value);
             this._updateIntensities();
+            this._notifyChange('mapping-change');
         }
     },
 
@@ -265,6 +266,7 @@ Workspace.prototype = Object.create(null, {
             if (this._autoMinMax) return;
             this._maxValue = Number(value);
             this._updateIntensities();
+            this._notifyChange('mapping-change');
         }
     },
 
@@ -387,6 +389,7 @@ Workspace.prototype = Object.create(null, {
                 this._minValue = minValue;
                 this._maxValue = maxValue;
                 this._notifyChange('auto-mapping-change');
+                this._notifyChange('mapping-change');
                 return true;
             } else {
                 return false;

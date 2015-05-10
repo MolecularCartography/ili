@@ -26,6 +26,20 @@ ViewLegend.prototype = Object.create(null, {
             }
             this._svg.getElementById('colorMapGradient').innerHTML =
                     stops.join('');
+
+            var label = 'min: ' + format(this._workspace.minValue) + ', max: ' + format(this._workspace.minValue);
+            switch (this._workspace.scaleId) {
+                case Workspace.Scale.LINEAR.id:
+                    break;
+                case Workspace.Scale.LOG.id:
+                    label += ' (log)';
+                    break;
+            }
+            this._svg.getElementById('minmaxLabel').textContent = label;
+
+            function format(x) {
+                return Number(x).toPrecision(4);
+            }
         }
     },
 
@@ -58,5 +72,5 @@ ViewLegend.prototype = Object.create(null, {
                 image.src = URL.createObjectURL(blob);
             }.bind(this));
         }
-    }
+    },
 });
