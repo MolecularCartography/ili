@@ -8,6 +8,7 @@ function Scene3D() {
     this._light3 = new THREE.DirectionalLight(0xffffff, 1);
     this._light3.position.set(0, -1, 0);
     this._mesh = null;
+    this._meshContainer = new THREE.Object3D();
     this._color = new THREE.Color('#001eb2');
     this._backgroundColor = new THREE.Color('black');
     this._meshMaterial = new THREE.MeshLambertMaterial({
@@ -31,6 +32,7 @@ function Scene3D() {
     this._scene.add(this._light2);
     this._scene.add(this._light3);
     this._scene.add(new THREE.AxisHelper(20));
+    this._scene.add(this._meshContainer);
 };
 
 Scene3D.prototype = Object.create(null, {
@@ -222,11 +224,13 @@ Scene3D.prototype = Object.create(null, {
 
         set: function(geometry) {
             if (!this._mesh && !geometry) return;
-            if (this._mesh) this._scene.remove(this._mesh);
+            if (this._mesh) this._meshContainer.remove(this._meshContainer);
             this._mapping = null;
             if (geometry) {
+                geometry.computeBoundingBox();
                 this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
-                this._scene.add(this._mesh);
+                this._mesh.position.copy(geometry.boundingBox.center().negate());
+                this._meshContainer.add(this._mesh);
                 this._recolor();
             } else {
                 this._mesh = null;
@@ -336,10 +340,10 @@ Scene3D.prototype = Object.create(null, {
     _onRotationChange: {
         value: function() {
             if (this._mesh) {
-                this._mesh.rotation.x = this._rotation.x * Math.PI / 180;
-                this._mesh.rotation.y = this._rotation.y * Math.PI / 180;
-                this._mesh.rotation.z = this._rotation.z * Math.PI / 180;
-                this._mesh.updateMatrix();
+                this._meshContainer.rotation.x = this._rotation.x * Math.PI / 180;
+                this._meshContainer.rotation.y = this._rotation.y * Math.PI / 180;
+                this._meshContainer.rotation.z = this._rotation.z * Math.PI / 180;
+                this._meshContainer.updateMatrix();
                 this._notifyChange();
             }
         }

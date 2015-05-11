@@ -24,8 +24,6 @@ function readContents(contents) {
                 message: 'Can not parse STL file. See log for details.',
         });
     }
-    geometry.addAttribute('original-position', cloneBufferAttribute(geometry.getAttribute('position')));
-    geometry.center();
 
     // TODO: This only works with binary file format. Handle text format.
     var attributes = {};

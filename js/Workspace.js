@@ -297,8 +297,7 @@ Workspace.prototype = Object.create(null, {
         value: function() {
             if (!this._scene3d.geometry || !this._spots) return;
             var args = {
-                verteces: this._scene3d.geometry.getAttribute(
-                        'original-position').array,
+                verteces: this._scene3d.geometry.getAttribute('position').array,
                 spots: this._spots
             };
             this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
