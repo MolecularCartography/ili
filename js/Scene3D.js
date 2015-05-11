@@ -268,23 +268,42 @@ Scene3D.prototype = Object.create(null, {
     raycast: {
         value: function(raycaster) {
             if (!this._mesh || !this._spots || !this._mapping) return null;
-            var startTime = new Date();
+            var message = {
+                positions: this._mesh.geometry.attributes.position.array,
+                origin: new THREE.Vector3().copy(raycaster.ray.origin),
+                direction: new THREE.Vector3().copy(raycaster.ray.direction),
+                matrixWorld: new THREE.Matrix4().copy(this._mesh.matrixWorld),
+            };
+            var closestSpotIndeces = this._mapping.closestSpotIndeces;
+            var worker = new Worker('js/workers/Raycaster.js');
 
-            var intersect = [];
-            this._mesh.raycast(raycaster, intersect);
-            var endTime = new Date();
-            console.log('Raycast time: ' +
-                    (endTime.valueOf() - startTime.valueOf()) / 1000);
+            var promise = new Promise(function(accept, reject) {
+                worker.onmessage = function(event) {
+                    var face = event.data;
+                    var spotIndex = -1;
+                    for (var i in (face || {})) {
+                        if (closestSpotIndeces[face[i]] >= 0) {
+                            spotIndex = closestSpotIndeces[face[i]];
+                            break;
+                        }
+                    }
+                    console.log(spotIndex);
+                    accept(spotIndex);
+                };
+                worker.onerror = function(event) {
+                    console.log('Reycasting failed', event);
+                    reject();
+                };
+                worker.postMessage(message);
+            });
 
-            if (intersect.length == 0) return null;
-            var face = intersect[0].face;
-            var point = intersect[0].point;
-            var spot = this._spots[this._mapping.closestSpotIndeces[face.a]] ||
-                    this._spots[this._mapping.closestSpotIndeces[face.b]] ||
-                    this._spots[this._mapping.closestSpotIndeces[face.c]] ||
-                    null;
+            Object.defineProperty(promise, 'cancel', {
+                value: function() {
+                    worker.terminate();
+                }
+            });
 
-            return spot;
+            return promise;
         }
     },
 

@@ -23,6 +23,8 @@ function ViewGroup3D(workspace, div) {
     this._scene = workspace.scene3d;
     this._scene.addEventListener('change', this.requestAnimationFrame.bind(this));
 
+    this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
+
     var divs = this._div.querySelectorAll('.View3d');
     for (var i = 0; i < divs.length; i++) {
         this._views.push(new View3D(this, divs[i]));
@@ -57,6 +59,7 @@ ViewGroup3D.prototype = Object.create(null, {
     _raycast: {
         value: function(x, y) {
             var coords;
+            var camera;
             for (var i = 0; i < this._views.length; i++) {
                 var v = this._views[i];
                 var lx = x - v.left;
@@ -65,13 +68,14 @@ ViewGroup3D.prototype = Object.create(null, {
                 if (ly < 0 || ly >= v.height) continue;
 
                 // Mouse position in raycaster coordinate system ([-1, 1]).
-                var coords = new THREE.Vector2(x * 2 / v.width - 1, 1 - y * 2 / v.height);
+                var coords = new THREE.Vector2(lx * 2 / v.width - 1, 1 - ly * 2 / v.height);
+                var camera = v.camera;
                 break;
             }
             if (!coords) return null;
 
             var raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(coords, v.camera);
+            raycaster.setFromCamera(coords, camera);
             return this._scene.raycast(raycaster);
         }
     },
@@ -136,6 +140,14 @@ ViewGroup3D.prototype = Object.create(null, {
                 this._views[i].onAnimationFrame(now);
             }
             this._renderTo(this._renderer, this._scene);
+        }
+    },
+
+    _onMouseDown: {
+        value: function(event) {
+            var promise = this._raycast(event.pageX - this._div.offsetLeft,
+                                        event.pageY - this._div.offsetTop);
+
         }
     },
 });
