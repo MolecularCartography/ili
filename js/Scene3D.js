@@ -310,7 +310,7 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
-    spotToWord: {
+    spotToWorld: {
         value: function(spot) {
             if (!this._mesh) return null;
 

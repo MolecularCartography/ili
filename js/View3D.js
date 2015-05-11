@@ -45,6 +45,12 @@ View3D.prototype = Object.create(null, {
         }
     },
 
+    div: {
+        get: function() {
+            return this._div;
+        }
+    },
+
     finishUpdateLayout: {
         value: function() {
             this._camera.aspect = this.width / this.height;
@@ -79,6 +85,27 @@ View3D.prototype = Object.create(null, {
     height: {
         get: function() {
             return this._height;
+        }
+    },
+
+    setupRaycaster: {
+        value: function(raycaster, pageX, pageY) {
+            var x = pageX - this._left;
+            var y = pageY - this._top;
+            var coords = new THREE.Vector2(x * 2 / this._width - 1, 1 - y * 2 / this._height);
+            raycaster.setFromCamera(coords, this._camera);
+        }
+    },
+
+    projectPosition: {
+        value: function(position) {
+            var p = new THREE.Vector3().copy(position)
+            p.project(this._camera);
+
+            return {
+                x: this._width * (0.5 + p.x / 2),
+                y: this._height * (0.5 - p.y / 2),
+            };
         }
     },
 

@@ -57,6 +57,7 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
     top: 0;
     width: 50%;
     height: 50%;
+    overflow: hidden;
 }
 
 .ViewGroup3D[layout="double"] > #view-3d-2 {
