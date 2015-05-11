@@ -20,6 +20,8 @@ function ViewGroup3D(workspace, div) {
     this._views = [];
     this._animationFrameRequested = false;
 
+    this._hoverSpot = null;
+
     this._scene = workspace.scene3d;
     this._scene.addEventListener('change', this.requestAnimationFrame.bind(this));
 
@@ -29,6 +31,7 @@ function ViewGroup3D(workspace, div) {
     for (var i = 0; i < divs.length; i++) {
         this._views.push(new View3D(this, divs[i]));
     }
+    this._hoverSpot = new ViewGroup3D.HoverSpot(this, this._scene, this._div.querySelector('.HoverSpot'));
 }
 
 ViewGroup3D.prototype = Object.create(null, {
@@ -56,27 +59,24 @@ ViewGroup3D.prototype = Object.create(null, {
         }
     },
 
-    _raycast: {
-        value: function(x, y) {
-            var coords;
-            var camera;
+    pageToView: {
+        value: function(pageX, pageY) {
+            var x = this._div - pageX;
+            var y = this._div - pageY;
             for (var i = 0; i < this._views.length; i++) {
                 var v = this._views[i];
-                var lx = x - v.left;
+                var lx = pageX - v.left;
                 if (lx < 0 || lx >= v.width) continue;
-                var ly = y - v.top;
+                var ly = pageY - v.top;
                 if (ly < 0 || ly >= v.height) continue;
 
                 // Mouse position in raycaster coordinate system ([-1, 1]).
-                var coords = new THREE.Vector2(lx * 2 / v.width - 1, 1 - ly * 2 / v.height);
-                var camera = v.camera;
-                break;
+                return {
+                    coords: new THREE.Vector2(lx * 2 / v.width - 1, 1 - ly * 2 / v.height),
+                    view: v,
+                };
             }
-            if (!coords) return null;
-
-            var raycaster = new THREE.Raycaster();
-            raycaster.setFromCamera(coords, camera);
-            return this._scene.raycast(raycaster);
+            return null;
         }
     },
 
@@ -140,14 +140,13 @@ ViewGroup3D.prototype = Object.create(null, {
                 this._views[i].onAnimationFrame(now);
             }
             this._renderTo(this._renderer, this._scene);
+            this._hoverSpot.update();
         }
     },
 
     _onMouseDown: {
         value: function(event) {
-            var promise = this._raycast(event.pageX - this._div.offsetLeft,
-                                        event.pageY - this._div.offsetTop);
-
+            this._hoverSpot.set(this.pageToView(event.pageX, event.pageY));
         }
     },
 });
@@ -157,4 +156,52 @@ ViewGroup3D.Layout = {
     DOUBLE: 'double',
     TRIPLE: 'triple',
     QUADRIPLE: 'quadriple',
+};
+
+ViewGroup3D.HoverSpot = function(group, scene, div) {
+    this._group = group;
+    this._scene = scene;
+    this._raycastPromise = null;
+    this._view = null;
+    this._div = div;
+};
+
+ViewGroup3D.HoverSpot.prototype = {
+    set: function(point) {
+        this._spot = null;
+        this._group.requestAnimationFrame();
+
+        if (!point) {
+            this._view = null;
+            return;
+        }
+
+        this._view = point.view;
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(point.coords, point.view.camera);
+        if (this._raycastPromise) this._raycastPromise.cancel();
+        this._raycastPromise = this._scene.raycast(raycaster);
+        this._raycastPromise.then(this._onRaycastComplete.bind(this));
+    },
+
+    _onRaycastComplete: function(spot) {
+        this._spot = spot;
+        this._group.requestAnimationFrame();
+    },
+
+    update: function() {
+        var presents = this._spot && this._view;
+        var position = presents && this._scene.spotToWord(this._spot);
+        if (!position) presents = false;
+        this._div.hidden = !presents;
+        if (!presents) return;
+
+        this._div.textContent = this._spot.name;
+        position.project(this._view.camera);
+
+        var x = this._view.left + this._view.width * (0.5 + position.x / 2);
+        var y = this._view.top + this._view.height * (0.5 - position.y / 2);
+        this._div.style.left = x + 'px'
+        this._div.style.top = y + 'px'
+    },
 };

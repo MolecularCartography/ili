@@ -172,6 +172,7 @@ Scene3D.prototype = Object.create(null, {
                         r: value[i].r,
                         intensity: value[i].intensity,
                         color: new THREE.Color(),
+                        name: value[i].name,
                     };
                 }
             } else {
@@ -275,10 +276,12 @@ Scene3D.prototype = Object.create(null, {
                 matrixWorld: new THREE.Matrix4().copy(this._mesh.matrixWorld),
             };
             var closestSpotIndeces = this._mapping.closestSpotIndeces;
+            var spots = this._spots;
             var worker = new Worker('js/workers/Raycaster.js');
 
             var promise = new Promise(function(accept, reject) {
                 worker.onmessage = function(event) {
+                    worker.terminate();
                     var face = event.data;
                     var spotIndex = -1;
                     for (var i in (face || {})) {
@@ -287,11 +290,11 @@ Scene3D.prototype = Object.create(null, {
                             break;
                         }
                     }
-                    console.log(spotIndex);
-                    accept(spotIndex);
+                    accept(spots[spotIndex]);
                 };
                 worker.onerror = function(event) {
                     console.log('Reycasting failed', event);
+                    worker.terminate();
                     reject();
                 };
                 worker.postMessage(message);
@@ -304,6 +307,16 @@ Scene3D.prototype = Object.create(null, {
             });
 
             return promise;
+        }
+    },
+
+    spotToWord: {
+        value: function(spot) {
+            if (!this._mesh) return null;
+
+            var position = new THREE.Vector3(spot.x, spot.y, spot.z);
+            position.applyMatrix4(this._mesh.matrixWorld);
+            return position;
         }
     },
 

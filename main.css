@@ -118,3 +118,8 @@ body[drop-target] > #drop-target-informer {
 dialog#errors > ul {
     color: red;
 }
+
+.HoverSpot {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.2);
+}
