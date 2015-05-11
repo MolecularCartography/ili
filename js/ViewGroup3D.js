@@ -54,6 +54,28 @@ ViewGroup3D.prototype = Object.create(null, {
         }
     },
 
+    _raycast: {
+        value: function(x, y) {
+            var coords;
+            for (var i = 0; i < this._views.length; i++) {
+                var v = this._views[i];
+                var lx = x - v.left;
+                if (lx < 0 || lx >= v.width) continue;
+                var ly = y - v.top;
+                if (ly < 0 || ly >= v.height) continue;
+
+                // Mouse position in raycaster coordinate system ([-1, 1]).
+                var coords = new THREE.Vector2(x * 2 / v.width - 1, 1 - y * 2 / v.height);
+                break;
+            }
+            if (!coords) return null;
+
+            var raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(coords, v.camera);
+            return this._scene.raycast(raycaster);
+        }
+    },
+
     prepareUpdateLayout: {
         value: function() {
             this._width = this._div.clientWidth;
@@ -96,7 +118,7 @@ ViewGroup3D.prototype = Object.create(null, {
             var renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 canvas: canvas,
-                preserveDrawingBuffer: true
+                preserveDrawingBuffer: true,
             });
             renderer.setPixelRatio(pixelRatio);
             renderer.setSize(this._width, this._height);

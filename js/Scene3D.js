@@ -261,6 +261,29 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
+    raycast: {
+        value: function(raycaster) {
+            if (!this._mesh || !this._spots || !this._mapping) return null;
+            var startTime = new Date();
+
+            var intersect = [];
+            this._mesh.raycast(raycaster, intersect);
+            var endTime = new Date();
+            console.log('Raycast time: ' +
+                    (endTime.valueOf() - startTime.valueOf()) / 1000);
+
+            if (intersect.length == 0) return null;
+            var face = intersect[0].face;
+            var point = intersect[0].point;
+            var spot = this._spots[this._mapping.closestSpotIndeces[face.a]] ||
+                    this._spots[this._mapping.closestSpotIndeces[face.b]] ||
+                    this._spots[this._mapping.closestSpotIndeces[face.c]] ||
+                    null;
+
+            return spot;
+        }
+    },
+
     _recolor: {
         value: function() {
             var startTime = new Date();
