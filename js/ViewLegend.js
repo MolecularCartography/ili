@@ -27,11 +27,12 @@ ViewLegend.prototype = Object.create(null, {
             this._svg.getElementById('colorMapGradient').innerHTML =
                     stops.join('');
 
-            this._svg.getElementById('minLabel').textContent = format(this._workspace.minValue);
-            this._svg.getElementById('maxLabel').textContent = format(this._workspace.maxValue);
+            var workspace = this._workspace;
+            this._svg.getElementById('minLabel').textContent = format(workspace.minValue);
+            this._svg.getElementById('maxLabel').textContent = format(workspace.maxValue);
 
             function format(x) {
-                return Number(x).toPrecision(3);
+                return workspace.scale.function(Number(x)).toFixed(3);
             }
         }
     },

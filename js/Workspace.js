@@ -57,7 +57,7 @@ Workspace.Mode = {
 Workspace.Scale = {
     LOG: {
         id: 'log',
-        function: Math.log,
+        function: Math.log10,
         filter: function(x) { return x > 0.0 && x < Infinity; },
     },
 
@@ -517,6 +517,12 @@ Workspace.prototype = Object.create(null, {
             if (value > 1.0) value = 1.0;
             this._spotBorder = value;
             this._recolor();
+        }
+    },
+
+    scale: {
+        get: function() {
+            return this._scale;
         }
     },
 
