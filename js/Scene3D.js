@@ -225,7 +225,7 @@ Scene3D.prototype = Object.create(null, {
 
         set: function(geometry) {
             if (!this._mesh && !geometry) return;
-            if (this._mesh) this._meshContainer.remove(this._meshContainer);
+            if (this._mesh) this._meshContainer.remove(this._mesh);
             this._mapping = null;
             if (geometry) {
                 geometry.computeBoundingBox();
