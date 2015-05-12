@@ -59,6 +59,7 @@ Workspace.Scale = {
         id: 'log',
         function: Math.log10,
         filter: function(x) { return x > 0.0 && x < Infinity; },
+        legend: 'log',
     },
 
     LINEAR: {
@@ -67,6 +68,7 @@ Workspace.Scale = {
             return x;
         },
         filter: function(x) { return x > -Infinity && x < Infinity; },
+        legend: '',
     }
 };
 

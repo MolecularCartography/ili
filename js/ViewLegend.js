@@ -30,6 +30,7 @@ ViewLegend.prototype = Object.create(null, {
             var workspace = this._workspace;
             this._svg.getElementById('minLabel').textContent = format(workspace.minValue);
             this._svg.getElementById('maxLabel').textContent = format(workspace.maxValue);
+            this._svg.getElementById('scaleLabel').textContent = workspace.scale.legend;
 
             function format(x) {
                 return workspace.scale.function(Number(x)).toFixed(3);
