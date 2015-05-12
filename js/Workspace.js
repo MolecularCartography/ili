@@ -58,13 +58,15 @@ Workspace.Scale = {
     LOG: {
         id: 'log',
         function: Math.log,
+        filter: function(x) { return x > 0.0 && x < Infinity; },
     },
 
     LINEAR: {
         id: 'linear',
         function: function(x) {
             return x;
-        }
+        },
+        filter: function(x) { return x > -Infinity && x < Infinity; },
     }
 };
 
@@ -372,9 +374,7 @@ Workspace.prototype = Object.create(null, {
         value: function() {
             var values =  this._activeMeasure ? this._activeMeasure.values : [];
 
-            var values = Array.prototype.filter.call(values, function(x) {
-                return x > -Infinity && x < Infinity;
-            }).sort(function(a, b) {
+            var values = Array.prototype.filter.call(values, this._scale.filter).sort(function(a, b) {
                 return a - b;
             });
 
@@ -528,6 +528,7 @@ Workspace.prototype = Object.create(null, {
         set: function(value) {
             if (this._scale.id == value) return;
             this._scale = Workspace.getScaleById(value);
+            if (this._autoMinMax) this._updateMinMaxValues();
             this._updateIntensities();
         }
     },

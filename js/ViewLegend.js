@@ -31,7 +31,7 @@ ViewLegend.prototype = Object.create(null, {
             this._svg.getElementById('maxLabel').textContent = format(this._workspace.maxValue);
 
             function format(x) {
-                return Number(x).toPrecision(4);
+                return Number(x).toPrecision(3);
             }
         }
     },
