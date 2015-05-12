@@ -1545,7 +1545,7 @@ dat.GUI = dat.gui.GUI = (function (css, saveDialogueContents, styleSheet, contro
 
   var SUPPORTS_LOCAL_STORAGE = (function() {
     try {
-      return 'localStorage' in window && window['localStorage'] !== null;
+      return 'localStorage' in window && window['localStorage'] != null;
     } catch (e) {
       return false;
     }
