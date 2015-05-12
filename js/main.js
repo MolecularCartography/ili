@@ -15,7 +15,7 @@ var g_mapSelector;
 function init() {
     g_workspace = new Workspace();
     g_views = new ViewContainer(g_workspace, $('#view-container')[0]);
-    g_mapSelector = new MapSelector(g_workspace, $('#map-selector')[0], $('#current-map-name')[0]);
+    g_mapSelector = new MapSelector(g_workspace, $('#map-selector')[0], $('#current-map-label')[0]);
 
     initGUI();
 

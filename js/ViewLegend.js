@@ -27,15 +27,8 @@ ViewLegend.prototype = Object.create(null, {
             this._svg.getElementById('colorMapGradient').innerHTML =
                     stops.join('');
 
-            var label = 'min: ' + format(this._workspace.minValue) + ', max: ' + format(this._workspace.minValue);
-            switch (this._workspace.scaleId) {
-                case Workspace.Scale.LINEAR.id:
-                    break;
-                case Workspace.Scale.LOG.id:
-                    label += ' (log)';
-                    break;
-            }
-            this._svg.getElementById('minmaxLabel').textContent = label;
+            this._svg.getElementById('minLabel').textContent = format(this._workspace.minValue);
+            this._svg.getElementById('maxLabel').textContent = format(this._workspace.maxValue);
 
             function format(x) {
                 return Number(x).toPrecision(4);
