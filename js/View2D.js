@@ -1,8 +1,7 @@
 'use strict';
 
-function View2D(workspace, svg) {
-    this._svg = svg;
-    this._svg.innerHTML = '<g id="contentElement" />';
+function View2D(workspace, div) {
+    this._div = div;
     this._width = 0;
     this._height = 0;
     this._scale = 1.0;
@@ -12,8 +11,8 @@ function View2D(workspace, svg) {
 
     this._scene.view = this;
 
-    this._svg.addEventListener('mousewheel', this._onMouseWheel.bind(this));
-    this._svg.addEventListener('mousedown', this._onMouseDown.bind(this));
+    this._div.addEventListener('mousewheel', this._onMouseWheel.bind(this));
+    this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 }
 
 View2D.SCALE_CHANGE = 1.1;
@@ -21,14 +20,14 @@ View2D.SCALE_CHANGE = 1.1;
 View2D.prototype = Object.create(null, {
     prepareUpdateLayout: {
         value: function() {
-            this._width = this._svg.clientWidth;
-            this._height = this._svg.clientHeight;
+            this._width = this._div.clientWidth;
+            this._height = this._div.clientHeight;
         }
     },
 
     contentElement: {
         get: function() {
-            return this._svg.querySelector('#contentElement');
+            return this._div.querySelector('svg#contentElement');
         }
     },
 
@@ -111,17 +110,17 @@ View2D.prototype = Object.create(null, {
                     this._offset.x;
             var y = (this._height - this._scene.height * this._scale) / 2 +
                     this._offset.y;
-            this.contentElement.setAttribute('transform',
-                    'translate(' + x + ', ' + y + ') scale(' + this._scale +
-                            ')');
+            var style = this.contentElement.style;
+            style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + this._scale + ')';
+            style.transformOrigin = '0 0';
         }
     },
 
     screenToImage: {
         value: function(point) {
             var local = {
-                    x: point.x - this._svg.offsetLeft - this._svg.clientLeft,
-                    y: point.y - this._svg.offsetTop - this._svg.clientTop
+                    x: point.x - this._div.offsetLeft - this._div.clientLeft,
+                    y: point.y - this._div.offsetTop - this._div.clientTop
             };
 
             return {
@@ -140,10 +139,10 @@ View2D.prototype = Object.create(null, {
             this._scale *= scaleChange;
 
             var local = {
-                    x: screenPoint.x - this._svg.offsetLeft -
-                            this._svg.clientLeft,
-                    y: screenPoint.y - this._svg.offsetTop -
-                            this._svg.clientTop
+                    x: screenPoint.x - this._div.offsetLeft -
+                            this._div.clientLeft,
+                    y: screenPoint.y - this._div.offsetTop -
+                            this._div.clientTop
             };
 
             var image = this._scene.imageSize;

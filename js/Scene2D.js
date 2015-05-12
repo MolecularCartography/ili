@@ -43,7 +43,8 @@ Scene2D.prototype = Object.create(null, {
             this._height = height;
 
             for (var i = 0; i < this._views.length; i++) {
-                this._updateImage(this._views[i].contentElement.querySelector('image'));
+                var contentElement = this._views[i].contentElement;
+                this._updateImage(contentElement, contentElement.querySelector('image'));
                 this._views[i].adjustOffset();
             }
         }
@@ -56,10 +57,12 @@ Scene2D.prototype = Object.create(null, {
     },
 
     _updateImage: {
-        value: function(imageElement) {
+        value: function(contentElement, imageElement) {
             imageElement.href.baseVal = this._imageURL || '';
             imageElement.width.baseVal.value = this._width;
             imageElement.height.baseVal.value = this._height;
+            contentElement.setAttribute('width', this._width);
+            contentElement.setAttribute('height', this._height);
         }
     },
 
@@ -67,7 +70,7 @@ Scene2D.prototype = Object.create(null, {
         value: function(contentElement) {
             var SVGNS = 'http://www.w3.org/2000/svg';
             var imageElement = document.createElementNS(SVGNS, 'image');
-            this._updateImage(imageElement);
+            this._updateImage(contentElement, imageElement);
             contentElement.appendChild(imageElement);
 
             var defsElement = document.createElementNS(SVGNS, 'defs');

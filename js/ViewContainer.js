@@ -4,7 +4,7 @@ function ViewContainer(workspace, div) {
     this._workspace = workspace;
     this._div = div;
 
-    this.v2d = this._createView(View2D, 'svg.View2D');
+    this.v2d = this._createView(View2D, 'div.View2D');
     this.g3d = this._createView(ViewGroup3D, 'div.ViewGroup3D');
     this.legend = this._createView(ViewLegend, 'svg.ViewLegend');
 

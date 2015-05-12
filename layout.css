@@ -25,6 +25,12 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
 
 #view-container[layout='mode-2d'] > .View2D {
     display: block;
+    overflow: hidden;
+    position: relative;
+}
+
+.View2D > #contentElement {
+    position: absolute;
 }
 
 #view-container[layout='mode-3d'] > .ViewGroup3D {
