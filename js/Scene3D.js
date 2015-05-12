@@ -9,7 +9,7 @@ function Scene3D() {
     this._light3.position.set(0, -1, 0);
     this._mesh = null;
     this._meshContainer = new THREE.Object3D();
-    this._color = new THREE.Color('#001eb2');
+    this._color = new THREE.Color('#575757');
     this._backgroundColor = new THREE.Color('black');
     this._meshMaterial = new THREE.MeshLambertMaterial({
         vertexColors: THREE.VertexColors,

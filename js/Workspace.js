@@ -32,7 +32,7 @@ function Workspace() {
     this._mapping = null;
     this._measures = null;
     this._activeMeasure = null;
-    this._colorMap = ColorMap.Maps.JET;
+    this._colorMap = ColorMap.Maps.PARULA;
     this._scale = Workspace.Scale.LOG;
     this._hotspotQuantile = 0.95;
     this._spotBorder = 0.0;
