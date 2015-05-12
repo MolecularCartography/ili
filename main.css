@@ -123,14 +123,14 @@ dialog#errors > ul {
     overflow: hidden;
 }
 
-.SpotLabel3D {
+.SpotLabel3D, .SpotLabel2D {
     position: absolute;
     background-color: rgba(255, 255, 255, 0.2);
     padding: 0 4px;
     pointer-events: none;
 }
 
-.SpotLabel3D::before {
+.SpotLabel3D::before, .SpotLabel2D::before {
     content: '';
     position: absolute;
     left: -2px;

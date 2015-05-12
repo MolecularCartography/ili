@@ -8,6 +8,7 @@ function View2D(workspace, div) {
     this._mouseAction = null;
     this._offset = {x: 0, y: 0};
     this._scene = workspace.scene2d;
+    this._spotLabel = new SpotLabel2D(this);
 
     this._scene.view = this;
 
@@ -18,6 +19,12 @@ function View2D(workspace, div) {
 View2D.SCALE_CHANGE = 1.1;
 
 View2D.prototype = Object.create(null, {
+    div: {
+        get: function() {
+            return this._div;
+        }
+    },
+
     prepareUpdateLayout: {
         value: function() {
             this._width = this._div.clientWidth;
@@ -113,6 +120,8 @@ View2D.prototype = Object.create(null, {
             var style = this.contentElement.style;
             style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + this._scale + ')';
             style.transformOrigin = '0 0';
+
+            this._spotLabel.update();
         }
     },
 
@@ -130,6 +139,18 @@ View2D.prototype = Object.create(null, {
                     y: (local.y - this._offset.y -
                             (this._height - this._scene.height * this._scale) / 2) /
                             this._scale
+            };
+        }
+    },
+
+
+    imageToClient: {
+        value: function(coords) {
+            return {
+                x: (this._width - this._scene.width * this._scale) / 2 +
+                    coords.x * this._scale + this._offset.x,
+                y: (this._height - this._scene.height * this._scale) / 2 +
+                    coords.y * this._scale + this._offset.y,
             };
         }
     },
@@ -177,6 +198,15 @@ View2D.prototype = Object.create(null, {
             event.preventDefault();
             document.body.focus();
             new View2D.MoveMouseAction().start(this, event);
+
+            var spots = this.contentElement.querySelector('g#spots');
+            if (event.srcElement.parentElement == spots) {
+                var index = Number(event.srcElement.getAttribute('index'));
+                var spot = this._scene.spots[index];
+                this._spotLabel.showFor(spot);
+            } else {
+                this._spotLabel.hide();
+            }
         }
     },
 

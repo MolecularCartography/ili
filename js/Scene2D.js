@@ -279,6 +279,7 @@ Scene2D.prototype = Object.create(null, {
                 defsElement.appendChild(gradientElement);
 
                 var spotElement = document.createElementNS(SVGNS, 'ellipse');
+                spotElement.setAttribute('index', i);
                 spotElement.rx.baseVal.value = spot.r;
                 spotElement.ry.baseVal.value = spot.r;
                 spotElement.cx.baseVal.value = spot.x;
