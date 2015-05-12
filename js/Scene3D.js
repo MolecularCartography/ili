@@ -330,8 +330,6 @@ Scene3D.prototype = Object.create(null, {
             var position = geometry.getAttribute('position');
             var positionCount = position.array.length / position.itemSize;
 
-            var currentColor = new THREE.Color();
-
             if (mapping) {
                 for (var i = 0; i < spots.length; i++) {
                     if (!isNaN(spots[i].intensity)) {
@@ -346,25 +344,40 @@ Scene3D.prototype = Object.create(null, {
             }
             var color = geometry.getAttribute('color').array;
 
+            // Fill |color| with this._color.
+            if (positionCount) {
+                var CHUNK_SIZE = 64;
+                var last = 0;
+                if (positionCount > CHUNK_SIZE) {
+                    for (var i = 0; i < CHUNK_SIZE; i++) {
+                        this._color.toArray(color, i * 3);
+                    }
+                    var chunk = new Float32Array(color.buffer, 0, CHUNK_SIZE * 3);
+                    for (var i = CHUNK_SIZE; i <= positionCount - CHUNK_SIZE; last = i, i+= CHUNK_SIZE) {
+                        color.set(chunk, i * 3);
+                    }
+                }
+                for (var i = last; i < positionCount; i++) {
+                    this._color.toArray(color, i * 3);
+                }
+            }
+
             if (mapping) {
                 var spotBorder = 1.0 - this._spotBorder;
                 var closestSpotIndeces = mapping.closestSpotIndeces;
                 var closestSpotDistances = mapping.closestSpotDistances;
                 for (var i = 0; i < positionCount; i++) {
-                    currentColor.set(this._color);
                     var index = closestSpotIndeces[i];
                     if (index >= 0) {
                         var spot = spots[index];
                         if (!isNaN(spot.intensity)) {
                             var alpha = 1.0 - spotBorder * closestSpotDistances[i];
-                            currentColor.lerp(spot.color, alpha);
+                            var base = i * 3;
+                            color[base + 0] += (spot.color.r - color[base + 0]) * alpha;
+                            color[base + 1] += (spot.color.g - color[base + 1]) * alpha;
+                            color[base + 2] += (spot.color.b - color[base + 2]) * alpha;
                         }
                     }
-                    currentColor.toArray(color, i * 3);
-                }
-            } else {
-                for (var i = 0; i < positionCount; i++) {
-                    this._color.toArray(color, i * 3);
                 }
             }
 
