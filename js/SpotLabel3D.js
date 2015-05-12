@@ -23,7 +23,11 @@ SpotLabel3D.prototype = {
             this._view.setupRaycaster(raycaster, pageX, pageY);
 
             this._raycastPromise = this._scene.raycast(raycaster);
-            this._raycastPromise.then(this._onRaycastComplete.bind(this));
+            if (this._raycastPromise) {
+                this._raycastPromise.then(this._onRaycastComplete.bind(this));
+            } else {
+                this._view = null;
+            }
         }
         this._group.requestAnimationFrame();
     },
