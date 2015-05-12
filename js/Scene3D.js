@@ -346,19 +346,26 @@ Scene3D.prototype = Object.create(null, {
             }
             var color = geometry.getAttribute('color').array;
 
-            for (var i = 0; i < positionCount; i++) {
-                var index = mapping ? mapping.closestSpotIndeces[i] : -1;
-                currentColor.set(this._color);
-                if (index >= 0 && !isNaN(spots[index].intensity)) {
-                    var alpha = 1.0 - (1.0 - this._spotBorder) *
-                            mapping.closestSpotDistances[i];
-                    alpha = alpha;
-                    currentColor.lerp(spots[index].color, alpha);
+            if (mapping) {
+                var spotBorder = 1.0 - this._spotBorder;
+                var closestSpotIndeces = mapping.closestSpotIndeces;
+                var closestSpotDistances = mapping.closestSpotDistances;
+                for (var i = 0; i < positionCount; i++) {
+                    currentColor.set(this._color);
+                    var index = closestSpotIndeces[i];
+                    if (index >= 0) {
+                        var spot = spots[index];
+                        if (!isNaN(spot.intensity)) {
+                            var alpha = 1.0 - spotBorder * closestSpotDistances[i];
+                            currentColor.lerp(spot.color, alpha);
+                        }
+                    }
+                    currentColor.toArray(color, i * 3);
                 }
-
-                color[i * 3] = currentColor.r;
-                color[i * 3 + 1] = currentColor.g;
-                color[i * 3 + 2] = currentColor.b;
+            } else {
+                for (var i = 0; i < positionCount; i++) {
+                    this._color.toArray(color, i * 3);
+                }
             }
 
             geometry.getAttribute('color').needsUpdate = true;
