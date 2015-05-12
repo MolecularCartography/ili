@@ -384,7 +384,7 @@ Workspace.prototype = Object.create(null, {
                            this._hotspotQuantile)] :
                     0.0;
 
-            if (this._minValue != minValue && this._maxValue != maxValue) {
+            if (this._minValue != minValue || this._maxValue != maxValue) {
                 this._minValue = minValue;
                 this._maxValue = maxValue;
                 this._notifyChange('auto-mapping-change');
