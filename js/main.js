@@ -115,14 +115,6 @@ function initGUI() {
 
 
     var f2d = g_gui.addFolder('2D');
-    f2d.add(g_workspace.scene2d, 'fontSize', {
-        'None': 0,
-        'Very small': 2,
-        'Small': 6,
-        'Medium': 11,
-        'Big': 16,
-    }).name('Font size');
-    f2d.addColor(g_workspace.scene2d, 'fontColor').name('Font color');
     f2d.add(g_workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
     var f3d = g_gui.addFolder('3D');

@@ -1,6 +1,4 @@
 function Scene2D() {
-    this._fontSize = 0; // Hidden
-    this._fontColor = '#000000';
     this._spotBorder = 0.05;
     this._views = [];
     this._imageURL = null;
@@ -77,17 +75,11 @@ Scene2D.prototype = Object.create(null, {
 
             var spotsGroupElement = document.createElementNS(SVGNS, 'g');
             spotsGroupElement.setAttribute('id', 'spots');
-            var labelsGroupElement = document.createElementNS(SVGNS, 'g');
-            labelsGroupElement.setAttribute('id', 'labels');
-            labelsGroupElement.setAttribute('font-size', this._fontSize);
-            labelsGroupElement.setAttribute('fill', this._fontColor);
-            labelsGroupElement.setAttribute('visibility', this._fontSize ? 'visible' : 'collapsed');
             contentElement.appendChild(spotsGroupElement);
-            contentElement.appendChild(labelsGroupElement);
 
             if (this._spots) {
                 this._createSpots(
-                        spotsGroupElement, labelsGroupElement, defsElement);
+                        spotsGroupElement, defsElement);
             }
         }
     },
@@ -130,14 +122,12 @@ Scene2D.prototype = Object.create(null, {
             for (var i = 0; i < this._views.length; i++) {
                 var c = this._views[i].contentElement;
                 var spotsGroupElement = c.querySelector('#spots');
-                var labelsGroupElement = c.querySelector('#labels');
                 var defsElement = c.querySelector('defs');
                 spotsGroupElement.textContent = '';
-                labelsGroupElement.textContent = '';
                 defsElement.textContent = '';
                 if (this._spots) {
                     this._createSpots(
-                                    spotsGroupElement, labelsGroupElement, defsElement);
+                                    spotsGroupElement, defsElement);
                 }
             }
         }
@@ -162,35 +152,6 @@ Scene2D.prototype = Object.create(null, {
         set: function(value) {
             this._colorMap = value;
             if (this._spots) this._updateSpots();
-        }
-    },
-
-    fontSize: {
-        get: function() {
-            return this._fontSize;
-        },
-
-        set: function(value) {
-            this._fontSize = Number(value);
-            this._forContentElement(function(contentElement) {
-                var labelsElement = contentElement.querySelector('#labels');
-                labelsElement.setAttribute('font-size', value);
-                labelsElement.setAttribute('visibility', value ? 'visible' : 'collapsed');
-            });
-        }
-    },
-
-    fontColor: {
-        get: function() {
-            return this._fontColor;
-        },
-
-        set: function(value) {
-            this._fontColor = value;
-            this._forContentElement(function(contentElement) {
-                var labelsElement = contentElement.querySelector('#labels');
-                labelsElement.setAttribute('fill', value);
-            });
         }
     },
 
@@ -293,7 +254,7 @@ Scene2D.prototype = Object.create(null, {
     },
 
     _createSpots: {
-        value: function(spotsGrpupElement, lablesGroupElement, defsElement) {
+        value: function(spotsGrpupElement, defsElement) {
             var SVGNS = 'http://www.w3.org/2000/svg';
 
             var document = spotsGrpupElement.ownerDocument;
@@ -321,12 +282,6 @@ Scene2D.prototype = Object.create(null, {
                 spotElement.cy.baseVal.value = spot.y;
                 spotElement.style.fill = 'url(#spot' + i + ')';
                 spotsGrpupElement.appendChild(spotElement);
-
-                var labelElement = document.createElementNS(SVGNS, 'text');
-                labelElement.textContent = spot.name;
-                labelElement.setAttribute('x', spot.x + 5);
-                labelElement.setAttribute('y', spot.y);
-                lablesGroupElement.appendChild(labelElement);
             }
 
             this._updateSpotsGradients(defsElement);
