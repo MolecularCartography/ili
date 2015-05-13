@@ -30,6 +30,8 @@ function init() {
     $('dialog#errors #close').click(clearErrors);
 
     for (var e in DragAndDrop) {
+        var fn = DragAndDrop[e];
+        if (typeof fn != 'function') continue;
         document.addEventListener(e, DragAndDrop[e], true);
     }
 
