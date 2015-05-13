@@ -62,29 +62,23 @@ ViewContainer.prototype = Object.create(null, {
     export: {
         value: function() {
             return new Promise(function(accept, reject) {
-                var canvas = document.createElement('canvas');
                 if (this._workspace.mode == Workspace.Mode.MODE_3D) {
                     var pixelRatio = window.devicePixelRatio * this._exportPixelRatio3d;
                     var width = this._div.clientWidth * pixelRatio;
                     var height = this._div.clientHeight * pixelRatio;
+
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    var imageData = ctx.createImageData(width, height);
+
+                    this.g3d.export(imageData, pixelRatio);
+
                     canvas.width = width;
                     canvas.height = height;
-                    this.g3d.export(canvas, pixelRatio);
-                    var image = new Image();
-                    image.width = width;
-                    image.height = height;
-                    image.onload = function() {
-                        // Canvas has 3D content. We cant have 2D context for it. So cerate another canvas.
-                        var canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        var ctx = canvas.getContext('2d');
-                        ctx.drawImage(image, 0, 0);
-                        this.legend.export(canvas, pixelRatio).then(makeBlob.bind(this, canvas)).catch(reject);
-                    }.bind(this);
-                    image.onerror = reject;
-                    image.src = canvas.toDataURL();
+                    ctx.putImageData(imageData, 0, 0);
+                    this.legend.export(canvas, pixelRatio).then(makeBlob.bind(this, canvas)).catch(reject);
                 } else if (this._workspace.mode == Workspace.Mode.MODE_2D) {
+                    var canvas = document.createElement('canvas');
                     canvas.width = this._workspace.scene2d.width;
                     canvas.height = this._workspace.scene2d.width;
                     this.v2d.export(canvas).then(function() {

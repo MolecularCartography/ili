@@ -112,10 +112,9 @@ ViewGroup3D.prototype = Object.create(null, {
     },
 
     export: {
-        value: function(canvas, pixelRatio) {
+        value: function(imageData, pixelRatio) {
             var renderer = new THREE.WebGLRenderer({
                 antialias: true,
-                canvas: canvas,
                 preserveDrawingBuffer: true,
             });
             renderer.setPixelRatio(pixelRatio);
@@ -124,6 +123,15 @@ ViewGroup3D.prototype = Object.create(null, {
             var scene = this._scene.clone();
 
             this._renderTo(renderer, scene);
+
+            var gl = renderer.context;
+            var pixels = new Uint8Array(imageData.width * imageData.height * 4);
+            gl.readPixels(0, 0, imageData.width, imageData.height,
+                    gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+            for (var i = 0; i < imageData.height; i++) {
+                var row = new Uint8Array(pixels.buffer, (imageData.height - 1 - i) * imageData.width * 4, imageData.width * 4);
+                imageData.data.set(row, i * imageData.width * 4);
+            }
         }
     },
 
