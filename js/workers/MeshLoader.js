@@ -6,12 +6,8 @@ importScripts('../lib/three.min.js', '../lib/STLLoader.js');
 
 onmessage = function(e) {
     var blob = e.data;
-    var reader = new FileReader();
-    reader.onload = function(event) {
-        readContents(event.target.result);
-    };
-    reader.onerror = console.error.bind(console);
-    reader.readAsArrayBuffer(blob);
+    var reader = new FileReaderSync();
+    readContents(reader.readAsArrayBuffer(blob));
 };
 
 function readContents(contents) {

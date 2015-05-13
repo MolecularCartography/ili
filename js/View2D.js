@@ -200,8 +200,8 @@ View2D.prototype = Object.create(null, {
             new View2D.MoveMouseAction().start(this, event);
 
             var spots = this.contentElement.querySelector('g#spots');
-            if (event.srcElement.parentElement == spots) {
-                var index = Number(event.srcElement.getAttribute('index'));
+            if (event.target && event.target.parentElement == spots) {
+                var index = Number(event.target.getAttribute('index'));
                 var spot = this._scene.spots[index];
                 this._spotLabel.showFor(spot);
             } else {

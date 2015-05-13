@@ -144,8 +144,8 @@ Workspace.prototype = Object.create(null, {
             this.mesh = null;
             this._doTask(Workspace.TaskType.LOAD_MESH, blob).then(function(result) {
                 var geometry = new THREE.BufferGeometry();
-                for (var name in event.data.attributes) {
-                    var attribute = event.data.attributes[name];
+                for (var name in result.attributes) {
+                    var attribute = result.attributes[name];
                     geometry.addAttribute(name, new THREE.BufferAttribute(
                             attribute.array, attribute.itemSize));
                 }
@@ -306,8 +306,8 @@ Workspace.prototype = Object.create(null, {
             };
             this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
                 this._scene3d.mapping = {
-                        closestSpotIndeces: event.data.closestSpotIndeces,
-                        closestSpotDistances: event.data.closestSpotDistances
+                        closestSpotIndeces: results.closestSpotIndeces,
+                        closestSpotDistances: results.closestSpotDistances
                 };
             }.bind(this));
         }
