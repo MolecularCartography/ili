@@ -9,7 +9,9 @@
 
 Hello bee
 ------------
-For a demonstration, open in Google Chrome [the bee example](http://ili-toolbox.github.io/?bee.stl;bee.full.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD).
+For a demonstration, open in Google Chrome 
+* [2D 3dmassomics visualisation example](http://ili-toolbox.github.io/?3dmassomics/bg.png;3dmassomics/intensities.csv) (a photo made during the 3D-MASSOMICS project meeting with simulated spots overlaid).
+* [3D bee example](http://ili-toolbox.github.io/?bee/model.stl;bee/intensities.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD).
 
 Installation
 ------------
