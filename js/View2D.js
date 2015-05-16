@@ -14,6 +14,7 @@ function View2D(workspace, div) {
 
     this._div.addEventListener('mousewheel', this._onMouseWheel.bind(this));
     this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
+    this._div.addEventListener('dblclick', this._onDblClick.bind(this));
 }
 
 View2D.SCALE_CHANGE = 1.1;
@@ -46,7 +47,7 @@ View2D.prototype = Object.create(null, {
 
     finishUpdateLayout: {
         value: function() {
-            this.adjustOffset();
+            this._reposition();
         }
     },
 
@@ -143,7 +144,6 @@ View2D.prototype = Object.create(null, {
         }
     },
 
-
     imageToClient: {
         value: function(coords) {
             return {
@@ -185,10 +185,10 @@ View2D.prototype = Object.create(null, {
 
             if (event.wheelDelta > 0) {
                 this._scale *= View2D.SCALE_CHANGE;
-                this.adjustOffset();
+                this._reposition();
             } else if (event.wheelDelta < 0) {
                 this._scale /= View2D.SCALE_CHANGE;
-                this.adjustOffset();
+                this._reposition();
             }
         }
     },
@@ -207,6 +207,12 @@ View2D.prototype = Object.create(null, {
             } else {
                 this._spotLabel.hide();
             }
+        }
+    },
+
+    _onDblClick: {
+        value: function(event) {
+            this.adjustOffset();
         }
     },
 
@@ -284,7 +290,7 @@ View2D.MoveMouseAction.prototype = Object.create(null, {
             for (var i in this._handlers) {
                 document.removeEventListener(i, this._handlers[i]);
             }
-            this._view.adjustOffset();
+            this._view._reposition();
             this._view._mouseAction = null;
             this._view = null;
         }
