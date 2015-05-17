@@ -7,7 +7,7 @@ function SpotLabelBase() {
 SpotLabelBase.prototype = Object.create(null, asProps({
     createDiv: function(className) {
         this._div = document.createElement('div');
-        this._div.className = className;        
+        this._div.className = className;
     },
 
     removeDiv: function() {

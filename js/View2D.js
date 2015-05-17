@@ -47,7 +47,7 @@ View2D.prototype = Object.create(null, {
 
     finishUpdateLayout: {
         value: function() {
-            this._reposition();
+            this.adjustOffset();
         }
     },
 
@@ -65,19 +65,22 @@ View2D.prototype = Object.create(null, {
     },
 
     adjustOffset: {
-        value: function() {
-            if (this._width > this._scene.width * this._scale) {
+        value: function(viewFactor) {
+            viewFactor = viewFactor || 0.6;
+            var width = this._scene.width * this._scale;
+            var height = this._scene.height * this._scale;
+            var viewWidth = this._width * viewFactor;
+            var viewHeight = this._height * viewFactor;
+            if (viewWidth > width * this._scale) {
                 this._offset.x = 0;
             } else {
-                var max = Math.ceil(
-                        (this._scene.width * this._scale - this._width) * 0.5);
+                var max = Math.ceil((width - viewWidth) * 0.5);
                 this._offset.x = Math.max(-max, Math.min(max, this._offset.x));
             }
-            if (this._height > this._scene.height * this._scale) {
+            if (viewHeight > height) {
                 this._offset.y = 0;
             } else {
-                var max = Math.ceil(
-                        (this._scene.height * this._scale - this._height) * 0.5);
+                var max = Math.ceil((height - viewHeight) * 0.5);
                 this._offset.y = Math.max(-max, Math.min(max, this._offset.y));
             }
             this._reposition();
@@ -185,10 +188,10 @@ View2D.prototype = Object.create(null, {
 
             if (event.wheelDelta > 0) {
                 this._scale *= View2D.SCALE_CHANGE;
-                this._reposition();
+                this.adjustOffset();
             } else if (event.wheelDelta < 0) {
                 this._scale /= View2D.SCALE_CHANGE;
-                this._reposition();
+                this.adjustOffset();
             }
         }
     },
@@ -212,7 +215,7 @@ View2D.prototype = Object.create(null, {
 
     _onDblClick: {
         value: function(event) {
-            this.adjustOffset();
+            this.adjustOffset(1.0);
         }
     },
 
@@ -290,7 +293,7 @@ View2D.MoveMouseAction.prototype = Object.create(null, {
             for (var i in this._handlers) {
                 document.removeEventListener(i, this._handlers[i]);
             }
-            this._view._reposition();
+            this._view.adjustOffset();
             this._view._mouseAction = null;
             this._view = null;
         }
