@@ -538,6 +538,7 @@ Workspace.prototype = Object.create(null, {
             this._scale = Workspace.getScaleById(value);
             if (this._autoMinMax) this._updateMinMaxValues();
             this._updateIntensities();
+            this._notifyChange('mapping-change');
         }
     },
 
