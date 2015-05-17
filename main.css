@@ -130,6 +130,10 @@ dialog#errors > ul {
     pointer-events: none;
 }
 
+.SpotLabel3D > a, .SpotLabel2D > a {
+    pointer-events: auto;
+}
+
 .SpotLabel3D::before, .SpotLabel2D::before {
     content: '';
     position: absolute;

@@ -1,6 +1,7 @@
 'use strict';
 
 function SpotLabel3D(group, scene) {
+    SpotLabelBase.apply(this);
     this._group = group;
     this._scene = scene;
     this._view = null;
@@ -9,7 +10,7 @@ function SpotLabel3D(group, scene) {
     this._changed = false;
 }
 
-SpotLabel3D.prototype = {
+SpotLabel3D.prototype = Object.create(SpotLabelBase.prototype, asProps({
     showFor: function(pageX, pageY) {
         if (this._raycastPromise) {
             this._raycastPromise.cancel();
@@ -41,15 +42,13 @@ SpotLabel3D.prototype = {
 
     update: function() {
         if (this._changed) {
-            if (this._div) {
-                this._div.parentElement.removeChild(this._div);
-                this._div = null;
+            if (this.div) {
+                this.removeDiv();
             }
             if (this._view && this._spot) {
-                this._div = document.createElement('div');
-                this._div.className = 'SpotLabel3D';
-                this._div.textContent = this._spot.name;
-                this._view.div.appendChild(this._div);
+                this.createDiv('SpotLabel3D');
+                this.textContent = this._spot.name;
+                this._view.div.appendChild(this.div);
             }
             this._changed = false;
         }
@@ -63,4 +62,4 @@ SpotLabel3D.prototype = {
             }
         }
     },
-};
+}));
