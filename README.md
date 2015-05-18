@@ -20,17 +20,18 @@ There are 3 ways of running `ili in Chrome: [from this website](http://ili-toolb
 Input
 ------------
 `ili takes two files: 
-* PNG and CSV for 2D mapping (the format and examples to be added here soon)
-* STL and CSV for 3D mapping (the format and examples to be added here soon)
+* for 2D mapping: a PNG to be used as the background image ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/bg.png)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/intensities.csv))
+* for 3D mapping: a binary STL of the 3D model ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/model.stl)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/intensities.csv))
 
-How to use
+What is `ili for?
 ------------
-`ili can be used for 
-* showing molecular maps (Ctrl/Cmd-up or -down)
-* searching for a molecular map by the name substring by Ctrl-f
+Among other things, `ili can be used for 
+* showing molecular maps (Ctrl-up or -down in Win/Lin; Cmd-up or Cmd-down in Mac)
+* searching for a molecular map by a name substring (Ctrl-f)
 * adjusting visualizaiton of a map including colors, scaling, hotspot removal using quantile thresholding
 * interactive visualization in 2D using mouse (zoom by wheeling, zoom into particular region by click-and-wheeling)
 * interactive visualization in 3D using mouse (rotate by dragging, zoom by wheeling)
+* showing the name of a spot by clicking at it
 * saving the rendering as PNG by Ctrl-s (in Win/Lin) or Cmd-s (in Mac)
 
 How to stay updated
