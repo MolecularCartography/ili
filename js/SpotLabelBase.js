@@ -27,6 +27,7 @@ SpotLabelBase.prototype = Object.create(null, asProps({
                 this._div.textContent = '';
                 var anchor = document.createElement('a');
                 anchor.setAttribute('href', value);
+                anchor.setAttribute('target', '_blank');
                 anchor.textContent = value;
                 anchor.onmousedown = function(e) {
                     e.stopPropagation();
