@@ -53,6 +53,7 @@ Scene3D.prototype = Object.create(null, {
             result.backgroundColor = this.backgroundColor;
             result.spotBorder = this.spotBorder;
             result.colorMap = this.colorMap;
+            result.rotation = this.rotation;
             var geometry = new THREE.BufferGeometry();
             for (var i in this.geometry.attributes) {
                 var a = this.geometry.attributes[i];
@@ -154,6 +155,10 @@ Scene3D.prototype = Object.create(null, {
         get: function() {
             return this._rotation;
         },
+
+        set: function(rotation) {
+            this._rotation.copy(rotation);
+        }
     },
 
     spots: {
@@ -232,6 +237,7 @@ Scene3D.prototype = Object.create(null, {
                 this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
                 this._mesh.position.copy(geometry.boundingBox.center().negate());
                 this._meshContainer.add(this._mesh);
+                this._applyRotation();
                 this._recolor();
             } else {
                 this._mesh = null;
@@ -392,12 +398,18 @@ Scene3D.prototype = Object.create(null, {
     _onRotationChange: {
         value: function() {
             if (this._mesh) {
-                this._meshContainer.rotation.x = this._rotation.x * Math.PI / 180;
-                this._meshContainer.rotation.y = this._rotation.y * Math.PI / 180;
-                this._meshContainer.rotation.z = this._rotation.z * Math.PI / 180;
-                this._meshContainer.updateMatrix();
+                this._applyRotation();
                 this._notifyChange();
             }
+        }
+    },
+
+    _applyRotation: {
+        value: function() {
+            this._meshContainer.rotation.x = this._rotation.x * Math.PI / 180;
+            this._meshContainer.rotation.y = this._rotation.y * Math.PI / 180;
+            this._meshContainer.rotation.z = this._rotation.z * Math.PI / 180;
+            this._meshContainer.updateMatrix();
         }
     },
 
