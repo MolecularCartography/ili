@@ -21,8 +21,7 @@ function Scene3D() {
 
     this._spotBorder = 0.05;
     this._colorMap = null;
-    this._rotation = new THREE.Euler();
-    this._rotation.onChange(this._onRotationChange.bind(this));
+    this._rotation = {x: 0, y: 0, z: 0};
     this._animationFrameStart = undefined;
 
     this._spots = null;
@@ -36,21 +35,29 @@ function Scene3D() {
 };
 
 Scene3D._makeLightProperty = function(field) {
+    return Scene3D._makeProxyProperty(field, ['intensity'], function() {
+        this._notifyChange();
+    });
+};
+
+Scene3D._makeProxyProperty = function(field, properties, callback) {
     var proxy;
     return {
         get: function() {
-            proxy = proxy || Object.create(null, {
-                intensity: {
-                    get: function() {
-                        return this[field].intensity;
-                    }.bind(this),
+            if (proxy) return proxy;
+            proxy = {};
+            for (var i = 0; i < properties.length; i++) {
+                Object.defineProperty(proxy, properties[i], {
+                    get: function(prop) {
+                        return this[field][prop]
+                    }.bind(this, properties[i]),
 
-                    set: function(value) {
-                        this[field].intensity = value;
-                        this._notifyChange();
-                    }.bind(this),
-                }
-            });
+                    set: function(prop, value) {
+                        this[field][prop] = value;
+                        callback.call(this);
+                    }.bind(this, properties[i])
+                });
+            }
             return proxy;
         },
     }
@@ -145,15 +152,12 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
-    rotation: {
-        get: function() {
-            return this._rotation;
-        },
-
-        set: function(rotation) {
-            this._rotation.copy(rotation);
+    rotation: Scene3D._makeProxyProperty('_rotation', ['x', 'y', 'z'], function() {
+        if (this._mesh) {
+            this._applyRotation();
+            this._notifyChange();
         }
-    },
+    }),
 
     spots: {
         get: function() {
@@ -256,7 +260,7 @@ Scene3D.prototype = Object.create(null, {
 
     position: {
         get: function() {
-            return this._scene.position;
+            return this._scene.position.clone();
         }
     },
 
@@ -386,15 +390,6 @@ Scene3D.prototype = Object.create(null, {
             var endTime = new Date();
             console.log('Recoloring time: ' +
                     (endTime.valueOf() - startTime.valueOf()) / 1000);
-        }
-    },
-
-    _onRotationChange: {
-        value: function() {
-            if (this._mesh) {
-                this._applyRotation();
-                this._notifyChange();
-            }
         }
     },
 
