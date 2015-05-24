@@ -35,6 +35,27 @@ function Scene3D() {
     this._scene.add(this._meshContainer);
 };
 
+Scene3D._makeLightProperty = function(field) {
+    var proxy;
+    return {
+        get: function() {
+            proxy = proxy || Object.create(null, {
+                intensity: {
+                    get: function() {
+                        return this[field].intensity;
+                    }.bind(this),
+
+                    set: function(value) {
+                        this[field].intensity = value;
+                        this._notifyChange();
+                    }.bind(this),
+                }
+            });
+            return proxy;
+        },
+    }
+};
+
 Scene3D.prototype = Object.create(null, {
     addEventListener: {
         value: function(eventName, listener) {
@@ -66,38 +87,11 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
-    lightIntensity1: {
-        get: function() {
-            return this._light1.intensity;
-        },
+    light1: Scene3D._makeLightProperty('_light1'),
 
-        set: function(value) {
-            this._light1.intensity = value;
-            this._notifyChange();
-        }
-    },
+    light2: Scene3D._makeLightProperty('_light2'),
 
-    lightIntensity2: {
-        get: function() {
-            return this._light2.intensity;
-        },
-
-        set: function(value) {
-            this._light2.intensity = value;
-            this._notifyChange();
-        }
-    },
-
-    lightIntensity3: {
-        get: function() {
-            return this._light3.intensity;
-        },
-
-        set: function(value) {
-            this._light3.intensity = value;
-            this._notifyChange();
-        }
-    },
+    light3: Scene3D._makeLightProperty('_light3'),
 
     color: {
         get: function() {
