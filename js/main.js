@@ -47,8 +47,7 @@ var KEYBOARD_SHORTCUTS = {
         g_mapSelector.activate();
     },
     'U+0053': function() { // Ctrl + S
-        var name = g_workspace.mapName;
-        if (!name) return;
+        var name = g_workspace.mapName || 'image';
         g_views.export().then(function(blob) {
             saveAs(blob, name + '.png');
         });
