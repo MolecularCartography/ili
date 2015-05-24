@@ -21,7 +21,7 @@ function Scene3D() {
 
     this._spotBorder = 0.05;
     this._colorMap = null;
-    this._rotation = {x: 0, y: 0, z: 0};
+    this._adjustment = {x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0};
     this._animationFrameStart = undefined;
 
     this._spots = null;
@@ -60,6 +60,14 @@ Scene3D._makeProxyProperty = function(field, properties, callback) {
             }
             return proxy;
         },
+
+        set: function(value) {
+            for (var i = 0; i < properties.length; i++) {
+                var prop = properties[i]
+                this[field][prop] = value[prop];
+            }
+            callback.call(this);
+        }
     }
 };
 
@@ -74,14 +82,14 @@ Scene3D.prototype = Object.create(null, {
     clone: {
         value: function(eventName, listener) {
             var result = new Scene3D();
-            result.lightIntensity1 = this.lightIntensity1;
-            result.lightIntensity2 = this.lightIntensity2;
-            result.lightIntensity3 = this.lightIntensity3;
+            result.light1 = this.light1;
+            result.light2 = this.light2;
+            result.light3 = this.light3;
             result.color = this.color;
             result.backgroundColor = this.backgroundColor;
             result.spotBorder = this.spotBorder;
             result.colorMap = this.colorMap;
-            result.rotation = this.rotation;
+            result.adjustment = this.adjustment;
             var geometry = new THREE.BufferGeometry();
             for (var i in this.geometry.attributes) {
                 var a = this.geometry.attributes[i];
@@ -152,9 +160,10 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
-    rotation: Scene3D._makeProxyProperty('_rotation', ['x', 'y', 'z'], function() {
+    adjustment: Scene3D._makeProxyProperty('_adjustment', ['x', 'y', 'z', 'alpha', 'beta', 'gamma'],
+            function() {
         if (this._mesh) {
-            this._applyRotation();
+            this._applyAdjustment();
             this._notifyChange();
         }
     }),
@@ -235,7 +244,7 @@ Scene3D.prototype = Object.create(null, {
                 this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
                 this._mesh.position.copy(geometry.boundingBox.center().negate());
                 this._meshContainer.add(this._mesh);
-                this._applyRotation();
+                this._applyAdjustment();
                 this._recolor();
             } else {
                 this._mesh = null;
@@ -393,11 +402,12 @@ Scene3D.prototype = Object.create(null, {
         }
     },
 
-    _applyRotation: {
+    _applyAdjustment: {
         value: function() {
-            this._meshContainer.rotation.x = this._rotation.x * Math.PI / 180;
-            this._meshContainer.rotation.y = this._rotation.y * Math.PI / 180;
-            this._meshContainer.rotation.z = this._rotation.z * Math.PI / 180;
+            this._meshContainer.rotation.x = this._adjustment.alpha * Math.PI / 180;
+            this._meshContainer.rotation.y = this._adjustment.beta * Math.PI / 180;
+            this._meshContainer.rotation.z = this._adjustment.gamma * Math.PI / 180;
+            this._meshContainer.position.copy(this._adjustment);
             this._meshContainer.updateMatrix();
         }
     },
