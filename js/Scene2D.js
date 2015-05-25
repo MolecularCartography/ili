@@ -184,37 +184,35 @@ Scene2D.prototype = Object.create(null, {
 
     exportSpots: {
         value: function(canvas) {
+            var spots = this._spots;
+            var color = new THREE.Color();
+            var colorMap = this._colorMap;
+            var borderGradientSuffix = this._spotBorder + ')';
             return new Promise(function(accept, reject) {
-                if (!this.width || !this.height) {
+                if (!spots) {
                     reject();
                     return;
                 }
 
-                var SVGNS = 'http://www.w3.org/2000/svg';
-                var svgElement = document.createElementNS(SVGNS, 'svg');
-                this._buildContent(svgElement);
-                svgElement.removeChild(svgElement.querySelector('image'));
-                var source =
-                        '<svg xmlns="http://www.w3.org/2000/svg" width="' +
-                        this.width + '" height="' + this.height + '">' +
-                        svgElement.innerHTML +
-                        '</svg>';
-                var blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
-                var image = new Image();
-                image.width = this.width;
-                image.height = this.height;
-                image.onload = function() {
-                    var ctx = canvas.getContext('2d');
-                    ctx.drawImage(image, 0, 0);
-                    URL.revokeObjectURL(image.src);
-                    accept();
-                };
-                image.onerror = function(event) {
-                    URL.revokeObjectURL(image.src);
-                    console.log('Failed to load SVG', event);
-                    reject();
+                var ctx = canvas.getContext('2d');
+                for (var i = 0; i < spots.length; i++) {
+                    var s = spots[i];
+                    if (isNaN(s.intensity)) continue;
+                    colorMap.map(color, s.intensity);
+
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI, false);
+                    var gdx = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
+                    var rgba = 'rgba(' + Math.round(color.r * 155) + ',' +
+                            Math.round(color.g * 255) + ',' + Math.round(color.b * 255) + ',';
+
+                    gdx.addColorStop(0, rgba + '1)');
+                    gdx.addColorStop(1, rgba + borderGradientSuffix);
+                    ctx.fillStyle = gdx;
+                    ctx.fill();
                 }
-                image.src = URL.createObjectURL(blob);
+
+                accept();
             }.bind(this));
         }
     },
