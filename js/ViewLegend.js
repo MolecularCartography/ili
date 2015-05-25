@@ -33,7 +33,7 @@ ViewLegend.prototype = Object.create(null, {
             this._svg.getElementById('scaleLabel').textContent = workspace.scale.legend;
 
             function format(x) {
-                return workspace.scale.function(Number(x)).toFixed(3);
+                return Number(x).toFixed(3);
             }
         }
     },
