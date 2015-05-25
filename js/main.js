@@ -151,8 +151,8 @@ function initGUI() {
 
     var mapping = {
         flag: fMapping.add(g_workspace, 'autoMinMax').name('Auto MinMax'),
-        min: fMapping.add(g_workspace, 'minValue').name('Min value'),
-        max: fMapping.add(g_workspace, 'maxValue').name('Max value')
+        min: fMapping.add(g_workspace, 'minValue').name('Min value').step(0.00001),
+        max: fMapping.add(g_workspace, 'maxValue').name('Max value').step(0.00001),
     };
     g_workspace.addEventListener('auto-mapping-change', onAutoMappingChange.bind(null, mapping));
     onAutoMappingChange(mapping);

@@ -250,7 +250,7 @@ Workspace.prototype = Object.create(null, {
 
     minValue: {
         get: function() {
-            return this._minValue.toString();
+            return this._minValue;
         },
 
         set: function(value) {
@@ -263,7 +263,7 @@ Workspace.prototype = Object.create(null, {
 
     maxValue: {
         get: function() {
-            return this._maxValue.toString();
+            return this._maxValue;
         },
 
         set: function(value) {
