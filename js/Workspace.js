@@ -250,7 +250,7 @@ Workspace.prototype = Object.create(null, {
 
     minValue: {
         get: function() {
-            return this._minValue.toString();
+            return this._minValue;
         },
 
         set: function(value) {
@@ -263,7 +263,7 @@ Workspace.prototype = Object.create(null, {
 
     maxValue: {
         get: function() {
-            return this._maxValue.toString();
+            return this._maxValue;
         },
 
         set: function(value) {
@@ -380,10 +380,10 @@ Workspace.prototype = Object.create(null, {
                 return a - b;
             });
 
-            var minValue = values.length > 0 ? values[0] : 0.0;
+            var minValue = values.length > 0 ? this._scale.function(values[0]) : 0.0;
             var maxValue = values.length > 0 ?
-                    values[Math.ceil((values.length - 1) *
-                           this._hotspotQuantile)] :
+                    this._scale.function(values[Math.ceil((values.length - 1) *
+                           this._hotspotQuantile)]) :
                     0.0;
 
             if (this._minValue != minValue || this._maxValue != maxValue) {
@@ -402,18 +402,15 @@ Workspace.prototype = Object.create(null, {
         value: function() {
             if (!this._spots) return;
 
-            var scaledMinValue = this._scale.function(this._minValue);
-            var scaledMaxValue = this._scale.function(this._maxValue);
-
             for (var i = 0; i < this._spots.length; i++) {
                 var scaledValue = this._activeMeasure &&
                         this._scale.function(this._activeMeasure.values[i]);
                 var intensity = NaN;
 
-                if (scaledValue >= scaledMaxValue) {
+                if (scaledValue >= this._maxValue) {
                     intensity = 1.0;
-                } else if (scaledValue >= scaledMinValue) {
-                    intensity = (scaledValue - scaledMinValue) / (scaledMaxValue - scaledMinValue);
+                } else if (scaledValue >= this._minValue) {
+                    intensity = (scaledValue - this._minValue) / (this._maxValue - this._minValue);
                 }
                 this._spots[i].intensity = intensity;
             }

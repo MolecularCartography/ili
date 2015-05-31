@@ -46,7 +46,7 @@ ViewGroup3D.prototype = Object.create(null, {
 
     _renderTo: {
         value: function(renderer, scene) {
-            this._renderer.setClearColor(scene.backgroundColorValue);
+            renderer.setClearColor(scene.backgroundColorValue);
             for (var i = 0; i < this._views.length; i++) {
                 var v = this._views[i];
                 if (!v.width || !v.height) continue;

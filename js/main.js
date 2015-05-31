@@ -136,9 +136,9 @@ function initGUI() {
     adjustment.add(g_workspace.scene3d.adjustment, 'alpha', -180.0, 180.0).name('0X rotation').step(1);
     adjustment.add(g_workspace.scene3d.adjustment, 'beta', -180.0, 180.0).name('0Y rotation').step(1);
     adjustment.add(g_workspace.scene3d.adjustment, 'gamma', -180.0, 180.0).name('0Z rotation').step(1);
-    adjustment.add(g_workspace.scene3d.adjustment, 'z').name('X offset').step(0.01);
-    adjustment.add(g_workspace.scene3d.adjustment, 'y').name('Y offset').step(0.01);
-    adjustment.add(g_workspace.scene3d.adjustment, 'z').name('Z offset').step(0.01);
+    adjustment.add(g_workspace.scene3d.adjustment, 'x').name('X offset').step(0.1);
+    adjustment.add(g_workspace.scene3d.adjustment, 'y').name('Y offset').step(0.1);
+    adjustment.add(g_workspace.scene3d.adjustment, 'z').name('Z offset').step(0.1);
 
     var fMapping = g_gui.addFolder('Mapping');
     fMapping.add(g_workspace, 'scaleId', {'Linear': Workspace.Scale.LINEAR.id, 'Logarithmic': Workspace.Scale.LOG.id}).name('Scale');
@@ -151,8 +151,8 @@ function initGUI() {
 
     var mapping = {
         flag: fMapping.add(g_workspace, 'autoMinMax').name('Auto MinMax'),
-        min: fMapping.add(g_workspace, 'minValue').name('Min value'),
-        max: fMapping.add(g_workspace, 'maxValue').name('Max value')
+        min: fMapping.add(g_workspace, 'minValue').name('Min value').step(0.00001),
+        max: fMapping.add(g_workspace, 'maxValue').name('Max value').step(0.00001),
     };
     g_workspace.addEventListener('auto-mapping-change', onAutoMappingChange.bind(null, mapping));
     onAutoMappingChange(mapping);
