@@ -143,7 +143,7 @@ View2D.prototype = Object.create(null, {
                 positions[i * 3 + 1] = s.y;
                 colorMap.map(color, s.intensity);
                 colors[i * 3 + 0] = color.r;
-                colors[i * 3 + 1] = color.b;
+                colors[i * 3 + 1] = color.g;
                 colors[i * 3 + 2] = color.b;
                 spotsRadius[i] = s.r;
             }
