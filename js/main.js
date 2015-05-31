@@ -15,12 +15,17 @@ var g_mapSelector;
 function init() {
     g_workspace = new Workspace();
     g_views = new ViewContainer(g_workspace, $('#view-container')[0]);
-    g_mapSelector = new MapSelector(g_workspace, $('#map-selector')[0], $('#current-map-label')[0]);
+    g_mapSelector = new MapSelector(
+            g_workspace,
+            $('#map-selector')[0],
+            $('#current-map-label')[0]);
 
     initGUI();
 
-    g_workspace.addEventListener('status-change', onWorkspaceStatusChange);
-    g_workspace.addEventListener('errors-change', onWorkspaceErrorsChange);
+    g_workspace.addEventListener(Workspace.Events.STATUS_CHANGE,
+                                 onWorkspaceStatusChange);
+    g_workspace.addEventListener(Workspace.Events.ERRORS_CHANGE,
+                                 onWorkspaceErrorsChange);
 
     document.addEventListener('keydown', onKeyDown, false);
 
@@ -154,10 +159,11 @@ function initGUI() {
         min: fMapping.add(g_workspace, 'minValue').name('Min value').step(0.00001),
         max: fMapping.add(g_workspace, 'maxValue').name('Max value').step(0.00001),
     };
-    g_workspace.addEventListener('auto-mapping-change', onAutoMappingChange.bind(null, mapping));
+    g_workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE,
+                                 onAutoMappingChange.bind(null, mapping));
     onAutoMappingChange(mapping);
 
-    g_workspace.addEventListener('mode-change', function() {
+    g_workspace.addEventListener(Workspace.Events.MODE_CHANGE, function() {
         f2d.closed = (g_workspace.mode != Workspace.Mode.MODE_2D);
         f3d.closed = (g_workspace.mode != Workspace.Mode.MODE_3D);
     });

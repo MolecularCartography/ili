@@ -18,14 +18,8 @@
  * 'measures'/'intensities-change' lets to update the map-list.
  */
 function Workspace() {
-    this._listeners = {
-        'status-change': [],
-        'mode-change': [],
-        'mapping-change': [],
-        'intensities-change': [],
-        'errors-change': [],
-        'auto-mapping-change': [],
-    };
+    EventSource.call(this, Workspace.Events);
+
     this._mode = Workspace.Mode.UNDEFINED;
     this._errors = [];
     this._spots = null;
@@ -46,6 +40,15 @@ function Workspace() {
 
     this._status = '';
     this._tasks = {};
+}
+
+Workspace.Events = {
+    STATUS_CHANGE: 'status-change',
+    MODE_CHANGE: 'mode-change',
+    MAPPING_CHANGE: 'mapping-change',
+    INTENSITIES_CHANGE: 'intensities-change',
+    ERRORS_CHANGE: 'errors-change',
+    AUTO_MAPPING_CHANGE: 'auto-mapping-change',
 }
 
 Workspace.Mode = {
@@ -112,13 +115,7 @@ Workspace.TaskType = {
     },
 };
 
-Workspace.prototype = Object.create(null, {
-    addEventListener: {
-        value: function(eventName, listener) {
-            this._listeners[eventName].push(listener);
-        }
-    },
-
+Workspace.prototype = Object.create(EventSource.prototype, {
     /**
      * Switches the workspace to MODE_2D and starts image loading.
      */
@@ -174,7 +171,7 @@ Workspace.prototype = Object.create(null, {
                 } else if (this._mode == Workspace.Mode.MODE_2D) {
                     this._scene2d.spots = this._spots;
                 }
-                this._notifyChange('intensities-change');
+                this._notify(Workspace.Events.INTENSITIES_CHANGE);
             }.bind(this));
         }
     },
@@ -244,7 +241,7 @@ Workspace.prototype = Object.create(null, {
             if (this._autoMinMax) {
                 this._updateMinMaxValues() && this._updateIntensities();
             }
-            this._notifyChange('auto-mapping-change');
+            this._notify(Workspace.Events.AUTO_MAPPING_CHANGE);
         }
     },
 
@@ -257,7 +254,7 @@ Workspace.prototype = Object.create(null, {
             if (this._autoMinMax) return;
             this._minValue = Number(value);
             this._updateIntensities();
-            this._notifyChange('mapping-change');
+            this._notify(Workspace.Events.MAPPING_CHANGE);
         }
     },
 
@@ -270,7 +267,7 @@ Workspace.prototype = Object.create(null, {
             if (this._autoMinMax) return;
             this._maxValue = Number(value);
             this._updateIntensities();
-            this._notifyChange('mapping-change');
+            this._notify(Workspace.Events.MAPPING_CHANGE);
         }
     },
 
@@ -283,14 +280,14 @@ Workspace.prototype = Object.create(null, {
     clearErrors: {
         value: function() {
             this._errors = [];
-            this._notifyChange('errors-change');
+            this._notify(Workspace.Events.ERRORS_CHANGE);
         }
     },
 
     _addError: {
         value: function(message) {
             this._errors.push(message);
-            this._notifyChange('errors-change');
+            this._notify(Workspace.Events.ERRORS_CHANGE);
         }
     },
 
@@ -389,8 +386,8 @@ Workspace.prototype = Object.create(null, {
             if (this._minValue != minValue || this._maxValue != maxValue) {
                 this._minValue = minValue;
                 this._maxValue = maxValue;
-                this._notifyChange('auto-mapping-change');
-                this._notifyChange('mapping-change');
+                this._notify(Workspace.Events.AUTO_MAPPING_CHANGE);
+                this._notify(Workspace.Events.MAPPING_CHANGE);
                 return true;
             } else {
                 return false;
@@ -422,16 +419,7 @@ Workspace.prototype = Object.create(null, {
     _setStatus: {
         value: function(status) {
             this._status = status;
-            this._notifyChange('status-change');
-        }
-    },
-
-    _notifyChange: {
-        value: function(eventName) {
-            var listeners = this._listeners[eventName];
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i]();
-            }
+            this._notify(Workspace.Events.STATUS_CHANGE);
         }
     },
 
@@ -461,7 +449,7 @@ Workspace.prototype = Object.create(null, {
                 this._cancelTask(Workspace.TaskType.LOAD_MESH);
             }
 
-            this._notifyChange('mode-change');
+            this._notify(Workspace.Events.MODE_CHANGE);
         }
     },
 
@@ -535,7 +523,7 @@ Workspace.prototype = Object.create(null, {
             this._scale = Workspace.getScaleById(value);
             if (this._autoMinMax) this._updateMinMaxValues();
             this._updateIntensities();
-            this._notifyChange('mapping-change');
+            this._notify(Workspace.Events.MAPPING_CHANGE);
         }
     },
 
@@ -558,7 +546,7 @@ Workspace.prototype = Object.create(null, {
                 this._colorMap = ColorMap.Maps[value];
                 this._scene2d.colorMap = this._colorMap;
                 this._scene3d.colorMap = this._colorMap;
-                this._notifyChange('mapping-change');
+                this._notify(Workspace.Events.MAPPING_CHANGE);
             }
         }
     }
