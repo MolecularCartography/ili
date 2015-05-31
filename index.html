@@ -9,6 +9,7 @@
   <script src="js/lib/FileSaver.min.js"></script>
   <script src="js/lib/OrbitControls.js"></script>
   <script src="js/common.js"></script>
+  <script src="js/EventSource.js"></script>
   <script src="js/ColorMaps.js"></script>
   <script src="js/MapSelector.js"></script>
   <script src="js/Scene2D.js"></script>
@@ -30,7 +31,8 @@
   <div class="message"><div><span id="open-button">Open</span> files or drag and drop them.</div></div>
 </div>
 <div class="View2D">
-  <svg id="contentElement" xmlns="http://www.w3.org/2000/svg" xmlns:xlink= "http://www.w3.org/1999/xlink" />
+  <img>
+  <canvas />
 </div>
 <div class="ViewGroup3D" layout="single">
   <canvas></canvas>

@@ -116,6 +116,7 @@ ViewGroup3D.prototype = Object.create(null, {
             var renderer = new THREE.WebGLRenderer({
                 antialias: true,
                 preserveDrawingBuffer: true,
+                canvas: document.createElement('canvas'),
             });
             renderer.setPixelRatio(pixelRatio);
             renderer.setSize(this._width, this._height);

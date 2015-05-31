@@ -1,20 +1,20 @@
 function Scene2D() {
+    EventSource.call(this, Scene2D.Events);
+
     this._spotBorder = 0.05;
-    this._views = [];
     this._imageURL = null;
     this._width = 0;
     this._height = 0;
     this._spots = null;
 };
 
-Scene2D.prototype = Object.create(null, {
-    view: {
-        set: function(value) {
-            this._views = [value];
-            this._buildContent(value.contentElement);
-        }
-    },
+Scene2D.Events = {
+    IMAGE_CHANGE: 'image_change',
+    PARAM_CHANGE: 'param_change',
+    SPOTS_CHANGE: 'spots-change',
+};
 
+Scene2D.prototype = Object.create(EventSource.prototype, {
     width: {
         get: function() {
             return this._width;
@@ -41,49 +41,19 @@ Scene2D.prototype = Object.create(null, {
             this._imageURL = imageURL;
             this._width = width;
             this._height = height;
+            this._notify(Scene2D.Events.IMAGE_CHANGE);
+        }
+    },
 
-            for (var i = 0; i < this._views.length; i++) {
-                var contentElement = this._views[i].contentElement;
-                this._updateImage(contentElement, contentElement.querySelector('image'));
-                this._views[i].adjustOffset();
-            }
+    imageURL: {
+        get: function() {
+            return this._imageURL;
         }
     },
 
     resetImage: {
         value: function() {
             this.setImage(null, 0, 0);
-        }
-    },
-
-    _updateImage: {
-        value: function(contentElement, imageElement) {
-            imageElement.href.baseVal = this._imageURL || '';
-            imageElement.width.baseVal.value = this._width;
-            imageElement.height.baseVal.value = this._height;
-            contentElement.setAttribute('width', this._width);
-            contentElement.setAttribute('height', this._height);
-        }
-    },
-
-    _buildContent: {
-        value: function(contentElement) {
-            var SVGNS = 'http://www.w3.org/2000/svg';
-            var imageElement = document.createElementNS(SVGNS, 'image');
-            this._updateImage(contentElement, imageElement);
-            contentElement.appendChild(imageElement);
-
-            var defsElement = document.createElementNS(SVGNS, 'defs');
-            contentElement.appendChild(defsElement);
-
-            var spotsGroupElement = document.createElementNS(SVGNS, 'g');
-            spotsGroupElement.setAttribute('id', 'spots');
-            contentElement.appendChild(spotsGroupElement);
-
-            if (this._spots) {
-                this._createSpots(
-                        spotsGroupElement, defsElement);
-            }
         }
     },
 
@@ -97,7 +67,7 @@ Scene2D.prototype = Object.create(null, {
             if (value < 0.0) value = 0.0;
             if (value > 1.0) value = 1.0;
             this._spotBorder = value;
-            if (this._spots) this._updateSpots();
+            this._notify(Scene2D.Events.PARAM_CHANGE);
         }
     },
 
@@ -122,28 +92,22 @@ Scene2D.prototype = Object.create(null, {
                 return;
             }
 
-            for (var i = 0; i < this._views.length; i++) {
-                var c = this._views[i].contentElement;
-                var spotsGroupElement = c.querySelector('#spots');
-                var defsElement = c.querySelector('defs');
-                spotsGroupElement.textContent = '';
-                defsElement.textContent = '';
-                if (this._spots) {
-                    this._createSpots(
-                                    spotsGroupElement, defsElement);
-                }
-            }
+            this._notify(Scene2D.Events.SPOTS_CHANGE);
         }
     },
 
     updateIntensities: {
         value: function(spots) {
             if (!this._spots) return;
+            var startTime = new Date();
 
             for (var i = 0; i < this._spots.length; i++) {
                 this._spots[i].intensity = spots[i] && spots[i].intensity;
             }
-            this._updateSpots();
+            this._notify(Scene2D.Events.SPOTS_CHANGE);
+            var endTime = new Date();
+            console.log('Spots updating time: ' +
+                    (endTime.valueOf() - startTime.valueOf()) / 1000);
         }
     },
 
@@ -154,7 +118,7 @@ Scene2D.prototype = Object.create(null, {
 
         set: function(value) {
             this._colorMap = value;
-            if (this._spots) this._updateSpots();
+            this._notify(Scene2D.Events.SPOTS_CHANGE);
         }
     },
 
@@ -219,84 +183,31 @@ Scene2D.prototype = Object.create(null, {
         }
     },
 
-    _updateSpots: {
-        value: function() {
-            this._forContentElement(function(contentElement) {
-                this._updateSpotsGradients(contentElement.querySelector('defs'));
-            }.bind(this));
-        }
-    },
-
-    _updateSpotsGradients: {
-        value: function(defsElement) {
-            var startTime = new Date();
-
-            var intensityColor = new THREE.Color();
-            for (var i = 0; i < defsElement.childElementCount; i++) {
-                var g = defsElement.children[i];
-                var stop0 = g.children[0];
-                var stop1 = g.children[1];
-
-                var spot = this._spots[i];
-                if (spot && !isNaN(spot.intensity)) {
-                    this._colorMap.map(intensityColor, spot.intensity);
-                    stop0.style.stopColor = stop1.style.stopColor =
-                            intensityColor.getStyle();
-                    stop0.style.stopOpacity = 1.0;
-                    stop1.style.stopOpacity = this._spotBorder;
-                } else {
-                    stop0.style.stopColor = stop1.style.stopColor = '';
-                    stop0.style.stopOpacity = stop1.style.stopOpacity = 0;
+    findSpot: {
+        value: function(point) {
+            var spots = this._spots;
+            return new Promise(function(accept, reject) {
+                if (!spots) {
+                    reject();
+                    return;
                 }
-            }
 
-            var endTime = new Date();
-            console.log('Recoloring time: ' +
-                    (endTime.valueOf() - startTime.valueOf()) / 1000);
-        }
-    },
+                for (var i = 0; i < spots.length; i++) {
+                    var s = spots[i];
+                    if (!isNaN(s.intensity) &&
+                            point.x > s.x - s.r && point.x < s.x + s.r &&
+                            point.y > s.y - s.r && point.y < s.y + s.r) {
+                        var dx = point.x - s.x;
+                        var dy = point.y - s.y;
+                        if (dx * dx + dy * dy < s.r * s.r) {
+                            accept(s)
+                            return;
+                        }
+                    }
+                }
 
-    _createSpots: {
-        value: function(spotsGrpupElement, defsElement) {
-            var SVGNS = 'http://www.w3.org/2000/svg';
-
-            var document = spotsGrpupElement.ownerDocument;
-
-            for (var i = 0; i < this._spots.length; i++) {
-                var spot = this._spots[i];
-
-                var gradientElement = document.createElementNS(
-                    SVGNS, 'radialGradient');
-                gradientElement.cx.baseVal = "50%";
-                gradientElement.cy.baseVal = "50%";
-                gradientElement.r.baseVal = "50%";
-                gradientElement.fx.baseVal = "50%";
-                gradientElement.fy.baseVal = "50%";
-                gradientElement.id = "spot" + i;
-
-                gradientElement.innerHTML = '<stop offset="0%" />' +
-                                            '<stop offset="100%" />';
-                defsElement.appendChild(gradientElement);
-
-                var spotElement = document.createElementNS(SVGNS, 'ellipse');
-                spotElement.setAttribute('index', i);
-                spotElement.rx.baseVal.value = spot.r;
-                spotElement.ry.baseVal.value = spot.r;
-                spotElement.cx.baseVal.value = spot.x;
-                spotElement.cy.baseVal.value = spot.y;
-                spotElement.style.fill = 'url(#spot' + i + ')';
-                spotsGrpupElement.appendChild(spotElement);
-            }
-
-            this._updateSpotsGradients(defsElement);
-        }
-    },
-
-    _forContentElement: {
-        value: function(fn) {
-            for (var i = 0; i < this._views.length; i++) {
-                fn(this._views[i].contentElement);
-            }
+                accept(null);
+            });
         }
     },
 });
