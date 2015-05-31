@@ -23,7 +23,7 @@ function ViewGroup3D(workspace, div) {
     this._animationFrameRequested = false;
 
     this._scene = workspace.scene3d;
-    this._scene.addEventListener('change', this.requestAnimationFrame.bind(this));
+    this._scene.addEventListener(Scene3D.Events.CHANGE, this.requestAnimationFrame.bind(this));
 
     this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 

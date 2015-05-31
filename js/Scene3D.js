@@ -1,5 +1,6 @@
 function Scene3D() {
-    this._listeners = [];
+    EventSource.call(this, Scene3D.Events);
+
     this._scene = new THREE.Scene();
     this._light1 = new THREE.PointLight(0xffffff, 1, 0);
     this._light1.position.set(-100, 100, 500);
@@ -34,9 +35,13 @@ function Scene3D() {
     this._scene.add(this._meshContainer);
 };
 
+Scene3D.Events = {
+    CHANGE: 'change',
+};
+
 Scene3D._makeLightProperty = function(field) {
     return Scene3D._makeProxyProperty(field, ['intensity'], function() {
-        this._notifyChange();
+        this._notify(Scene3D.Events.CHANGE);
     });
 };
 
@@ -71,14 +76,7 @@ Scene3D._makeProxyProperty = function(field, properties, callback) {
     }
 };
 
-Scene3D.prototype = Object.create(null, {
-    addEventListener: {
-        value: function(eventName, listener) {
-            if (eventName == 'change')
-            this._listeners.push(listener);
-        }
-    },
-
+Scene3D.prototype = Object.create(EventSource.prototype, {
     clone: {
         value: function(eventName, listener) {
             var result = new Scene3D();
@@ -119,7 +117,7 @@ Scene3D.prototype = Object.create(null, {
             this._color.set(color);
             if (this._mesh) {
                 this._recolor();
-                this._notifyChange();
+                this._notify(Scene3D.Events.CHANGE);
             }
         }
     },
@@ -133,7 +131,7 @@ Scene3D.prototype = Object.create(null, {
             var color = new THREE.Color(value);
             if (color.equals(this._backgroundColor)) return;
             this._backgroundColor.set(color);
-            this._notifyChange();
+            this._notify(Scene3D.Events.CHANGE);
         }
     },
 
@@ -155,7 +153,7 @@ Scene3D.prototype = Object.create(null, {
             this._spotBorder = value;
             if (this._mesh) {
                 this._recolor();
-                this._notifyChange();
+                this._notify(Scene3D.Events.CHANGE);
             }
         }
     },
@@ -164,7 +162,7 @@ Scene3D.prototype = Object.create(null, {
             function() {
         if (this._mesh) {
             this._applyAdjustment();
-            this._notifyChange();
+            this._notify(Scene3D.Events.CHANGE);
         }
     }),
 
@@ -195,7 +193,7 @@ Scene3D.prototype = Object.create(null, {
 
                 if (this._mesh) {
                     this._recolor();
-                    this._notifyChange();
+                    this._notify(Scene3D.Events.CHANGE);
                 }
             }
         }
@@ -210,7 +208,7 @@ Scene3D.prototype = Object.create(null, {
             }
             if (this._mesh && this._mapping) {
                 this._recolor();
-                this._notifyChange();
+                this._notify(Scene3D.Events.CHANGE);
             }
         }
     },
@@ -225,7 +223,7 @@ Scene3D.prototype = Object.create(null, {
             this._mapping = value;
             if (this._mesh) {
                 this._recolor();
-                this._notifyChange();
+                this._notify(Scene3D.Events.CHANGE);
             }
         }
     },
@@ -249,7 +247,7 @@ Scene3D.prototype = Object.create(null, {
             } else {
                 this._mesh = null;
             }
-            this._notifyChange();
+            this._notify(Scene3D.Events.CHANGE);
         }
     },
 
@@ -262,7 +260,7 @@ Scene3D.prototype = Object.create(null, {
             this._colorMap = value;
             if (this._mesh && this._spots && this._mapping) {
                 this._recolor();
-                this._notifyChange();
+                this._notify(Scene3D.Events.CHANGE);
             }
         }
     },
@@ -409,15 +407,6 @@ Scene3D.prototype = Object.create(null, {
             this._meshContainer.rotation.z = this._adjustment.gamma * Math.PI / 180;
             this._meshContainer.position.copy(this._adjustment);
             this._meshContainer.updateMatrix();
-        }
-    },
-
-    _notifyChange: {
-        value: function() {
-            var listeners = this._listeners;
-            for (var i = 0; i < listeners.length; i++) {
-                listeners[i]();
-            }
         }
     },
 });
