@@ -1,8 +1,9 @@
-## `ili
+
+## <img src="img/ili_logo.png" alt="`ili" width="100"/>
 
 `ili is a toolbox for 2D and 3D molecular mapping in Chrome.
 
-`ili is developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg.
+`ili is being developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg.
 
 * Developer: Sergey Ryazanov
 * Principal investigator: Theodore Alexandrov
