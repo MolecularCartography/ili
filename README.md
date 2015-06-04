@@ -1,5 +1,5 @@
 
-## <img src="img/logo_128.png" alt="`ili" width="128"/>
+## <img src="img/logo_512.png" alt="`ili" width="128"/>
 
 `ili is a toolbox for 2D and 3D molecular mapping in Chrome.
 
