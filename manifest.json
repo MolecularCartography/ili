@@ -1,11 +1,14 @@
 {
     "name": "`ili",
-    "description": "Scientific tool for mapping biology data on a 3D or 2D model",
+    "description": "A toolbox for 2D and 3D molecular mapping in Chrome",
     "version": "0.1",
     "manifest_version": 2,
     "app": {
         "background": {
             "scripts": ["chromeapp-background.js"]
         }
-    }
+    },
+    "icons": { "16": "img/favicon_16.png",
+           "48": "img/logo_48.png",
+          "128": "img/logo_128.png" }
 }
