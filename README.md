@@ -3,10 +3,10 @@
 
 `ili is a toolbox for 2D and 3D molecular mapping in Chrome.
 
-`ili is being developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg.
+`ili is being developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
 
 * Developer: Sergey Ryazanov
-* Principal investigator: Theodore Alexandrov
+* Principal investigator: Theodore Alexandrov 
 
 
 ## Hello bee
@@ -14,13 +14,15 @@
 For a demonstration, open in Google Chrome 
 * [3D human skin metabolome example](http://ili-toolbox.github.io/?human/man.stl;human/man_LCMS_small.csv) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#what-is-ili-for)
 
-> > <img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
+
 * [3D bee example](http://ili-toolbox.github.io/?bee/model.stl;bee/intensities.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#what-is-ili-for)
 
-> > <img src="img/screenshot_bee.png" alt="Screenshot of the bee example" width="500"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_bee.png" alt="Screenshot of the bee example" width="500"/>
+
 * [2D 3dmassomics visualisation example](http://ili-toolbox.github.io/?3dmassomics/bg.png;3dmassomics/intensities.csv) (a photo made during the 3D-MASSOMICS project meeting with simulated spots overlaid); zoom out by using the mouse wheel to see the full image and follow [instructions](#what-is-ili-for)
 
-> > <img src="img/screenshot_3dmassomics.png" alt="Screenshot of the 3dmassomics example" width="500"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_3dmassomics.png" alt="Screenshot of the 3dmassomics example" width="500"/>
 
 
 ## Installation
