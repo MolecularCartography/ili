@@ -66,7 +66,7 @@ View2D.VERTEX_SHADER =
         'varying vec3 pointColor;' +
         'void main() {' +
             'pointColor = color;' +
-            'gl_PointSize = 4.0 * radius * scale;' +
+            'gl_PointSize = 2.0 * radius * scale;' +
             'vec2 halfImageSize = imageSize * 0.5;' +
             'vec2 halfCanvasSize = canvasSize * 0.5;' +
             'vec2 normalizedPosition = (position.xy - halfImageSize);' +
