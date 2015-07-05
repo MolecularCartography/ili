@@ -67,6 +67,7 @@ View2D.VERTEX_SHADER =
             'vec2 halfCanvasSize = canvasSize * 0.5;' +
             'vec2 normalizedPosition = (position.xy - halfImageSize);' +
             'vec2 coords = (normalizedPosition * scale + offset) / halfCanvasSize;' +
+
             'gl_Position = vec4(coords.x, -coords.y, 0.0, 1.0);' +
         '}';
 

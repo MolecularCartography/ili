@@ -167,7 +167,7 @@ Scene2D.prototype = Object.create(EventSource.prototype, {
                     ctx.beginPath();
                     ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI, false);
                     var gdx = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
-                    var rgba = 'rgba(' + Math.round(color.r * 155) + ',' +
+                    var rgba = 'rgba(' + Math.round(color.r * 255) + ',' + // was: var rgba = 'rgba(' + Math.round(color.r * 155) + ',' +
                             Math.round(color.g * 255) + ',' + Math.round(color.b * 255) + ',';
 
                     gdx.addColorStop(0, rgba + '1)');
