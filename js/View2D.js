@@ -20,9 +20,6 @@ function View2D(workspace, div) {
     this._scene = workspace.scene2d;
     this._spotLabel = new SpotLabel2D(this);
 
-    this._attrubutes = {
-        radius: { type: 'f', value: null },
-    };
     this._uniforms = {
         imageSize: { type: 'v2', value: new THREE.Vector2() },
         canvasSize: { type: 'v2', value: new THREE.Vector2() },
@@ -32,7 +29,6 @@ function View2D(workspace, div) {
     };
     this._material = new THREE.ShaderMaterial({
         uniforms: this._uniforms,
-        attributes: this._attrubutes,
         vertexShader: View2D.VERTEX_SHADER,
         fragmentShader: View2D.FRAGMENT_SHADER,
         vertexColors: THREE.VertexColors,
@@ -58,15 +54,15 @@ function View2D(workspace, div) {
 View2D.SCALE_CHANGE = 1.1;
 
 View2D.VERTEX_SHADER =
-        'attribute float radius;' +
         'uniform vec2 imageSize;' +
         'uniform vec2 canvasSize;' +
         'uniform vec2 offset;' +
         'uniform float scale;' +
-        'varying vec3 pointColor;' +
+        'varying vec2 vUv;' +
+        'varying vec3 vColor;' +
         'void main() {' +
-            'pointColor = color;' +
-            'gl_PointSize = 2.0 * radius * scale;' +
+            'vUv = uv;' +
+            'vColor = color;' +
             'vec2 halfImageSize = imageSize * 0.5;' +
             'vec2 halfCanvasSize = canvasSize * 0.5;' +
             'vec2 normalizedPosition = (position.xy - halfImageSize);' +
@@ -75,12 +71,13 @@ View2D.VERTEX_SHADER =
         '}';
 
 View2D.FRAGMENT_SHADER =
-        'varying vec3 pointColor;' +
+        'varying vec2 vUv;' +
+        'varying vec3 vColor;' +
         'uniform float opacityDecay;' +
         'void main() {' +
-            'float d = distance(gl_PointCoord, vec2(0.5, 0.5)) * 2.0;' +
-            'if (d > 1.0) discard;' +
-            'gl_FragColor = vec4(pointColor, 1.0 - opacityDecay * d);' +
+            'float r = distance(vUv, vec2(0.0, 0.0));' +
+            'if (r > 1.0) discard;' +
+            'gl_FragColor = vec4(vColor, 1.0 - opacityDecay * r);' +
         '}';
 
 View2D.prototype = Object.create(null, {
@@ -131,29 +128,40 @@ View2D.prototype = Object.create(null, {
                 return !isNaN(s.intensity);
             });
             var spotsCount = spots.length;
-            var positions = new Float32Array(spotsCount * 3);
-			var colors = new Float32Array(spotsCount * 3);
-			var spotsRadius = new Float32Array(spotsCount);
+            var positions = new Float32Array(spotsCount * 6 * 3);
+            var uvs = new Float32Array(spotsCount * 6 * 2);
+			var colors = new Float32Array(spotsCount * 6 * 3);
 			var color = new THREE.Color();
 			var colorMap = this._scene.colorMap;
-			
+
             for (var i = 0; i < spotsCount; i++) {
                 var s = spots[i];
-                positions[i * 3 + 0] = s.x;
-                positions[i * 3 + 1] = s.y;
                 colorMap.map(color, s.intensity);
-                colors[i * 3 + 0] = color.r;
-                colors[i * 3 + 1] = color.g;
-                colors[i * 3 + 2] = color.b;
-                spotsRadius[i] = s.r;
+                function setPoint(index, dx, dy) {
+                    var idx = i * 6 + index;
+                    positions[idx * 3 + 0] = s.x + s.r * dx;
+                    positions[idx * 3 + 1] = s.y + s.r * dy;
+                    positions[idx * 3 + 2] = 0;
+                    uvs[idx * 2 + 0] = dx;
+                    uvs[idx * 2 + 1] = dy;
+                    colors[idx * 3 + 0] = color.r;
+                    colors[idx * 3 + 1] = color.g;
+                    colors[idx * 3 + 3] = color.b;
+                }
+                setPoint(0, 1, 1);
+                setPoint(1, 1, -1);
+                setPoint(2, -1, -1);
+                setPoint(3, -1, -1);
+                setPoint(4, -1, 1);
+                setPoint(5, 1, 1);
             }
 
             var geometry = new THREE.BufferGeometry();
             geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
 			geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-			geometry.addAttribute('radius', new THREE.BufferAttribute(spotsRadius, 1));
-			
-			this._scene3js.add(new THREE.PointCloud(geometry, this._material));
+
+			this._scene3js.add(new THREE.Mesh(geometry, this._material));
 			this._renderSpots();
         }
     },
