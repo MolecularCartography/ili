@@ -147,7 +147,7 @@ View2D.prototype = Object.create(null, {
                     uvs[idx * 2 + 1] = dy;
                     colors[idx * 3 + 0] = color.r;
                     colors[idx * 3 + 1] = color.g;
-                    colors[idx * 3 + 3] = color.b;
+                    colors[idx * 3 + 2] = color.b;
                 }
                 setPoint(0, 1, 1);
                 setPoint(1, 1, -1);
