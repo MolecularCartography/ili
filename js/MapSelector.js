@@ -306,7 +306,7 @@ MapSelector.prototype = Object.create(null, {
                 '"': '&quot;'
             };
 
-            return String(x).replace(/[&<>"\/]/g, function(s) {
+            return String(x).replace(/[&<>"]/g, function(s) {
               return entityMap[s];
             });
         }
