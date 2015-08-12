@@ -2,12 +2,7 @@ function Scene3D() {
     EventSource.call(this, Scene3D.Events);
 
     this._scene = new THREE.Scene();
-    this._light1 = new THREE.PointLight(0xffffff, 1, 0);
-    this._light1.position.set(-100, 100, 500);
-    this._light2 = new THREE.DirectionalLight(0xffffff, 0.8);
-    this._light2.position.set(0, 1, 0);
-    this._light3 = new THREE.DirectionalLight(0xffffff, 1);
-    this._light3.position.set(0, -1, 0);
+    this._frontLight = new THREE.PointLight(0xffffff, 1.5, 0);
     this._mesh = null;
     this._meshContainer = new THREE.Object3D();
     this._color = new THREE.Color('#575757');
@@ -28,9 +23,6 @@ function Scene3D() {
     this._spots = null;
     this._mapping = null;
 
-    this._scene.add(this._light1);
-    this._scene.add(this._light2);
-    this._scene.add(this._light3);
     this._scene.add(new THREE.AxisHelper(20));
     this._scene.add(this._meshContainer);
 };
@@ -80,9 +72,7 @@ Scene3D.prototype = Object.create(EventSource.prototype, {
     clone: {
         value: function(eventName, listener) {
             var result = new Scene3D();
-            result.light1 = this.light1;
-            result.light2 = this.light2;
-            result.light3 = this.light3;
+            result.frontLight = this.frontLight;
             result.color = this.color;
             result.backgroundColor = this.backgroundColor;
             result.spotBorder = this.spotBorder;
@@ -100,11 +90,7 @@ Scene3D.prototype = Object.create(EventSource.prototype, {
         }
     },
 
-    light1: Scene3D._makeLightProperty('_light1'),
-
-    light2: Scene3D._makeLightProperty('_light2'),
-
-    light3: Scene3D._makeLightProperty('_light3'),
+    frontLight: Scene3D._makeLightProperty('_frontLight'),
 
     color: {
         get: function() {
@@ -273,6 +259,8 @@ Scene3D.prototype = Object.create(EventSource.prototype, {
 
     render: {
         value: function(renderer, camera) {
+            this._scene.add(camera);
+            camera.add(this._frontLight);
             renderer.render(this._scene, camera);
         }
     },

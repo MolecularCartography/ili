@@ -8,6 +8,11 @@
             "scripts": ["chromeapp-background.js"]
         }
     },
+    "requirements": {
+        "3D": {
+            "features": ["webgl"]
+        }
+    },
     "icons": { "16": "img/favicon_16.png",
            "48": "img/logo_48.png",
           "128": "img/logo_128.png" }

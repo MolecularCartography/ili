@@ -5,7 +5,6 @@ function View2D(workspace, div) {
     this._img = this._div.querySelector('img');
     this._canvas = this._div.querySelector('canvas');
     this._renderer = new THREE.WebGLRenderer({
-        antialias: true,
         canvas: this._canvas,
         alpha: true,
         antialias: true,
