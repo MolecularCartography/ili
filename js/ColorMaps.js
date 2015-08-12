@@ -59,15 +59,16 @@ ColorMap.prototype = Object.create(null, {
 });
 
 ColorMap.Maps = {
-    PARULA: new ColorMap('Parula', [
-            '#352A87',
-            '#0268E1',
-            '#108ED2',
-            '#0FAEB9',
-            '#65BE86',
-            '#C0BC60',
-            '#FFC337',
-            '#F9FB0E']),
+    VIRIDIS: new ColorMap('Viridis', [
+        '#440154',
+        '#482777',
+        '#3F4A8A',
+        '#31678E',
+        '#26838F',
+        '#1F9D8A',
+        '#6CCE5A',
+        '#B6DE2B',
+        '#FEE825']),
 
     JET: new ColorMap('Jet', [
             '#00007F',
