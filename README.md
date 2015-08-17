@@ -5,7 +5,7 @@
 
 `ili is being developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
 
-* Developer: Sergey Ryazanov
+* Developers: Ivan Protsyuk, Sergey Ryazanov
 * Principal investigator: Theodore Alexandrov 
 
 
