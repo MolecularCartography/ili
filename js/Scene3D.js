@@ -18,13 +18,13 @@ function Scene3D() {
     this._spotBorder = 0.05;
     this._colorMap = null;
     this._adjustment = {x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0};
-    this._animationFrameStart = undefined;
 
     this._spots = null;
     this._mapping = null;
 
     this._scene.add(new THREE.AxisHelper(20));
     this._scene.add(this._meshContainer);
+    this._scene.add(this._frontLight);
 };
 
 Scene3D.Events = {
@@ -259,8 +259,7 @@ Scene3D.prototype = Object.create(EventSource.prototype, {
 
     render: {
         value: function(renderer, camera) {
-            this._scene.add(camera);
-            camera.add(this._frontLight);
+            this._frontLight.position.set(camera.position.x, camera.position.y, camera.position.z);
             renderer.render(this._scene, camera);
         }
     },
