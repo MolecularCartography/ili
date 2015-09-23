@@ -27,7 +27,7 @@ For a demonstration, open in Google Chrome
 
 ## Installation
 
-There are 3 ways of running `ili in Chrome: [from this website](http://ili-toolbox.github.io/), using your http server, or as a Chrome App.
+The best ways of running `ili in Chrome are either [from this website](http://ili-toolbox.github.io/) or as a [Chrome App](https://goo.gl/wiQG5s).
 
 ## Input
 
