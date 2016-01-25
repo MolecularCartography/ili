@@ -28,7 +28,7 @@ function Workspace() {
     this._activeMeasure = null;
     this._colorMap = ColorMap.Maps.VIRIDIS;
     this._scale = Workspace.Scale.LINEAR;
-    this._hotspotQuantile = 0.95;
+    this._hotspotQuantile = 1.0;
     this._spotBorder = 0.0;
     this._autoMinMax = true;
     this._minValue = 0.0;
