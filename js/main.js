@@ -215,8 +215,12 @@ function findExamples(onFound) {
     )
 }
 
+function examplesCanBeShown() {
+    return typeof chrome !== 'undefined' && chrome.runtime !== undefined && chrome.runtime.getPackageDirectoryEntry !== undefined;
+}
+
 function initExamplesWidget() {
-    if (typeof chrome == 'undefined') {
+    if (!examplesCanBeShown()) {
         return;
     }
     var examples_selector = new dat.GUI({autoPlace: false});
