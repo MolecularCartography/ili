@@ -1,6 +1,6 @@
 {
     "name": "`ili",
-    "description": "A toolbox for 2D and 3D molecular mapping in Chrome",
+    "description": "`ili: A toolbox for molecular mapping in 2D and 3D. Map your spatial molecular data onto photos, geographical maps, and 3D surfaces.",
     "version": "0.1",
     "manifest_version": 2,
     "app": {
@@ -13,6 +13,9 @@
             "features": ["webgl"]
         }
     },
+    "permissions": [
+        "fileSystem"
+    ],
     "icons": { "16": "img/favicon_16.png",
            "48": "img/logo_48.png",
           "128": "img/logo_128.png" }

@@ -21,6 +21,7 @@ function init() {
             $('#current-map-label')[0]);
 
     initGUI();
+    initExamplesWidget();
 
     g_workspace.addEventListener(Workspace.Events.STATUS_CHANGE,
                                  onWorkspaceStatusChange);
@@ -119,7 +120,6 @@ function clearErrors() {
 function initGUI() {
     g_gui = new dat.GUI();
 
-
     var f2d = g_gui.addFolder('2D');
     f2d.add(g_workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
@@ -165,6 +165,70 @@ function initGUI() {
         f2d.closed = (g_workspace.mode != Workspace.Mode.MODE_2D);
         f3d.closed = (g_workspace.mode != Workspace.Mode.MODE_3D);
     });
+}
+
+function addExampleFromDir(dir, exampleHandler) {
+    var dirReader = dir.createReader();
+    dirReader.readEntries(function(entries) {
+        var example = {
+            files: [],
+            name: dir.name
+        };
+        example[dir.name] = function() {
+            openFiles(this.files);
+        };
+        var addFileToExample = function(file) {
+            example.files.push(file);
+        };
+        entries.forEach(function(entry) {
+            if (entry.isFile) {
+                entry.file(addFileToExample);
+            }
+        });
+        exampleHandler(example);
+    });
+}
+
+function findExamples(onFound) {
+    var examplesDirName = 'data';
+    chrome.runtime.getPackageDirectoryEntry(
+        function(directoryEntry) {
+            var rootDirReader = directoryEntry.createReader();
+
+            rootDirReader.readEntries(function(entries) {
+                var examplesRootDir = entries.find(function(entry){
+                    return entry.name == examplesDirName;
+                });
+                if (examplesRootDir === undefined) {
+                    return;
+                }
+                var examplesDirReader = examplesRootDir.createReader();
+                examplesDirReader.readEntries(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isDirectory) {
+                            addExampleFromDir(entry, onFound);
+                        }
+                    });
+                });
+            });
+        }
+    )
+}
+
+function initExamplesWidget() {
+    if (typeof chrome == 'undefined') {
+        return;
+    }
+    var examples_selector = new dat.GUI({autoPlace: false});
+
+    var folder = examples_selector.addFolder('Examples');
+    folder.open();
+    findExamples(function(example) {
+        folder.add(example, example.name);
+    });
+
+    var container = document.getElementById('examples-container');
+    container.appendChild(examples_selector.domElement);
 }
 
 function onAutoMappingChange(mapping) {

@@ -134,20 +134,21 @@ View2D.prototype = Object.create(null, {
 			var color = new THREE.Color();
 			var colorMap = this._scene.colorMap;
 
+            function setPoint(index, dx, dy) {
+                var idx = i * 6 + index;
+                positions[idx * 3 + 0] = s.x + s.r * dx;
+                positions[idx * 3 + 1] = s.y + s.r * dy;
+                positions[idx * 3 + 2] = 0;
+                uvs[idx * 2 + 0] = dx;
+                uvs[idx * 2 + 1] = dy;
+                colors[idx * 3 + 0] = color.r;
+                colors[idx * 3 + 1] = color.g;
+                colors[idx * 3 + 2] = color.b;
+            }
+
             for (var i = 0; i < spotsCount; i++) {
                 var s = spots[i];
                 colorMap.map(color, s.intensity);
-                function setPoint(index, dx, dy) {
-                    var idx = i * 6 + index;
-                    positions[idx * 3 + 0] = s.x + s.r * dx;
-                    positions[idx * 3 + 1] = s.y + s.r * dy;
-                    positions[idx * 3 + 2] = 0;
-                    uvs[idx * 2 + 0] = dx;
-                    uvs[idx * 2 + 1] = dy;
-                    colors[idx * 3 + 0] = color.r;
-                    colors[idx * 3 + 1] = color.g;
-                    colors[idx * 3 + 2] = color.b;
-                }
                 setPoint(0, 1, 1);
                 setPoint(1, 1, -1);
                 setPoint(2, -1, -1);

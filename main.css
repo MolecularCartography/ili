@@ -14,6 +14,14 @@ body {
     display:  flex;
 }
 
+#examples-container {
+    display: inherit;
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 1vh;
+}
+
 #status {
     color: black;
     left: 0;
