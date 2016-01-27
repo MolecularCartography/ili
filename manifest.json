@@ -1,7 +1,7 @@
 {
     "name": "`ili",
     "description": "`ili: A toolbox for molecular mapping in 2D and 3D. Map your spatial molecular data onto photos, geographical maps, and 3D surfaces.",
-    "version": "0.1",
+    "version": "0.2",
     "manifest_version": 2,
     "app": {
         "background": {
