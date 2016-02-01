@@ -53,7 +53,7 @@ body {
     right: 20px;
     top: 30%;
     width: 200px;
-    bottom: 100px;
+    bottom: 100px !important;
     background-color: silver;
     overflow:  hidden;
     z-index: 100;

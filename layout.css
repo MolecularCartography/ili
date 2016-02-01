@@ -14,6 +14,10 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
     display: flex;
 }
 
+#examples-container .property-name {
+    width: 150px;
+}
+
 #view-container[layout|='mode'] > .ViewLegend {
     width: 200px;
     height: 80px;

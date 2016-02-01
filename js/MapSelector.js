@@ -23,7 +23,8 @@ function MapSelector(workspace, div, mapName) {
             'intensities-change', this._onWorkspaceIntencitiesChange.bind(this));
     this._input.addEventListener('input', this._onInput.bind(this));
     this._input.addEventListener('blur', this._onBlur.bind(this));
-    this._input.addEventListener('keydown', this._onKeyDown.bind(this), false);
+
+    this._input.addEventListener(g_keyPressEvent, this._onKeyPress.bind(this), false);
     this._itemsContainer.addEventListener(
             'mousedown', this._onItemMouseDown.bind(this), false);
     this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
@@ -157,7 +158,11 @@ MapSelector.prototype = Object.create(null, {
             if (prev) prev.removeAttribute('selected');
             if (value) {
                 value.setAttribute('selected', '');
-                value.scrollIntoViewIfNeeded();
+                if ('scrollIntoViewIfNeeded' in value) {
+                    value.scrollIntoViewIfNeeded();
+                } else if ('scrollIntoView' in value) {
+                    value.scrollIntoView(false);
+                }
                 this._selectIndex(Number(value.getAttribute('index')));
             }
         }
@@ -167,8 +172,8 @@ MapSelector.prototype = Object.create(null, {
         value: function(value) {
             this._selectedIndex = value;
             if (value >= 0) {
-                this._workspace.selectMap(value);
                 this._mapName.textContent = this._measures[value].name;
+                this._workspace.selectMap(value);
             } else {
                 this._mapName.textContent = '';
             }
@@ -200,29 +205,30 @@ MapSelector.prototype = Object.create(null, {
         }
     },
 
-    _onKeyDown: {
+    _onKeyPress: {
         value: function(event) {
             if (event.ctrlKey || event.ctrlKey || event.metaKey) return;
 
-            switch (event.keyIdentifier) {
-                case 'Up':
+            var key = (event.which ? event.which : event.keyCode).toString();
+            switch (key) {
+                case '38': // ArrowUp
                     this.navigate(MapSelector.Direction.UP);
                     break;
 
-                case 'Down':
+                case '40': // ArrowDown
                     this.navigate(MapSelector.Direction.DOWN);
                     break;
 
-                case 'PageUp':
+                case '33': // PageUp
                     this.navigate(MapSelector.Direction.PAGE_UP);
                     break;
 
-                case 'PageDown':
+                case '34': // PageDown
                     this.navigate(MapSelector.Direction.PAGE_DOWN);
                     break;
 
-                case 'Enter':
-                case 'U+001B' /* Escape */:
+                case '13': // Enter
+                case '27': // Escape
                     this.deactivate();
                     break;
 

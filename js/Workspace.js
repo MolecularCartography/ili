@@ -188,6 +188,7 @@ Workspace.prototype = Object.create(EventSource.prototype, {
                 for (var i = 0; i < result.items.length; i++) {
                     var blob = result.items[i].blob;
                     switch (blob.type) {
+                        case 'application/vnd.ms-excel':
                         case 'text/csv':
                             this.loadIntensities(blob);
                             break;

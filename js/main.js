@@ -7,7 +7,10 @@
 var g_workspace;
 var g_views;
 var g_gui;
+var g_examples;
 var g_mapSelector;
+var g_isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
+var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
 
 /*
  * On load initialization.
@@ -21,14 +24,14 @@ function init() {
             $('#current-map-label')[0]);
 
     initGUI();
-    initExamplesWidget();
+    g_examples = new Examples();
 
     g_workspace.addEventListener(Workspace.Events.STATUS_CHANGE,
                                  onWorkspaceStatusChange);
     g_workspace.addEventListener(Workspace.Events.ERRORS_CHANGE,
                                  onWorkspaceErrorsChange);
 
-    document.addEventListener('keydown', onKeyDown, false);
+    initKeyboardShortcuts();
 
     $('#open-button').click(chooseFilesToOpen);
     $('#current-map-label').click(function() {g_mapSelector.activate();});
@@ -48,38 +51,48 @@ function init() {
 }
 
 var KEYBOARD_SHORTCUTS = {
-    'U+004F': chooseFilesToOpen, // Ctrl + O
-    'U+0046': function() { // Ctrl + F
-        g_mapSelector.activate();
-    },
-    'U+0053': function() { // Ctrl + S
-        var name = g_workspace.mapName || 'image';
-        g_views.export().then(function(blob) {
-            saveAs(blob, name + '.png');
-        });
-    },
-    'Up': function() {
+    '38': function() { // ArrowUp
         g_mapSelector.blink();
         g_mapSelector.navigate(MapSelector.Direction.UP);
     },
-    'Down': function() {
+    '40': function() { // ArrowDown
         g_mapSelector.blink();
         g_mapSelector.navigate(MapSelector.Direction.DOWN);
-    },
+    }
 };
 
-function onKeyDown(event) {
+function initKeyboardShortcuts() {
+    KEYBOARD_SHORTCUTS[g_isWebkit ? '79' : '111'] = chooseFilesToOpen; // Ctrl + O
+    KEYBOARD_SHORTCUTS[g_isWebkit ? '70' : '102'] = activateMapSelector; // Ctrl + F
+    KEYBOARD_SHORTCUTS[g_isWebkit ? '83' : '115'] = takeSnapshot; // Ctrl + S
+
+    document.addEventListener(g_keyPressEvent, onKeyPress, false);
+}
+
+function activateMapSelector() {
+    g_mapSelector.activate();
+}
+
+function takeSnapshot() {
+    var name = g_workspace.mapName || 'image';
+    g_views.export().then(function(blob) {
+        saveAs(blob, name + '.png');
+    });
+}
+
+function onKeyPress(event) {
     if ((/^Mac/i).test(navigator.platform)) {
         if (event.ctrlKey || event.altKey || !event.metaKey) return;
     } else {
         if (!event.ctrlKey || event.altKey || event.metaKey) return;
     }
 
-    if (event.keyIdentifier in KEYBOARD_SHORTCUTS) {
-        var handler = KEYBOARD_SHORTCUTS[event.keyIdentifier];
-        handler();
-        event.stopPropagation();
+    var key = (event.which ? event.which : event.keyCode).toString();
+    if (key in KEYBOARD_SHORTCUTS) {
         event.preventDefault();
+        var handler = KEYBOARD_SHORTCUTS[key];
+        handler();
+        return false;
     }
 }
 
@@ -165,74 +178,6 @@ function initGUI() {
         f2d.closed = (g_workspace.mode != Workspace.Mode.MODE_2D);
         f3d.closed = (g_workspace.mode != Workspace.Mode.MODE_3D);
     });
-}
-
-function addExampleFromDir(dir, exampleHandler) {
-    var dirReader = dir.createReader();
-    dirReader.readEntries(function(entries) {
-        var example = {
-            files: [],
-            name: dir.name
-        };
-        example[dir.name] = function() {
-            openFiles(this.files);
-        };
-        var addFileToExample = function(file) {
-            example.files.push(file);
-        };
-        entries.forEach(function(entry) {
-            if (entry.isFile) {
-                entry.file(addFileToExample);
-            }
-        });
-        exampleHandler(example);
-    });
-}
-
-function findExamples(onFound) {
-    var examplesDirName = 'data';
-    chrome.runtime.getPackageDirectoryEntry(
-        function(directoryEntry) {
-            var rootDirReader = directoryEntry.createReader();
-
-            rootDirReader.readEntries(function(entries) {
-                var examplesRootDir = entries.find(function(entry){
-                    return entry.name == examplesDirName;
-                });
-                if (examplesRootDir === undefined) {
-                    return;
-                }
-                var examplesDirReader = examplesRootDir.createReader();
-                examplesDirReader.readEntries(function(entries) {
-                    entries.forEach(function(entry) {
-                        if (entry.isDirectory) {
-                            addExampleFromDir(entry, onFound);
-                        }
-                    });
-                });
-            });
-        }
-    )
-}
-
-function examplesCanBeShown() {
-    return typeof chrome !== 'undefined' && chrome.runtime !== undefined && chrome.runtime.getPackageDirectoryEntry !== undefined;
-}
-
-function initExamplesWidget() {
-    if (!examplesCanBeShown()) {
-        return;
-    }
-    var examples_selector = new dat.GUI({autoPlace: false});
-
-    var folder = examples_selector.addFolder('Examples');
-    folder.open();
-    findExamples(function(example) {
-        folder.add(example, example.name);
-    });
-
-    var container = document.getElementById('examples-container');
-    container.appendChild(examples_selector.domElement);
 }
 
 function onAutoMappingChange(mapping) {
