@@ -575,7 +575,9 @@ Workspace.TaskType.LOAD_IMAGE.worker = Workspace.ImageLoader;
 Workspace.ImageLoader.prototype = {
     terminate: function() {
         this._terminated = true;
-        this._reader.abort();
+        if (this._reader.readyState == 1) {
+            this._reader.abort();
+        }
         if (this._url) {
             URL.revokeObjectURL(this._url);
             this._url = null;
