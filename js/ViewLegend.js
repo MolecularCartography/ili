@@ -42,29 +42,26 @@ ViewLegend.prototype = Object.create(null, {
         value: function(canvas, scale) {
             return new Promise(function(accept, reject) {
                 var OFFSET = 10;
-                var width = this._svg.clientWidth || this._svg.parentNode.clientWidth;
-                var height = this._svg.clientHeight || this._svg.parentNode.clientHeight;
+                var width = this._svg.getBBox().width;
+                var height = this._svg.getBBox().height;
                 var source =
                         '<svg xmlns="http://www.w3.org/2000/svg" width="' +
                         width + '" height="' + height + '">' +
                         this._svg.innerHTML +
                         '</svg>';
-                var blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
                 var image = new Image();
                 image.onload = function() {
                     var ctx = canvas.getContext('2d');
                     var left = canvas.width - (width + OFFSET) * scale;
                     var top = canvas.height - (height + OFFSET) * scale;
                     ctx.drawImage(image, left, top, width * scale, height * scale);
-                    URL.revokeObjectURL(image.src);
                     accept();
                 };
                 image.onerror = function(event) {
-                    URL.revokeObjectURL(image.src);
                     console.log('Failed to load SVG', event);
                     reject();
                 };
-                image.src = URL.createObjectURL(blob);
+                image.setAttribute("src", "data:image/svg+xml;base64," + window.btoa(source));
             }.bind(this));
         }
     },
