@@ -25,11 +25,11 @@ function Examples() {
     };
     var items = [
         {
-            name: '3D-Massomics meeting',
+            name: '3D-MASSOMICS meeting mockup',
             files: ['3dmassomics/bg.png', '3dmassomics/intensities.csv'],
         },
         {
-            name: 'Bee',
+            name: 'Stingless bee',
             files: ['bee/model.stl', 'bee/intensities.csv'],
             adjustView: function() {
                 g_workspace.scene3d.adjustment.alpha = -90;
@@ -51,7 +51,7 @@ function Examples() {
             }
         },
         {
-            name: 'Cyanobacteria map',
+            name: 'Cyanobacteria natural products',
             files: ['cyano/bg.png', 'cyano/intensities.csv'],
             adjustView: function() {
                 g_workspace.scaleId = Workspace.Scale.LOG.id;
@@ -59,7 +59,7 @@ function Examples() {
             }
         },
         {
-            name: 'Human skin project',
+            name: 'Human skin metabolome',
             files: ['human/man.stl', 'human/man_LCMS_small.csv'],
             adjustView: function() {
                 g_workspace.colorMapId = 'VIRIDIS';
