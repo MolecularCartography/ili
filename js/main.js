@@ -76,7 +76,7 @@ function activateMapSelector() {
 function takeSnapshot() {
     var name = g_workspace.mapName || 'image';
     g_views.export().then(function(blob) {
-        saveAs(blob, name + '.png');
+        saveAs(blob, name + '.png', 'image/png');
     });
 }
 
