@@ -25,8 +25,7 @@ function MapSelector(workspace, div, mapName) {
     this._input.addEventListener('blur', this._onBlur.bind(this));
 
     this._input.addEventListener(g_keyPressEvent, this._onKeyPress.bind(this), false);
-    this._itemsContainer.addEventListener(
-            'mousedown', this._onItemMouseDown.bind(this), false);
+    this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
     this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
     this._onWorkspaceIntencitiesChange();
 }
@@ -151,18 +150,31 @@ MapSelector.prototype = Object.create(null, {
         get: function() {
             return this._itemsContainer.querySelector('[selected]');
         },
-
         set: function(value) {
+            function isElementHidden(el) {
+                var rect = el.getBoundingClientRect();
+                var parentRect = el.parentElement.getBoundingClientRect();
+                if (rect.top < parentRect.top) {
+                    return 1;
+                } else if (rect.bottom > parentRect.bottom) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            }
+
             if (value && value.parentElement != this._itemsContainer) throw 'Invalid parameter';
             var prev = this.selectedItem;
             if (prev) prev.removeAttribute('selected');
             if (value) {
                 value.setAttribute('selected', '');
-                if ('scrollIntoViewIfNeeded' in value) {
-                    value.scrollIntoViewIfNeeded();
-                } else if ('scrollIntoView' in value) {
-                    value.scrollIntoView(false);
+
+                var scrollDirection = isElementHidden(value);
+                scrollDirection = scrollDirection > 0 ? true : scrollDirection < 0 ? false : null;
+                if (null !== scrollDirection && 'scrollIntoView' in value) {
+                    value.scrollIntoView(scrollDirection);
                 }
+
                 this._selectIndex(Number(value.getAttribute('index')));
             }
         }
