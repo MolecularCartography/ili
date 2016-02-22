@@ -187,25 +187,25 @@ Workspace.prototype = Object.create(EventSource.prototype, {
                     then(function(result) {
                 for (var i = 0; i < result.items.length; i++) {
                     var blob = result.items[i].blob;
-                    switch (blob.type) {
-                        case 'application/vnd.ms-excel':
-                        case 'text/csv':
-                            this.loadIntensities(blob);
-                            break;
 
-                        case 'image/jpeg':
-                        case 'image/png':
-                            this.loadImage(blob);
-                            break;
+                    var fileName = result.items[i].fileName;
+                    if (/\.stl$/i.test(fileName)) {
+                        this.loadMesh(blob);
+                    } else {
+                        switch (blob.type) {
+                            case 'application/vnd.ms-excel':
+                            case 'text/plain':
+                            case 'text/csv':
+                                this.loadIntensities(blob);
+                                break;
 
-                        default: {
-                            var fileName = result.items[i].fileName;
-                            if (/\.stl$/i.test(fileName)) {
-                                this.loadMesh(blob);
-                            } else {
-                                console.info('Unrecognized file type: ' + fileName +
-                                             ' (' + blob.type + ')');
-                            }
+                            case 'image/jpeg':
+                            case 'image/png':
+                                this.loadImage(blob);
+                                break;
+
+                            default:
+                                console.info('Unrecognized file type: ' + fileName + ' (' + blob.type + ')');
                         }
                     }
                 }

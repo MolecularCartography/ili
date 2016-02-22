@@ -42,8 +42,9 @@ ViewLegend.prototype = Object.create(null, {
         value: function(canvas, scale) {
             return new Promise(function(accept, reject) {
                 var OFFSET = 10;
-                var width = this._svg.getBBox().width;
-                var height = this._svg.getBBox().height;
+                var legendStyle = window.getComputedStyle(this._svg);
+                var width = parseInt(legendStyle.getPropertyValue('width'), 10);
+                var height = parseInt(legendStyle.getPropertyValue('height'), 10);
                 var source =
                         '<svg xmlns="http://www.w3.org/2000/svg" width="' +
                         width + '" height="' + height + '">' +
