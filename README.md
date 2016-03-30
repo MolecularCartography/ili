@@ -79,4 +79,4 @@ Please sign up to the mailing list by sending an email to ili-toolbox+subscribe@
 
 ## Funding
 
-This project is funded from the European Union project [3D-MASSOMICS](http://3d-massomics.eu/) (FP7 HEALTH program, grant agreement no. 305259).
+This project is funded from the European projects [3D-MASSOMICS](http://3d-massomics.eu/) (FP7 HEALTH program, grant agreement no. 305259), [METASPACE](http://metaspace2020.eu/) (Horizon2020 program, grant agreement no. 634402) and from the internal funds of European Molecular Biology Laboratory.
