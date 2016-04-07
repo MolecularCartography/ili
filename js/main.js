@@ -17,11 +17,11 @@ var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
  */
 function init() {
     g_workspace = new Workspace();
-    g_views = new ViewContainer(g_workspace, $('#view-container')[0]);
+    g_views = new ViewContainer(g_workspace, document.getElementById('view-container'));
     g_mapSelector = new MapSelector(
             g_workspace,
-            $('#map-selector')[0],
-            $('#current-map-label')[0]);
+            document.getElementById('map-selector'),
+            document.getElementById('current-map-label'));
 
     initGUI();
     g_examples = new Examples();
@@ -33,10 +33,10 @@ function init() {
 
     initKeyboardShortcuts();
 
-    $('#open-button').click(chooseFilesToOpen);
-    $('#current-map-label').click(function() {g_mapSelector.activate();});
-    $('#view-container').mousedown(function(event) {g_mapSelector.deactivate();});
-    $('dialog#errors #close').click(clearErrors);
+    document.getElementById('open-button').onclick = chooseFilesToOpen;
+    document.getElementById('current-map-label').onclick = function() {g_mapSelector.activate();};
+    document.getElementById('view-container').onmousedown = function(event) {g_mapSelector.deactivate();};
+    document.querySelector('dialog#errors #close').onclick = clearErrors;
 
     for (var e in DragAndDrop) {
         var fn = DragAndDrop[e];
@@ -98,10 +98,10 @@ function onKeyPress(event) {
 
 function onWorkspaceStatusChange() {
     if (g_workspace.status) {
-        $('#status').text(g_workspace.status);
-        $('#status').prop('hidden', false);
+        document.getElementById('status').innerHTML = g_workspace.status;
+        document.getElementById('status').removeAttribute('hidden');
     } else {
-        $('#status').prop('hidden', true);
+        document.getElementById('status').setAttribute('hidden', 'true');
     }
 }
 
@@ -182,8 +182,8 @@ function initGUI() {
 
 function onAutoMappingChange(mapping) {
     var disabled = g_workspace.autoMinMax ? '' : null;
-    $(mapping.min.domElement).find('input').attr('disabled', disabled);
-    $(mapping.max.domElement).find('input').attr('disabled', disabled);
+    mapping.min.domElement.querySelector('input').setAttribute('disabled', disabled);
+    mapping.max.domElement.querySelector('input').setAttribute('disabled', disabled);
     if (g_workspace.autoMinMax) {
         mapping.min.updateDisplay();
         mapping.max.updateDisplay();
@@ -199,13 +199,13 @@ var DragAndDrop = {
     dragenter: function(e) {
         e.preventDefault();
         if (++DragAndDrop._counter == 1)
-            $('body').attr('drop-target', '');
+            document.body.setAttribute('drop-target', '');
     },
 
     dragleave: function(e) {
         e.preventDefault();
         if (--DragAndDrop._counter === 0)
-            $('body').removeAttr('drop-target');
+            document.body.removeAttribute('drop-target');
     },
 
     dragover: function(e) {
@@ -214,7 +214,7 @@ var DragAndDrop = {
 
     drop: function(e) {
         DragAndDrop._counter = 0;
-        $('body').removeAttr('drop-target');
+        document.body.removeAttribute('drop-target');
 
         e.preventDefault();
         e.stopPropagation();
@@ -259,4 +259,4 @@ function chooseFilesToOpen() {
     fileInput.click();
 }
 
-$(init);
+window.onload = init;
