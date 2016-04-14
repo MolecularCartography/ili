@@ -1,9 +1,9 @@
-define([
-    'spotlabelbase'
-],
-function(SpotLabelBase) {
-    'use strict';
+'use strict';
 
+define([
+    'spotlabelbase', 'three'
+],
+function(SpotLabelBase, THREE) {
     function SpotLabel3D(group, scene) {
         SpotLabelBase.apply(this);
         this._group = group;
