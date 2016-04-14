@@ -3,32 +3,84 @@
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <title>`ili</title>
-  <link rel="stylesheet" type="text/css" href="main.css">
-  <link rel="stylesheet" type="text/css" href="layout.css">
-  <script src="js/lib/dat.gui.js"></script>
-  <script src="js/lib/jquery-2.1.4.min.js"></script>
-  <script src="js/lib/three.js"></script>
-  <script src="js/lib/FileSaver.min.js"></script>
-  <script src="js/lib/OrbitControls.js"></script>
-  <script src="js/common.js"></script>
-  <script src="js/EventSource.js"></script>
-  <script src="js/ColorMaps.js"></script>
-  <script src="js/MapSelector.js"></script>
-  <script src="js/Scene2D.js"></script>
-  <script src="js/Scene3D.js"></script>
-  <script src="js/SpotLabelBase.js"></script>
-  <script src="js/SpotLabel2D.js"></script>
-  <script src="js/SpotLabel3D.js"></script>
-  <script src="js/View2D.js"></script>
-  <script src="js/View3D.js"></script>
-  <script src="js/ViewContainer.js"></script>
-  <script src="js/ViewGroup3D.js"></script>
-  <script src="js/ViewLegend.js"></script>
-  <script src="js/Workspace.js"></script>
-  <script src="js/Examples.js"></script>
-  <script src="js/main.js"></script>
+  <script type="text/javascript" src="./js/lib/require.min.js"></script>
   <link href="img/favicon_256.png" type="image/png" rel="icon">
   <meta name="google-site-verification" content="cxpSm-lsEATF7z2pMt1-RCZPSaKRzb6h0RiIjaVQvsE" />
+  <script type="text/javascript">
+      requirejs.config({
+        // the left side is the module name, and the right side is the path
+        // do NOT include the .js extension
+        'paths': {
+          /* we don't really need these here right? I'm only including the
+             minified files
+          */
+          // 'dat.gui': './js/lib/dat.gui',
+          // 'three': './js/lib/three',
+
+          'filesaver': './js/lib/FileSaver.min',
+          'dat': './js/lib/dat.gui.min',
+          'jquery': './js/lib/jquery-2.1.4.min',
+          'papaparse': './js/lib/papaparse.min',
+
+          /* THREE.js */
+          'three': './js/lib/three.min',
+          'orbitcontrols': './js/lib/OrbitControls',
+          'stlloader': './js/lib/STLLoader',
+
+          /* `ili's objects */
+          'colormaps': './js/ColorMaps',
+          'eventsource': './js/EventSource',
+          'examples': './js/Examples',
+          'mapselector': './js/MapSelector',
+          'scene2d': './js/Scene2D',
+          'scene3d': './js/Scene3D',
+          'spotlabel2d': './js/SpotLabel2D',
+          'spotlabel3d': './js/SpotLabel3D',
+          'labelbase': './js/SpotLabelBase',
+          'view2d': './js/View2D',
+          'view3d': './js/View3D',
+          'viewcontainer': './js/ViewContainer',
+          'viewgroup3d': './js/ViewGroup3D',
+          'viewlegend': './js/ViewLegend',
+          'workspace': './js/Workspace',
+          'common': './js/common',
+
+          /* worker submodule */
+          'wk_downloader': './js/workers/Downloader',
+          'wk_mapper': './js/workers/Mapper',
+          'wk_measuresloader': './js/workers/MeasuresLoader',
+          'wk_meshloader': './js/workers/MeshLoader',
+          'wk_raycaster': './js/workers/Raycaster'
+        },
+        /*
+           Libraries that are not AMD compatible need shim to declare their
+           dependencies.
+         */
+        'shim': {
+          'orbitcontrols': {
+            'deps': ['three']
+          },
+          'stlloader': {
+            'deps': ['three']
+          }
+        }
+      });
+
+      // High level objects. Could be easily accessed from Web Inspector.
+      var g_workspace;
+      var g_views;
+      var g_gui;
+      var g_examples;
+      var g_mapSelector;
+      var g_isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
+      var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
+
+      requirejs(["main"], function(main.init){
+        // initialize the whole application
+        window.onload = init;
+      });
+
+  </script>
 </head>
 <body>
 <div id="view-container">
