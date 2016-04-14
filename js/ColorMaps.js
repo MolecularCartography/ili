@@ -1,4 +1,4 @@
-'use striict';
+'use strict';
 
 define([
     "three"
@@ -120,5 +120,5 @@ function (THREE) {
 
     };
 
-    return ColorMap  
+    return ColorMap
 });
