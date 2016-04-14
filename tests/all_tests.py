@@ -139,7 +139,6 @@ def main():
         # the module where this was imported, the name of the arguments will
         # change that's the reason why I added the name of the arguments in
         # here
-        print 'entre'
         script_usage_result_summary, script_usage_failures = \
             run_script_usage_tests(ili_test_data_dir,      # test_data_dir
                                    ili_scripts_dir,        # scripts_dir
