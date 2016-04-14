@@ -2,9 +2,10 @@
 
 define([
     'three',
-    'scene2d'
+    'scene2d',
+    'spotlabel2d'
 ],
-function (THREE, Scene2D){
+function (THREE, Scene2D, SpotLabel2D){
     function View2D(workspace, div) {
         this._div = div;
         this._img = this._div.querySelector('img');
