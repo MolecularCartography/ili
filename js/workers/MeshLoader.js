@@ -39,11 +39,5 @@ function (STLLoader) {
         });
     }
 
-    function cloneBufferAttribute(origin) {
-        var array = new Float32Array(origin.array.length);
-        array.set(origin.array);
-        return new THREE.BufferAttribute(array, origin.itemSize);
-    }
-
-    return { 'onmessage': onmessage, 'cloneBufferAttribute': cloneBufferAttribute, 'readContents': readContents }
+    return onmessage;
 });
