@@ -4,9 +4,10 @@
 
 
 define([
-    'three'
+    'three',
+    'stloader'
 ],
-function (STLLoader) {
+function (THREE, STLLoader) {
     onmessage = function(e) {
         var blob = e.data;
         var reader = new FileReaderSync();
