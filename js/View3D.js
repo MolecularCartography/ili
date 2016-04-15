@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-        'three'
+        'orbitcontrols', 'three'
     ],
-function(THREE) {
+function(OrbitControls, THREE) {
     /**
      * View indise ViewGroup3D. All View3Ds share single canvas from the group.
      * Each view has own camera and own empty DIV for handling user input and
