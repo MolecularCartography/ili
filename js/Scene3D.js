@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-        'eventsource','three'
+        'eventsource', 'three'
     ],
 function(EventSource, THREE) {
     function Scene3D() {
