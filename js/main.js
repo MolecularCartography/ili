@@ -3,8 +3,9 @@
  */
 'use strict';
 
-define(['workspace', 'viewcontainer', 'mapselector', 'examples', 'dat'],
-function(Workspace, ViewContainer, MapSelector, Examples, dat){
+define(['workspace', 'viewcontainer', 'mapselector', 'examples', 'dat',
+        'colormap'],
+function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
     /*
      * On load initialization.
      */
