@@ -1,0 +1,77 @@
+<!--
+/**
+ *
+ * @author Yoshiki Vazquez Baeza
+ * @copyright Copyright 2013, The ili Project
+ * @credits Yoshiki Vazquez Baeza
+ * @license BSD
+ * @version 0.9.3-dev
+ * @maintainer Yoshiki Vazquez Baeza
+ * @email yoshiki89@gmail.com
+ * @status Development
+ *
+ */
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+      Note that all of the resources listed in this file assume the standard
+      base structure of ili. It is likely that this will not work properly
+      if it's not executed as suggested.
+  -->
+  <title>ili test suite</title>
+  <link rel="stylesheet" href="qunit/qunit-min.css" type="text/css" media="screen">
+
+  <!-- Testing framework requirements -->
+  <script src="qunit/qunit-min.js"></script>
+
+  <!-- Qunit depends on jQuery -->
+  <script src="../../js/lib/jquery-2.1.4.min.js"></script>
+
+  <!-- Libraries the code depends on -->
+
+  <!--Source files to test-->
+  <script src="../../js/ColorMaps.js"></script>
+  <script src="../../js/EventSource.js"></script>
+  <script src="../../js/Examples.js"></script>
+  <script src="../../js/MapSelector.js"></script>
+  <script src="../../js/Scene2D.js"></script>
+  <script src="../../js/Scene3D.js"></script>
+  <script src="../../js/SpotLabel2D.js"></script>
+  <script src="../../js/SpotLabel3D.js"></script>
+  <script src="../../js/SpotLabelBase.js"></script>
+  <script src="../../js/View2D.js"></script>
+  <script src="../../js/View3D.js"></script>
+  <script src="../../js/ViewContainer.js"></script>
+  <script src="../../js/ViewGroup3D.js"></script>
+  <script src="../../js/ViewLegend.js"></script>
+  <script src="../../js/Workspace.js"></script>
+  <script src="../../js/common.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="../../js/workers/Downloader.js"></script>
+  <script src="../../js/workers/Mapper.js"></script>
+  <script src="../../js/workers/MeasuresLoader.js"></script>
+  <script src="../../js/workers/MeshLoader.js"></script>
+  <script src="../../js/workers/Raycaster.js"></script>
+
+  <!-- Test cases -->
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <div id="map-test">
+      <div id="id1"></div>
+      <div id="id2"></div>
+    </div>
+  </div>
+  <br>
+  <h1 class="qunit-header">ili Test Suite</h1>
+  <p>
+    This test suite exercises all the functions that are used as part of
+    ili's front end. The functions that have direct interaction with the
+    instantiation of the user interface are not tested.
+  </p>
+</body>
+</html>
