@@ -1,9 +1,12 @@
 'use strict';
 
-define([
-        'three'
-    ],
-function(THREE) {
+importScripts('../lib/require.js');
+
+require({
+    baseUrl: './'
+},
+['require', 'three'],
+function(require, THREE) {
     onmessage = function (e) {
         var startTime = new Date();
 
