@@ -3,9 +3,9 @@
 importScripts('../lib/require.js');
 
 require({
-    baseUrl: "./"
-}, [],
-function() {
+    baseUrl: './'
+}, ['require'],
+function(require) {
     onmessage = function (e) {
         var fileNames = e.data;
         var downloader = new Downloader();
