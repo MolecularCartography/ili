@@ -15,9 +15,12 @@
  * highlighted.
  */
 
-define([
-        'papaparse'
-    ],
+importScripts('../lib/require.js');
+
+require({
+    baseUrl: './'
+},
+['papaparse'],
 function(Papa) {
     onmessage = function (e) {
         var blob = e.data;
