@@ -1,6 +1,10 @@
 'use strict';
 
-define([],
+importScripts('../lib/require.js');
+
+require({
+    baseUrl: "./"
+}, [],
 function() {
     onmessage = function (e) {
         var fileNames = e.data;
