@@ -1,13 +1,18 @@
+/**
+ * Web worker what builds association between points on the mesh (only used for
+ * MODE_3D) and spots. Having this accosiation prebuilt recoloring the mesh for
+ * any specific map related to the same spots could be done much faster.
+ */
+
 'use strict';
 
-define([],
-    function () {
-    /**
-     * Web worker what builds association between points on the mesh (only used for
-     * MODE_3D) and spots. Having this accosiation prebuilt recoloring the mesh for
-     * any specific map related to the same spots could be done much faster.
-     */
+importScripts('../lib/require.js');
 
+require({
+    baseUrl: './'
+},
+['require'],
+function(require) {
     onmessage = function(e) {
         var positions = e.data.verteces;
         var spots = e.data.spots;

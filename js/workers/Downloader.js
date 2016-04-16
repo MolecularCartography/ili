@@ -4,7 +4,8 @@ importScripts('../lib/require.js');
 
 require({
     baseUrl: './'
-}, ['require'],
+},
+['require'],
 function(require) {
     onmessage = function (e) {
         var fileNames = e.data;
