@@ -2,12 +2,13 @@
  * Web Worker. Loads a mesh from STL file.
  */
 
+importScripts('../lib/require.js');
 
-define([
-    'three',
-    'stloader'
-],
-function (THREE, STLLoader) {
+require({
+    baseUrl: './'
+},
+['require', 'stloader', 'three'],
+function (require, STLLoader, THREE) {
     onmessage = function(e) {
         var blob = e.data;
         var reader = new FileReaderSync();
@@ -20,8 +21,8 @@ function (THREE, STLLoader) {
         } catch (e) {
             console.info('Failure parsing STL file', e);
             postMessage({
-                    status: 'failed',
-                    message: 'Can not parse STL file. See log for details.',
+                status: 'failed',
+                message: 'Can not parse STL file. See log for details.',
             });
         }
 
@@ -35,8 +36,8 @@ function (THREE, STLLoader) {
         }
 
         postMessage({
-                status: 'completed',
-                attributes: attributes,
+            status: 'completed',
+            attributes: attributes,
         });
     }
 
