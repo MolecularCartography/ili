@@ -20,8 +20,8 @@ importScripts('../lib/require.js');
 require({
     baseUrl: './'
 },
-['papaparse'],
-function(Papa) {
+['require', 'papaparse'],
+function(require, Papa) {
     onmessage = function (e) {
         var blob = e.data;
         Papa.parse(blob, new Handler());
