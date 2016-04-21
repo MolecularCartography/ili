@@ -4,7 +4,7 @@
 'use strict';
 
 define(['workspace', 'viewcontainer', 'mapselector', 'examples', 'dat',
-        'colormap'],
+        'colormaps'],
 function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
     /*
      * On load initialization.
@@ -252,7 +252,5 @@ function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
         });
         fileInput.click();
     }
-    });
-
-  return init;
+      return init;
 });
