@@ -1,9 +1,10 @@
 'use strict';
 
 define([
-    'spotlabelbase'
+    'spotlabelbase',
+    'common'
 ],
-function (SpotLabelBase){
+function (SpotLabelBase, asProps){
     function SpotLabel2D(view) {
         SpotLabelBase.apply(this);
         this._view = view;

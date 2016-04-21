@@ -1,7 +1,9 @@
 'use strict';
 
-define([],
-function (){
+define([
+    'common'
+],
+function (asProps){
     function SpotLabelBase() {
         this._div = null;
     }
