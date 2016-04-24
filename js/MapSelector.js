@@ -1,15 +1,17 @@
-define([],
-function () {
+/**
+ * UI control (#map-selector) which let the user to select an active map
+ * (measurement). Text input lets type filter for map name. Item list (.items)
+ * shows only items that contain the filter's substring (and highlights it).
+ *
+ * @param {Workspace} workspace.
+ * @param {HTMLDivElement} div Main HTML element (#map-selector).
+ * @mapName {HTMLElement|SGVElement} mapName Element to show current map name.
+ */
 
-    /**
-     * UI control (#map-selector) which let the user to select an active map
-     * (measurement). Text input lets type filter for map name. Item list (.items)
-     * shows only items that contain the filter's substring (and highlights it).
-     *
-     * @param {Workspace} workspace.
-     * @param {HTMLDivElement} div Main HTML element (#map-selector).
-     * @mapName {HTMLElement|SGVElement} mapName Element to show current map name.
-     */
+'use strict';
+
+define([],
+function() {
     function MapSelector(workspace, div, mapName) {
         this._workspace = workspace;
         this._div = div;

@@ -15,12 +15,15 @@
  * highlighted.
  */
 
-importScripts('../lib/require.js');
+'use strict';
+
+importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: './'
-},
-['require', 'papaparse'],
+    baseUrl: '../lib'
+}, [
+    'require', 'papaparse.min'
+],
 function(require, Papa) {
     onmessage = function (e) {
         var blob = e.data;
@@ -72,7 +75,7 @@ function(require, Papa) {
                 return;
             }
 
-            for (j = 0; j < this.measures.length; j++) {
+            for (var j = 0; j < this.measures.length; j++) {
                 var value = row[j + 5];
                 this.measures[j].values[this.spots.length] =
                     value === '' ? NaN : Number(value);

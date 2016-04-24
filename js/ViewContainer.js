@@ -1,12 +1,9 @@
 'use strict';
 
 define([
-    'view2d',
-    'viewgroup3d',
-    'viewlegend',
-    'workspace'
+    'view2d', 'viewgroup3d', 'viewlegend', 'workspace'
 ],
-function (View2D, ViewGroup3D, ViewLegend, Workspace){
+function(View2D, ViewGroup3D, ViewLegend, Workspace) {
     function ViewContainer(workspace, div) {
         this._workspace = workspace;
         this._div = div;

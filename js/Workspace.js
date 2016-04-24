@@ -1,8 +1,8 @@
 'use strict';
 
 define([
-        'colormaps', 'eventsource', 'scene2d', 'scene3d', 'three'
-    ],
+    'colormaps', 'eventsource', 'scene2d', 'scene3d', 'three'
+],
 function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
     /**
      * Main application workspace. It works in 3 modes:

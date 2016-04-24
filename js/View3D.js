@@ -1,8 +1,8 @@
 'use strict';
 
 define([
-        'orbitcontrols', 'three'
-    ],
+    'orbitcontrols', 'three'
+],
 function(OrbitControls, THREE) {
     /**
      * View indise ViewGroup3D. All View3Ds share single canvas from the group.
@@ -160,5 +160,6 @@ function(OrbitControls, THREE) {
             }
         },
     });
+
     return View3D;
 });

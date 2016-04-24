@@ -1,7 +1,7 @@
 'use strict';
 
 define([],
-function (){
+function() {
     /**
      * Base class that provides event popagation functionality.
      * @param events Events enum type.
@@ -27,4 +27,4 @@ function (){
     };
 
     return EventSource;
-  });
+});
