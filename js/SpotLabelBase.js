@@ -3,7 +3,7 @@
 define([
     'common'
 ],
-function (asProps){
+function(asProps) {
     function SpotLabelBase() {
         this._div = null;
     }

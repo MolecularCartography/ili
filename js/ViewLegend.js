@@ -1,7 +1,7 @@
 'use strict';
 
 define([],
-function () {
+function() {
     function ViewLegend(workspace, svg) {
         this._workspace = workspace;
         this._svg = svg;
@@ -71,4 +71,4 @@ function () {
     });
 
     return ViewLegend;
-})
+});

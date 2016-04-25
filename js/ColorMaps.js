@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    "three"
+    'three'
 ],
-function (THREE) {
+function(THREE) {
     /**
      * Base class for color maps.
      *

@@ -1,10 +1,9 @@
 'use strict';
 
 define([
-    'spotlabelbase',
-    'common'
+    'spotlabelbase', 'common'
 ],
-function (SpotLabelBase, asProps){
+function(SpotLabelBase, asProps) {
     function SpotLabel2D(view) {
         SpotLabelBase.apply(this);
         this._view = view;
@@ -39,4 +38,4 @@ function (SpotLabelBase, asProps){
     }));
 
     return SpotLabel2D;
-  });
+});

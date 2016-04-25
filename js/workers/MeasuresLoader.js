@@ -15,14 +15,17 @@
  * highlighted.
  */
 
-importScripts('../lib/require.js');
+'use strict';
+
+importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: './'
-},
-['require', 'papaparse'],
+    baseUrl: '../lib'
+}, [
+    'require', 'papaparse.min'
+],
 function(require, Papa) {
-    onmessage = function (e) {
+    onmessage = function(e) {
         var blob = e.data;
         Papa.parse(blob, new Handler());
     };
@@ -38,7 +41,7 @@ function(require, Papa) {
     }
 
     Handler.prototype = {
-        _step: function (results, parser) {
+        _step: function(results, parser) {
             if (++this._row === 0) {
                 this._handleHeader(results.data[0]);
                 return;
@@ -72,7 +75,7 @@ function(require, Papa) {
                 return;
             }
 
-            for (j = 0; j < this.measures.length; j++) {
+            for (var j = 0; j < this.measures.length; j++) {
                 var value = row[j + 5];
                 this.measures[j].values[this.spots.length] =
                     value === '' ? NaN : Number(value);
@@ -83,8 +86,8 @@ function(require, Papa) {
             if (this._row % 10 === 0) this._reportProgress();
         },
 
-        _handleHeader: function (header) {
-            this.measures = header.slice(5).map(function (name, index) {
+        _handleHeader: function(header) {
+            this.measures = header.slice(5).map(function(name, index) {
                 return {
                     name: name,
                     index: index,
@@ -93,7 +96,7 @@ function(require, Papa) {
             });
         },
 
-        _complete: function () {
+        _complete: function() {
             // Convert measures in memory efficient format.
             for (var i = 0; i < this.measures.length; i++) {
                 var m = this.measures[i];
@@ -109,14 +112,14 @@ function(require, Papa) {
             });
         },
 
-        _reportError: function (message) {
+        _reportError: function(message) {
             postMessage({
                 status: 'failed',
                 message: 'Failure in row ' + this._row + ': ' + message,
             });
         },
 
-        _reportProgress: function () {
+        _reportProgress: function() {
             var now = new Date().valueOf();
             if (now < this._progressReportTime + 100) return;
 

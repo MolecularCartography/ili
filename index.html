@@ -3,6 +3,8 @@
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <title>`ili</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <link rel="stylesheet" type="text/css" href="layout.css">
   <script type="text/javascript" src="./js/lib/require.min.js"></script>
   <link href="img/favicon_256.png" type="image/png" rel="icon">
   <meta name="google-site-verification" content="cxpSm-lsEATF7z2pMt1-RCZPSaKRzb6h0RiIjaVQvsE" />
@@ -11,9 +13,8 @@
         // the left side is the module name, and the right side is the path
         // do NOT include the .js extension
         'paths': {
-
           'filesaver': './js/lib/FileSaver.min',
-          'dat': './js/lib/dat.gui.min',
+          'datgui': './js/lib/dat.gui.min',
           'jquery': './js/lib/jquery-2.1.4.min',
           'papaparse': './js/lib/papaparse.min',
 
@@ -49,8 +50,8 @@
           'wk_raycaster': './js/workers/Raycaster'
         },
         /*
-           Libraries that are not AMD compatible need shim to declare their
-           dependencies.
+         Libraries that are not AMD compatible need shim to declare their
+         dependencies.
          */
         'shim': {
           'orbitcontrols': {
@@ -58,6 +59,9 @@
           },
           'stlloader': {
             'deps': ['three']
+          },
+          'datgui': {
+            exports: 'dat'
           }
         }
       });
@@ -72,8 +76,7 @@
       var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
 
       requirejs(["main"], function(init){
-        // initialize the whole application
-        window.onload = init;
+        init();
       });
 
   </script>
@@ -114,10 +117,10 @@
 <div id="status" hidden></div>
 <div id="map-selector" hidden><input type="text" autocomplete="off"><div class="items"></div></div>
 <div id="drop-target-informer"><div class="message">Drop files here</div></div>
-<dialog id="errors" hidden>
+<div id="errors" hidden>
 Errors:
 <ul></ul>
 <button id="close">Close</button>
-</dialog>
+</div>
 </body>
 </html>

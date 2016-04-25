@@ -6,12 +6,13 @@
 
 'use strict';
 
-importScripts('../lib/require.js');
+importScripts('../lib/require.min.js');
 
 require({
     baseUrl: './'
-},
-['require'],
+}, [
+    'require'
+],
 function(require) {
     onmessage = function(e) {
         var positions = e.data.verteces;

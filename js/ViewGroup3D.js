@@ -1,12 +1,9 @@
 'use strict';
 
 define([
-    'three',
-    'scene3d',
-    'view3d',
-    'spotlabel3d'
+    'three', 'scene3d', 'view3d', 'spotlabel3d'
 ],
-function (THREE, Scene3D, View3D, SpotLabel3D){
+function(THREE, Scene3D, View3D, SpotLabel3D) {
     /**
      * Group of View3D's. Manages shared objects: workspace, renderer, canvas.
      *

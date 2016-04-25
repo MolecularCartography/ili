@@ -1,8 +1,8 @@
 'use strict';
 
 define([
-        'colormaps', 'eventsource', 'scene2d', 'scene3d', 'three'
-    ],
+    'colormaps', 'eventsource', 'scene2d', 'scene3d', 'three'
+],
 function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
     /**
      * Main application workspace. It works in 3 modes:
@@ -65,7 +65,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         LOG: {
             id: 'log',
             function: Math.log10,
-            filter: function (x) {
+            filter: function(x) {
                 return x > 0.0 && x < Infinity;
             },
             legend: 'log',
@@ -73,17 +73,17 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
 
         LINEAR: {
             id: 'linear',
-            function: function (x) {
+            function: function(x) {
                 return x;
             },
-            filter: function (x) {
+            filter: function(x) {
                 return x > -Infinity && x < Infinity;
             },
             legend: '',
         }
     };
 
-    Workspace.getScaleById = function (id) {
+    Workspace.getScaleById = function(id) {
         for (var i in Workspace.Scale) {
             if (Workspace.Scale[i].id == id) return Workspace.Scale[i];
         }
@@ -128,12 +128,12 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * Switches the workspace to MODE_2D and starts image loading.
          */
         loadImage: {
-            value: function (blob) {
+            value: function(blob) {
                 this.mode = Workspace.Mode.MODE_2D;
 
                 this._scene2d.resetImage();
                 this._doTask(Workspace.TaskType.LOAD_IMAGE, blob).
-                    then(function (result) {
+                    then(function(result) {
                         this._scene2d.setImage(result.url, result.width, result.height);
                     }.bind(this));
             }
@@ -143,11 +143,11 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * Switches the workspace to MODE_3D and starts mesh loading.
          */
         loadMesh: {
-            value: function (blob) {
+            value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
 
                 this.mesh = null;
-                this._doTask(Workspace.TaskType.LOAD_MESH, blob).then(function (result) {
+                this._doTask(Workspace.TaskType.LOAD_MESH, blob).then(function(result) {
                     var geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes) {
                         var attribute = result.attributes[name];
@@ -167,9 +167,9 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * Starts loading intensities file.
          */
         loadIntensities: {
-            value: function (blob) {
+            value: function(blob) {
                 this._doTask(Workspace.TaskType.LOAD_MEASURES, blob).
-                    then(function (result) {
+                    then(function(result) {
                         this._spots = result.spots;
                         this._measures = result.measures;
                         this._activeMeasure = null;
@@ -185,16 +185,16 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         download: {
-            value: function (fileNames) {
+            value: function(fileNames) {
                 if (!fileNames) return;
 
-                fileNames = fileNames.filter(function (name) {
+                fileNames = fileNames.filter(function(name) {
                     return name != '';
                 });
                 if (!fileNames.length) return;
 
                 this._doTask(Workspace.TaskType.DOWNLOAD, fileNames).
-                    then(function (result) {
+                    then(function(result) {
                         for (var i = 0; i < result.items.length; i++) {
                             var blob = result.items[i].blob;
 
@@ -227,7 +227,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * @param {index} Index in the this.measures list.
          */
         selectMap: {
-            value: function (index) {
+            value: function(index) {
                 if (!this._measures) return;
 
                 this._activeMeasure = this._measures[index];
@@ -237,17 +237,17 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         mapName: {
-            get: function () {
+            get: function() {
                 return this._activeMeasure ? this._activeMeasure.name : '';
             }
         },
 
         autoMinMax: {
-            get: function () {
+            get: function() {
                 return this._autoMinMax;
             },
 
-            set: function (value) {
+            set: function(value) {
                 this._autoMinMax = !!value;
                 if (this._autoMinMax) {
                     this._updateMinMaxValues() && this._updateIntensities();
@@ -257,11 +257,11 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         minValue: {
-            get: function () {
+            get: function() {
                 return this._minValue;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._autoMinMax) return;
                 this._minValue = Number(value);
                 this._updateIntensities();
@@ -270,11 +270,11 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         maxValue: {
-            get: function () {
+            get: function() {
                 return this._maxValue;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._autoMinMax) return;
                 this._maxValue = Number(value);
                 this._updateIntensities();
@@ -283,20 +283,20 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         errors: {
-            get: function () {
+            get: function() {
                 return this._errors;
             }
         },
 
         clearErrors: {
-            value: function () {
+            value: function() {
                 this._errors = [];
                 this._notify(Workspace.Events.ERRORS_CHANGE);
             }
         },
 
         _addError: {
-            value: function (message) {
+            value: function(message) {
                 this._errors.push(message);
                 this._notify(Workspace.Events.ERRORS_CHANGE);
             }
@@ -306,13 +306,13 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * Prepares this._mapping for fast recoloring the mesh.
          */
         _mapMesh: {
-            value: function () {
+            value: function() {
                 if (!this._scene3d.geometry || !this._spots) return;
                 var args = {
                     verteces: this._scene3d.geometry.getAttribute('position').array,
                     spots: this._spots
                 };
-                this._doTask(Workspace.TaskType.MAP, args).then(function (results) {
+                this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
                     this._scene3d.mapping = {
                         closestSpotIndeces: results.closestSpotIndeces,
                         closestSpotDistances: results.closestSpotDistances
@@ -322,7 +322,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         _cancelTask: {
-            value: function (taskType) {
+            value: function(taskType) {
                 if (taskType.key in this._tasks) {
                     this._tasks[taskType.key].worker.terminate();
                     delete this._tasks[taskType.key];
@@ -338,7 +338,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
          * @return {Promise}
          **/
         _doTask: {
-            value: function (taskType, args) {
+            value: function(taskType, args) {
                 if (taskType.key in this._tasks) this._cancelTask(taskType);
 
                 var task = {
@@ -354,8 +354,8 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 var addError = this._addError.bind(this);
 
                 task.worker.postMessage(args);
-                return new Promise(function (resolve, reject) {
-                    task.worker.onmessage = function (event) {
+                return new Promise(function(resolve, reject) {
+                    task.worker.onmessage = function(event) {
                         if (event.data.status == 'completed') {
                             setStatus('');
                             resolve(event.data);
@@ -372,7 +372,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                             setStatus(event.data.message);
                         }
                     };
-                    task.worker.onerror = function (event) {
+                    task.worker.onerror = function(event) {
                         setStatus('');
                         addError('Operation failed. See log for details.');
                     }.bind(this);
@@ -381,10 +381,10 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         _updateMinMaxValues: {
-            value: function () {
+            value: function() {
                 var values = this._activeMeasure ? this._activeMeasure.values : [];
 
-                var values = Array.prototype.filter.call(values, this._scale.filter).sort(function (a, b) {
+                var values = Array.prototype.filter.call(values, this._scale.filter).sort(function(a, b) {
                     return a - b;
                 });
 
@@ -407,7 +407,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         _updateIntensities: {
-            value: function () {
+            value: function() {
                 if (!this._spots) return;
 
                 for (var i = 0; i < this._spots.length; i++) {
@@ -428,18 +428,18 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         _setStatus: {
-            value: function (status) {
+            value: function(status) {
                 this._status = status;
                 this._notify(Workspace.Events.STATUS_CHANGE);
             }
         },
 
         mode: {
-            get: function () {
+            get: function() {
                 return this._mode;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._mode == value) return;
                 this._mode = value;
 
@@ -465,35 +465,35 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         scene2d: {
-            get: function () {
+            get: function() {
                 return this._scene2d;
             }
         },
 
         scene3d: {
-            get: function () {
+            get: function() {
                 return this._scene3d;
             }
         },
 
         status: {
-            get: function () {
+            get: function() {
                 return this._status;
             }
         },
 
         measures: {
-            get: function () {
+            get: function() {
                 return this._measures || [];
             }
         },
 
         hotspotQuantile: {
-            get: function () {
+            get: function() {
                 return this._hotspotQuantile;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._hotspotQuantile == value) return;
                 if (value < 0.0) value = 0.0;
                 if (value > 1.0) value = 1.0;
@@ -505,11 +505,11 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         spotBorder: {
-            get: function () {
+            get: function() {
                 return this._spotBorder;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._spotBorder == value) return;
                 if (value < 0.0) value = 0.0;
                 if (value > 1.0) value = 1.0;
@@ -519,17 +519,17 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         scale: {
-            get: function () {
+            get: function() {
                 return this._scale;
             }
         },
 
         scaleId: {
-            get: function () {
+            get: function() {
                 return this._scale.id;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._scale.id == value) return;
                 this._scale = Workspace.getScaleById(value);
                 if (this._autoMinMax) this._updateMinMaxValues();
@@ -539,20 +539,20 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         },
 
         colorMap: {
-            get: function () {
+            get: function() {
                 return this._colorMap;
             }
         },
 
         colorMapId: {
-            get: function () {
+            get: function() {
                 for (var i in ColorMap.Maps) {
                     if (this._colorMap === ColorMap.Maps[i]) return i;
                 }
 
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (value in ColorMap.Maps) {
                     this._colorMap = ColorMap.Maps[value];
                     this._scene2d.colorMap = this._colorMap;
@@ -567,7 +567,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
      * Worker-like object what loads an image and calculate it sizes
      * (can't be a worker because uses Image).
      */
-    Workspace.ImageLoader = function () {
+    Workspace.ImageLoader = function() {
         this.onmessage = null;
         this._reader = new FileReader();
         this._reader.onload = this._onFileLoad.bind(this);
@@ -583,7 +583,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
     Workspace.TaskType.LOAD_IMAGE.worker = Workspace.ImageLoader;
 
     Workspace.ImageLoader.prototype = {
-        terminate: function () {
+        terminate: function() {
             this._terminated = true;
             if (this._reader.readyState == 1) {
                 this._reader.abort();
@@ -594,23 +594,23 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             }
         },
 
-        postMessage: function (blob) {
+        postMessage: function(blob) {
             this._fileType = blob.type;
             this._reader.readAsArrayBuffer(blob);
         },
 
-        _send: function (message) {
+        _send: function(message) {
             if (!this._terminated && this.onmessage)
                 this.onmessage({data: message});
         },
 
-        _onFileLoad: function (event) {
+        _onFileLoad: function(event) {
             var blob = new Blob([event.target.result], {type: this._fileType});
             this._url = URL.createObjectURL(blob);
             this._image.src = this._url;
         },
 
-        _onImageLoad: function (event) {
+        _onImageLoad: function(event) {
             var url = this._url;
             this._url = null; // Ownership transfered.
             this._send({
@@ -621,13 +621,13 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             });
         },
 
-        _onError: function (event) {
+        _onError: function(event) {
             console.info('Failure loading image', event);
             this._send({
                 status: 'failed',
                 message: 'Can not read image. See log for details.',
             });
-        },
+        }
     };
 
     return Workspace;

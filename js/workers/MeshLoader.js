@@ -2,13 +2,16 @@
  * Web Worker. Loads a mesh from STL file.
  */
 
-importScripts('../lib/require.js');
+'use strict';
+
+importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: './'
-},
-['require', 'stloader', 'three'],
-function (require, STLLoader, THREE) {
+    baseUrl: '../lib'
+}, [
+    'require', 'three.min', 'stlloader'
+],
+function(require, THREE, STLLoader) {
     onmessage = function(e) {
         var blob = e.data;
         var reader = new FileReaderSync();

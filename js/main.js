@@ -3,12 +3,10 @@
  */
 'use strict';
 
-define(['workspace', 'viewcontainer', 'mapselector', 'examples', 'dat',
-        'colormaps'],
-function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
-    /*
-     * On load initialization.
-     */
+define([
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps'
+],
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap) {
     function init() {
         g_workspace = new Workspace();
         g_views = new ViewContainer(g_workspace, document.getElementById('view-container'));
@@ -30,7 +28,7 @@ function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
         document.getElementById('open-button').onclick = chooseFilesToOpen;
         document.getElementById('current-map-label').onclick = function() {g_mapSelector.activate();};
         document.getElementById('view-container').onmousedown = function(event) {g_mapSelector.deactivate();};
-        document.querySelector('dialog#errors #close').onclick = clearErrors;
+        document.querySelector('div#errors #close').onclick = clearErrors;
 
         for (var e in DragAndDrop) {
             var fn = DragAndDrop[e];
@@ -100,8 +98,8 @@ function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
     }
 
     function onWorkspaceErrorsChange() {
-        var dialog = document.querySelector('dialog#errors');
-        var list = dialog.querySelector('ul');
+        var errorBox = document.querySelector('div#errors');
+        var list = errorBox.querySelector('ul');
         list.textContent = '';
         g_workspace.errors.forEach(function(error) {
             var item = document.createElement('li');
@@ -109,11 +107,9 @@ function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
             list.appendChild(item);
         });
         if (g_workspace.errors.length == 0) {
-            dialog.close();
-            dialog.hidden = true;
+            errorBox.setAttribute('hidden', 'true');
         } else {
-            dialog.hidden = false;
-            if (!dialog.open) dialog.showModal();
+            errorBox.removeAttribute('hidden');
         }
     }
 
@@ -252,5 +248,6 @@ function(Workspace, ViewContainer, MapSelector, Examples, dat, ColorMap){
         });
         fileInput.click();
     }
-      return init;
+
+    return init;
 });

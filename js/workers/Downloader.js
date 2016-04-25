@@ -1,13 +1,14 @@
 'use strict';
 
-importScripts('../lib/require.js');
+importScripts('../lib/require.min.js');
 
 require({
     baseUrl: './'
-},
-['require'],
+}, [
+    'require'
+],
 function(require) {
-    onmessage = function (e) {
+    onmessage = function(e) {
         var fileNames = e.data;
         var downloader = new Downloader();
 
@@ -34,7 +35,7 @@ function(require) {
     Downloader.DATA_PATH = '../../data';
 
     Downloader.prototype = {
-        add: function (fileName) {
+        add: function(fileName) {
             var item = new Downloader.Item(fileName);
             item.request.onprogress = this.onProgress.bind(this, item);
             item.request.onerror = this.onError.bind(this, item);
@@ -42,20 +43,20 @@ function(require) {
             this.items.push(item);
         },
 
-        start: function () {
+        start: function() {
             for (var i = 0; i < this.items.length; i++) {
                 this.items[i].request.send();
             }
         },
 
-        onProgress: function (item, event) {
+        onProgress: function(item, event) {
             item.total = event.total;
             item.loaded = event.loaded;
 
-            var total = this._sum(function (item) {
+            var total = this._sum(function(item) {
                 return item.total;
             });
-            var loaded = this._sum(function (item) {
+            var loaded = this._sum(function(item) {
                 return item.loaded;
             });
 
@@ -67,12 +68,12 @@ function(require) {
             });
         },
 
-        onError: function (item, event) {
+        onError: function(item, event) {
             if (this.failed) return;
             this.failed = true;
 
             console.info('Error loading ' + item.fileName + ': ' + item.request.statusText, event);
-            this.items.forEach(function (item) {
+            this.items.forEach(function(item) {
                 item.request.abort();
             });
 
@@ -82,7 +83,7 @@ function(require) {
             });
         },
 
-        onLoad: function (item, event) {
+        onLoad: function(item, event) {
             if (item.request.status >= 300) {
                 this.onError(item, event);
                 return;
@@ -92,7 +93,7 @@ function(require) {
 
             postMessage({
                 status: 'completed',
-                items: this.items.map(function (item) {
+                items: this.items.map(function(item) {
                     return {
                         blob: item.request.response,
                         fileName: item.fileName
@@ -101,7 +102,7 @@ function(require) {
             });
         },
 
-        _sum: function (f) {
+        _sum: function(f) {
             var r = 0;
             for (var i = 0; i < this.items.length; i++) {
                 r += f(this.items[i]);
@@ -110,9 +111,9 @@ function(require) {
         },
     };
 
-    Downloader.Item = function (fileName) {
+    Downloader.Item = function(fileName) {
         var path = Downloader.DATA_PATH.split('/');
-        fileName.split('/').forEach(function (chunk) {
+        fileName.split('/').forEach(function(chunk) {
             if (!/^\w[\w\.-]*$/.test(chunk)) {
                 throw 'File "' + fileName + '" can\'t be downloaded';
             }

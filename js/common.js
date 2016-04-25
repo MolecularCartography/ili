@@ -1,7 +1,7 @@
 'use strict';
 
 define([],
-function () {
+function() {
     function asProps(object, props) {
         props = props || {};
         for (var i in object) {
