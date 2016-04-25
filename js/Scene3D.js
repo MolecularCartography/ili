@@ -37,25 +37,25 @@ function(EventSource, THREE) {
         CHANGE: 'change',
     };
 
-    Scene3D._makeLightProperty = function (field) {
-        return Scene3D._makeProxyProperty(field, ['intensity'], function () {
+    Scene3D._makeLightProperty = function(field) {
+        return Scene3D._makeProxyProperty(field, ['intensity'], function() {
             this._notify(Scene3D.Events.CHANGE);
         });
     };
 
-    Scene3D._makeProxyProperty = function (field, properties, callback) {
+    Scene3D._makeProxyProperty = function(field, properties, callback) {
         var proxy;
         return {
-            get: function () {
+            get: function() {
                 if (proxy) return proxy;
                 proxy = {};
                 for (var i = 0; i < properties.length; i++) {
                     Object.defineProperty(proxy, properties[i], {
-                        get: function (prop) {
+                        get: function(prop) {
                             return this[field][prop]
                         }.bind(this, properties[i]),
 
-                        set: function (prop, value) {
+                        set: function(prop, value) {
                             this[field][prop] = value;
                             callback.call(this);
                         }.bind(this, properties[i])
@@ -64,7 +64,7 @@ function(EventSource, THREE) {
                 return proxy;
             },
 
-            set: function (value) {
+            set: function(value) {
                 for (var i = 0; i < properties.length; i++) {
                     var prop = properties[i]
                     this[field][prop] = value[prop];
@@ -76,7 +76,7 @@ function(EventSource, THREE) {
 
     Scene3D.prototype = Object.create(EventSource.prototype, {
         clone: {
-            value: function (eventName, listener) {
+            value: function(eventName, listener) {
                 var result = new Scene3D();
                 result.frontLight = this.frontLight;
                 result.color = this.color;
@@ -99,11 +99,11 @@ function(EventSource, THREE) {
         frontLight: Scene3D._makeLightProperty('_frontLight'),
 
         color: {
-            get: function () {
+            get: function() {
                 return '#' + this._color.getHexString();
             },
 
-            set: function (value) {
+            set: function(value) {
                 var color = new THREE.Color(value);
                 if (color.equals(this._color)) return;
                 this._color.set(color);
@@ -115,11 +115,11 @@ function(EventSource, THREE) {
         },
 
         backgroundColor: {
-            get: function () {
+            get: function() {
                 return '#' + this._backgroundColor.getHexString();
             },
 
-            set: function (value) {
+            set: function(value) {
                 var color = new THREE.Color(value);
                 if (color.equals(this._backgroundColor)) return;
                 this._backgroundColor.set(color);
@@ -128,17 +128,17 @@ function(EventSource, THREE) {
         },
 
         backgroundColorValue: {
-            get: function () {
+            get: function() {
                 return this._backgroundColor;
             }
         },
 
         spotBorder: {
-            get: function () {
+            get: function() {
                 return this._spotBorder;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._spotBorder == value) return;
                 if (value < 0.0) value = 0.0;
                 if (value > 1.0) value = 1.0;
@@ -151,7 +151,7 @@ function(EventSource, THREE) {
         },
 
         adjustment: Scene3D._makeProxyProperty('_adjustment', ['x', 'y', 'z', 'alpha', 'beta', 'gamma'],
-            function () {
+            function() {
                 if (this._mesh) {
                     this._applyAdjustment();
                     this._notify(Scene3D.Events.CHANGE);
@@ -159,11 +159,11 @@ function(EventSource, THREE) {
             }),
 
         spots: {
-            get: function () {
+            get: function() {
                 return this._spots;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (value) {
                     this._spots = new Array(value.length);
                     for (var i = 0; i < value.length; i++) {
@@ -192,7 +192,7 @@ function(EventSource, THREE) {
         },
 
         updateIntensities: {
-            value: function (spots) {
+            value: function(spots) {
                 if (!this._spots) return;
 
                 for (var i = 0; i < this._spots.length; i++) {
@@ -206,11 +206,11 @@ function(EventSource, THREE) {
         },
 
         mapping: {
-            get: function () {
+            get: function() {
                 return this._mapping;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (!this._spots) throw "Mapping donesn't make sense without spots";
                 this._mapping = value;
                 if (this._mesh) {
@@ -221,11 +221,11 @@ function(EventSource, THREE) {
         },
 
         geometry: {
-            get: function () {
+            get: function() {
                 return this._mesh ? this._mesh.geometry : null;
             },
 
-            set: function (geometry) {
+            set: function(geometry) {
                 if (!this._mesh && !geometry) return;
                 if (this._mesh) this._meshContainer.remove(this._mesh);
                 this._mapping = null;
@@ -244,11 +244,11 @@ function(EventSource, THREE) {
         },
 
         colorMap: {
-            get: function () {
+            get: function() {
                 return this._colorMap;
             },
 
-            set: function (value) {
+            set: function(value) {
                 this._colorMap = value;
                 if (this._mesh && this._spots && this._mapping) {
                     this._recolor();
@@ -258,20 +258,20 @@ function(EventSource, THREE) {
         },
 
         position: {
-            get: function () {
+            get: function() {
                 return this._scene.position.clone();
             }
         },
 
         render: {
-            value: function (renderer, camera) {
+            value: function(renderer, camera) {
                 this._frontLight.position.set(camera.position.x, camera.position.y, camera.position.z);
                 renderer.render(this._scene, camera);
             }
         },
 
         raycast: {
-            value: function (raycaster) {
+            value: function(raycaster) {
                 if (!this._mesh || !this._spots || !this._mapping) return null;
                 var message = {
                     positions: this._mesh.geometry.attributes.position.array,
@@ -283,8 +283,8 @@ function(EventSource, THREE) {
                 var spots = this._spots;
                 var worker = new Worker('js/workers/Raycaster.js');
 
-                var promise = new Promise(function (accept, reject) {
-                    worker.onmessage = function (event) {
+                var promise = new Promise(function(accept, reject) {
+                    worker.onmessage = function(event) {
                         worker.terminate();
                         var face = event.data;
                         var spotIndex = -1;
@@ -296,7 +296,7 @@ function(EventSource, THREE) {
                         }
                         accept(spots[spotIndex]);
                     };
-                    worker.onerror = function (event) {
+                    worker.onerror = function(event) {
                         console.log('Reycasting failed', event);
                         worker.terminate();
                         reject();
@@ -305,7 +305,7 @@ function(EventSource, THREE) {
                 });
 
                 Object.defineProperty(promise, 'cancel', {
-                    value: function () {
+                    value: function() {
                         worker.terminate();
                     }
                 });
@@ -315,7 +315,7 @@ function(EventSource, THREE) {
         },
 
         spotToWorld: {
-            value: function (spot) {
+            value: function(spot) {
                 if (!this._mesh) return null;
 
                 var position = new THREE.Vector3(spot.x, spot.y, spot.z);
@@ -325,7 +325,7 @@ function(EventSource, THREE) {
         },
 
         _recolor: {
-            value: function () {
+            value: function() {
                 var startTime = new Date();
                 var geometry = this.geometry;
                 var mapping = this.mapping;
@@ -394,14 +394,14 @@ function(EventSource, THREE) {
         },
 
         _applyAdjustment: {
-            value: function () {
+            value: function() {
                 this._meshContainer.rotation.x = this._adjustment.alpha * Math.PI / 180;
                 this._meshContainer.rotation.y = this._adjustment.beta * Math.PI / 180;
                 this._meshContainer.rotation.z = this._adjustment.gamma * Math.PI / 180;
                 this._meshContainer.position.copy(this._adjustment);
                 this._meshContainer.updateMatrix();
             }
-        },
+        }
     });
 
     return Scene3D;

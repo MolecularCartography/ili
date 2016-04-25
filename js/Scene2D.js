@@ -22,25 +22,25 @@ function(EventSource) {
 
     Scene2D.prototype = Object.create(EventSource.prototype, {
         width: {
-            get: function () {
+            get: function() {
                 return this._width;
             }
         },
 
         height: {
-            get: function () {
+            get: function() {
                 return this._height;
             }
         },
 
         hasImage: {
-            get: function () {
+            get: function() {
                 return !!this._imageURL;
             }
         },
 
         setImage: {
-            value: function (imageURL, width, height) {
+            value: function(imageURL, width, height) {
                 if (this._imageURL) {
                     URL.revokeObjectURL(this._imageURL);
                 }
@@ -52,23 +52,23 @@ function(EventSource) {
         },
 
         imageURL: {
-            get: function () {
+            get: function() {
                 return this._imageURL;
             }
         },
 
         resetImage: {
-            value: function () {
+            value: function() {
                 this.setImage(null, 0, 0);
             }
         },
 
         spotBorder: {
-            get: function () {
+            get: function() {
                 return this._spotBorder;
             },
 
-            set: function (value) {
+            set: function(value) {
                 if (this._spotBorder == value) return;
                 if (value < 0.0) value = 0.0;
                 if (value > 1.0) value = 1.0;
@@ -78,13 +78,13 @@ function(EventSource) {
         },
 
         spots: {
-            get: function () {
+            get: function() {
                 return this._spots;
             },
 
-            set: function (value) {
-                if (value) {
-                    this._spots = value.map(function (s) {
+            set: function(value) {
+                if (value){
+                    this._spots = value.map(function(s) {
                         return {
                             x: s.x,
                             y: s.y,
@@ -103,7 +103,7 @@ function(EventSource) {
         },
 
         updateIntensities: {
-            value: function (spots) {
+            value: function(spots) {
                 if (!this._spots) return;
                 var startTime = new Date();
 
@@ -118,19 +118,19 @@ function(EventSource) {
         },
 
         colorMap: {
-            get: function () {
+            get: function() {
                 return this._colorMap;
             },
 
-            set: function (value) {
+            set: function(value) {
                 this._colorMap = value;
                 this._notify(Scene2D.Events.SPOTS_CHANGE);
             }
         },
 
         exportImage: {
-            value: function (canvas) {
-                return new Promise(function (accept, reject) {
+            value: function(canvas) {
+                return new Promise(function(accept, reject) {
                     if (!this._imageURL) {
                         reject();
                         return;
@@ -138,12 +138,12 @@ function(EventSource) {
                     var image = new Image();
                     image.width = this.width;
                     image.height = this.height;
-                    image.onload = function () {
+                    image.onload = function() {
                         var ctx = canvas.getContext('2d');
                         ctx.drawImage(image, 0, 0);
                         accept();
                     };
-                    image.onerror = function (event) {
+                    image.onerror = function(event) {
                         console.log('Failed to load SVG', event);
                         reject();
                     }
@@ -153,12 +153,12 @@ function(EventSource) {
         },
 
         exportSpots: {
-            value: function (canvas) {
+            value: function(canvas) {
                 var spots = this._spots;
                 var color = new THREE.Color();
                 var colorMap = this._colorMap;
                 var borderGradientSuffix = this._spotBorder + ')';
-                return new Promise(function (accept, reject) {
+                return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();
                         return;
@@ -188,9 +188,9 @@ function(EventSource) {
         },
 
         findSpot: {
-            value: function (point) {
+            value: function(point) {
                 var spots = this._spots;
-                return new Promise(function (accept, reject) {
+                return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();
                         return;
@@ -213,7 +213,7 @@ function(EventSource) {
                     accept(null);
                 });
             }
-        },
+        }
     });
 
     return Scene2D;

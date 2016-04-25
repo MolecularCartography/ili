@@ -39,7 +39,7 @@ function(OrbitControls, THREE) {
 
     View3D.prototype = Object.create(null, {
         prepareUpdateLayout: {
-            value: function () {
+            value: function() {
                 this._left = this._div.offsetLeft;
                 this._top = this._div.offsetTop;
                 this._width = this._div.offsetWidth;
@@ -50,50 +50,50 @@ function(OrbitControls, THREE) {
         },
 
         div: {
-            get: function () {
+            get: function() {
                 return this._div;
             }
         },
 
         finishUpdateLayout: {
-            value: function () {
+            value: function() {
                 this._camera.aspect = this.width / this.height;
                 this._camera.updateProjectionMatrix();
             }
         },
 
         camera: {
-            get: function () {
+            get: function() {
                 return this._camera;
             }
         },
 
         left: {
-            get: function () {
+            get: function() {
                 return this._left;
             }
         },
 
         top: {
-            get: function () {
+            get: function() {
                 return this._top;
             }
         },
 
         width: {
-            get: function () {
+            get: function() {
                 return this._width;
             }
         },
 
         height: {
-            get: function () {
+            get: function() {
                 return this._height;
             }
         },
 
         setupRaycaster: {
-            value: function (raycaster, pageX, pageY) {
+            value: function(raycaster, pageX, pageY) {
                 var x = pageX - this._left;
                 var y = pageY - this._top;
                 var coords = new THREE.Vector2(x * 2 / this._width - 1, 1 - y * 2 / this._height);
@@ -102,7 +102,7 @@ function(OrbitControls, THREE) {
         },
 
         projectPosition: {
-            value: function (position) {
+            value: function(position) {
                 var p = new THREE.Vector3().copy(position)
                 p.project(this._camera);
 
@@ -114,7 +114,7 @@ function(OrbitControls, THREE) {
         },
 
         onAnimationFrame: {
-            value: function (now) {
+            value: function(now) {
                 if (this._autorotation == 0.0) {
                     return;
                 } else {
@@ -131,11 +131,11 @@ function(OrbitControls, THREE) {
         },
 
         autorotation: {
-            get: function () {
+            get: function() {
                 return this._autorotation;
             },
 
-            set: function (value) {
+            set: function(value) {
                 this._autorotation = value;
                 this._autorotationStart = performance.now;
                 if (this._autorotation != 0.0) {
@@ -145,20 +145,20 @@ function(OrbitControls, THREE) {
         },
 
         _onOrbitStart: {
-            value: function () {
+            value: function() {
                 this.autorotation = 0;
             }
         },
 
         _onDoubleClick: {
-            value: function (event) {
+            value: function(event) {
                 if (this.autorotation) {
                     this.autorotation = 0;
                 } else {
                     this.autorotation = event.ctrlKey ? -1 : 1;
                 }
             }
-        },
+        }
     });
 
     return View3D;

@@ -8,7 +8,7 @@ require({
     'require', 'three'
 ],
 function(require, THREE) {
-    onmessage = function (e) {
+    onmessage = function(e) {
         var startTime = new Date();
 
         var origin = new THREE.Vector3().copy(e.data.origin);

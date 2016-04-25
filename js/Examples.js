@@ -19,7 +19,7 @@ function(dat, Workspace) {
         var folder = examplesContainer.addFolder('Examples');
         folder.open();
 
-        var openExample = function () {
+        var openExample = function() {
             g_workspace.download(this.files);
 
             if (this['adjustView'] !== undefined) {
@@ -35,7 +35,7 @@ function(dat, Workspace) {
             {
                 name: 'Stingless bee',
                 files: ['bee/model.stl', 'bee/intensities.csv'],
-                adjustView: function () {
+                adjustView: function() {
                     g_workspace.scene3d.adjustment.alpha = -90;
                     g_workspace.scene3d.adjustment.beta = 10;
                     g_workspace.scene3d.adjustment.gamma = 0;
@@ -50,14 +50,14 @@ function(dat, Workspace) {
             {
                 name: 'Diseased coral',
                 files: ['coral/bg.png', 'coral/intensities.csv'],
-                adjustView: function () {
+                adjustView: function() {
                     g_workspace.colorMapId = 'VIRIDIS';
                 }
             },
             {
                 name: 'Cyanobacteria natural products',
                 files: ['cyano/bg.png', 'cyano/intensities.csv'],
-                adjustView: function () {
+                adjustView: function() {
                     g_workspace.scaleId = Workspace.Scale.LOG.id;
                     g_workspace.colorMapId = 'JET';
                 }
@@ -65,7 +65,7 @@ function(dat, Workspace) {
             {
                 name: 'Human skin metabolome',
                 files: ['human/man.stl', 'human/man_LCMS_small.csv'],
-                adjustView: function () {
+                adjustView: function() {
                     g_workspace.colorMapId = 'VIRIDIS';
 
                     g_workspace.scene3d.adjustment.alpha = -90;
@@ -78,7 +78,7 @@ function(dat, Workspace) {
             }
         ];
 
-        items.forEach(function (item) {
+        items.forEach(function(item) {
             item[item.name] = openExample.bind(item);
             folder.add(item, item.name);
         });
