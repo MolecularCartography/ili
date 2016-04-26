@@ -7,11 +7,19 @@
 importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: '../lib'
+    'paths': {
+        'three': '../lib/three.min',
+        'stlloader': '../lib/STLLoader'
+    },
+    'shim': {
+        'stlloader': {
+            'deps': ['three']
+        }
+    }
 }, [
-    'require', 'three.min', 'stlloader'
+    'three', 'stlloader'
 ],
-function(require, THREE, STLLoader) {
+function(THREE, STLLoader) {
     onmessage = function(e) {
         var blob = e.data;
         var reader = new FileReaderSync();
@@ -43,6 +51,7 @@ function(require, THREE, STLLoader) {
             attributes: attributes,
         });
     }
-
-    return onmessage;
+    postMessage({
+        status: 'ready'
+    });
 });

@@ -1,13 +1,15 @@
 'use strict';
 
-importScripts('../lib/require.js');
+importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: './'
+    'paths': {
+        'three': '../lib/three.min'
+    }
 }, [
-    'require', 'three'
+    'three'
 ],
-function(require, THREE) {
+function(THREE) {
     onmessage = function(e) {
         var startTime = new Date();
 
@@ -55,6 +57,7 @@ function(require, THREE) {
         console.log('Raycast time: ' +
             (endTime.valueOf() - startTime.valueOf()) / 1000);
     };
-
-    return onmessage;
+    postMessage({
+        status: 'ready'
+    });
 });

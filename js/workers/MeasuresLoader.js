@@ -20,11 +20,18 @@
 importScripts('../lib/require.min.js');
 
 require({
-    baseUrl: '../lib'
-}, [
-    'require', 'papaparse.min'
+    'paths': {
+        'papa': '../lib/papaparse.min'
+    },
+    'shim': {
+        'papa': {
+            exports: 'Papa'
+        }
+    }
+},[
+    'papa'
 ],
-function(require, Papa) {
+function(Papa) {
     onmessage = function(e) {
         var blob = e.data;
         Papa.parse(blob, new Handler());
@@ -131,6 +138,7 @@ function(require, Papa) {
             });
         },
     };
-
-    return onmessage;
+    postMessage({
+        status: 'ready'
+    });
 });

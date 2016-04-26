@@ -2,12 +2,8 @@
 
 importScripts('../lib/require.min.js');
 
-require({
-    baseUrl: './'
-}, [
-    'require'
-],
-function(require) {
+require([],
+function() {
     onmessage = function(e) {
         var fileNames = e.data;
         var downloader = new Downloader();
@@ -126,6 +122,7 @@ function(require) {
         this.total = NaN;
         this.loaded = 0;
     };
-
-    return onmessage;
+    postMessage({
+        status: 'ready'
+    });
 });

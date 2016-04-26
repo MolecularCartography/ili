@@ -4,9 +4,9 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap) {
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs) {
     function init() {
         g_workspace = new Workspace();
         g_views = new ViewContainer(g_workspace, document.getElementById('view-container'));

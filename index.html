@@ -9,19 +9,17 @@
   <link href="img/favicon_256.png" type="image/png" rel="icon">
   <meta name="google-site-verification" content="cxpSm-lsEATF7z2pMt1-RCZPSaKRzb6h0RiIjaVQvsE" />
   <script type="text/javascript">
-      requirejs.config({
+      require.config({
         // the left side is the module name, and the right side is the path
         // do NOT include the .js extension
         'paths': {
           'filesaver': './js/lib/FileSaver.min',
           'datgui': './js/lib/dat.gui.min',
           'jquery': './js/lib/jquery-2.1.4.min',
-          'papaparse': './js/lib/papaparse.min',
 
           /* THREE.js */
           'three': './js/lib/three.min',
           'orbitcontrols': './js/lib/OrbitControls',
-          'stlloader': './js/lib/STLLoader',
 
           /* `ili's objects */
           'colormaps': './js/ColorMaps',
@@ -40,14 +38,7 @@
           'viewlegend': './js/ViewLegend',
           'workspace': './js/Workspace',
           'common': './js/common',
-          'main': './js/main',
-
-          /* worker submodule */
-          'wk_downloader': './js/workers/Downloader',
-          'wk_mapper': './js/workers/Mapper',
-          'wk_measuresloader': './js/workers/MeasuresLoader',
-          'wk_meshloader': './js/workers/MeshLoader',
-          'wk_raycaster': './js/workers/Raycaster'
+          'main': './js/main'
         },
         /*
          Libraries that are not AMD compatible need shim to declare their
@@ -55,9 +46,6 @@
          */
         'shim': {
           'orbitcontrols': {
-            'deps': ['three']
-          },
-          'stlloader': {
             'deps': ['three']
           },
           'datgui': {
@@ -75,10 +63,9 @@
       var g_isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
       var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
 
-      requirejs(["main"], function(init){
+      require(["main"], function(init){
         init();
       });
-
   </script>
 </head>
 <body>
