@@ -285,9 +285,12 @@ function(EventSource, THREE) {
 
                 var promise = new Promise(function(accept, reject) {
                     worker.onmessage = function(event) {
+                        if (!event.data) {
+                            return;
+                        }
                         if (event.data.status == 'ready') {
                             worker.postMessage(message);
-                        } else {
+                        } else if (event.data.status == 'completed') {
                             worker.terminate();
                             var face = event.data;
                             var spotIndex = -1;

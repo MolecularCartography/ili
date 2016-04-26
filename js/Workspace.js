@@ -353,6 +353,9 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 var setStatus = this._setStatus.bind(this);
                 var addError = this._addError.bind(this);
 
+                if (typeof taskType.worker == 'function') {
+                    task.worker.postMessage(args);
+                }
                 return new Promise(function(resolve, reject) {
                     task.worker.onmessage = function(event) {
                         switch (event.data.status) {

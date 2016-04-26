@@ -46,11 +46,14 @@ function(THREE) {
                     a: a,
                     b: b,
                     c: c,
-                    distance: distance,
+                    distance: distance
                 };
             }
         }
 
+        if (result) {
+            result.status = 'completed';
+        }
         postMessage(result);
 
         var endTime = new Date();
