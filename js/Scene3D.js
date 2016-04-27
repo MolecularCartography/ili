@@ -285,23 +285,29 @@ function(EventSource, THREE) {
 
                 var promise = new Promise(function(accept, reject) {
                     worker.onmessage = function(event) {
-                        worker.terminate();
-                        var face = event.data;
-                        var spotIndex = -1;
-                        for (var i in (face || {})) {
-                            if (closestSpotIndeces[face[i]] >= 0) {
-                                spotIndex = closestSpotIndeces[face[i]];
-                                break;
-                            }
+                        if (!event.data) {
+                            return;
                         }
-                        accept(spots[spotIndex]);
+                        if (event.data.status == 'ready') {
+                            worker.postMessage(message);
+                        } else if (event.data.status == 'completed') {
+                            worker.terminate();
+                            var face = event.data;
+                            var spotIndex = -1;
+                            for (var i in (face || {})) {
+                                if (closestSpotIndeces[face[i]] >= 0) {
+                                    spotIndex = closestSpotIndeces[face[i]];
+                                    break;
+                                }
+                            }
+                            accept(spots[spotIndex]);
+                        }
                     };
                     worker.onerror = function(event) {
                         console.log('Reycasting failed', event);
                         worker.terminate();
                         reject();
                     };
-                    worker.postMessage(message);
                 });
 
                 Object.defineProperty(promise, 'cancel', {

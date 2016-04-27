@@ -353,24 +353,33 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 var setStatus = this._setStatus.bind(this);
                 var addError = this._addError.bind(this);
 
-                task.worker.postMessage(args);
+                if (typeof taskType.worker == 'function') {
+                    task.worker.postMessage(args);
+                }
                 return new Promise(function(resolve, reject) {
                     task.worker.onmessage = function(event) {
-                        if (event.data.status == 'completed') {
-                            setStatus('');
-                            resolve(event.data);
-                            task.cancel();
-                            console.info('Task ' + taskType.key + ' completed in ' +
-                                (new Date().valueOf() - task.startTime) /
-                                1000 + ' sec');
-                        } else if (event.data.status == 'failed') {
-                            reject(event.data);
-                            task.cancel();
-                            setStatus('');
-                            addError('Operation failed: ' + event.data.message);
-                        } else if (event.data.status == 'working') {
-                            setStatus(event.data.message);
-                        }
+                        switch (event.data.status) {
+                            case 'completed':
+                                setStatus('');
+                                resolve(event.data);
+                                task.cancel();
+                                console.info('Task ' + taskType.key + ' completed in ' +
+                                    (new Date().valueOf() - task.startTime) /
+                                    1000 + ' sec');
+                                break;
+                            case 'failed':
+                                reject(event.data);
+                                task.cancel();
+                                setStatus('');
+                                addError('Operation failed: ' + event.data.message);
+                                break;
+                            case 'working':
+                                setStatus(event.data.message);
+                                break;
+                            case 'ready':
+                                this.postMessage(args);
+                                break;
+                        };
                     };
                     task.worker.onerror = function(event) {
                         setStatus('');

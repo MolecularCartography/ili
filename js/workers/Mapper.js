@@ -8,12 +8,8 @@
 
 importScripts('../lib/require.min.js');
 
-require({
-    baseUrl: './'
-}, [
-    'require'
-],
-function(require) {
+require([],
+function() {
     onmessage = function(e) {
         var positions = e.data.verteces;
         var spots = e.data.spots;
@@ -74,6 +70,7 @@ function(require) {
             closestSpotDistances: closestSpotDistances,
         });
     };
-
-    return onmessage;
+    postMessage({
+        status: 'ready'
+    });
 });
