@@ -171,9 +171,16 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
     }
 
     function onAutoMappingChange(mapping) {
-        var disabled = g_workspace.autoMinMax ? '' : null;
-        mapping.min.domElement.querySelector('input').setAttribute('disabled', disabled);
-        mapping.max.domElement.querySelector('input').setAttribute('disabled', disabled);
+        var disabled = g_workspace.autoMinMax;
+
+        if (disabled) {
+            mapping.min.domElement.querySelector('input').setAttribute('disabled', '');
+            mapping.max.domElement.querySelector('input').setAttribute('disabled', '');
+        } else {
+            mapping.min.domElement.querySelector('input').removeAttribute('disabled');
+            mapping.max.domElement.querySelector('input').removeAttribute('disabled');
+        }
+
         if (g_workspace.autoMinMax) {
             mapping.min.updateDisplay();
             mapping.max.updateDisplay();
