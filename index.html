@@ -37,7 +37,7 @@
           'viewgroup3d': './js/ViewGroup3D',
           'viewlegend': './js/ViewLegend',
           'workspace': './js/Workspace',
-          'common': './js/common',
+          'utils': './js/utils',
           'main': './js/main'
         },
         /*
@@ -53,15 +53,6 @@
           }
         }
       });
-
-      // High level objects. Could be easily accessed from Web Inspector.
-      var g_workspace;
-      var g_views;
-      var g_gui;
-      var g_examples;
-      var g_mapSelector;
-      var g_isWebkit = navigator.userAgent.toLowerCase().indexOf('webkit') > -1;
-      var g_keyPressEvent = g_isWebkit ? 'keydown' : 'keypress';
 
       require(["main"], function(init) {
         init();

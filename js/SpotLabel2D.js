@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'spotlabelbase', 'common'
+    'spotlabelbase', 'utils'
 ],
-function(SpotLabelBase, asProps) {
+function(SpotLabelBase, Utils) {
     function SpotLabel2D(view) {
         SpotLabelBase.apply(this);
         this._view = view;
@@ -11,7 +11,7 @@ function(SpotLabelBase, asProps) {
         this._spot = null;
     }
 
-    SpotLabel2D.prototype = Object.create(SpotLabelBase.prototype, asProps({
+    SpotLabel2D.prototype = Object.create(SpotLabelBase.prototype, Utils.asProps({
         showFor: function(spot) {
             if (this._div) this.hide();
 
@@ -34,7 +34,7 @@ function(SpotLabelBase, asProps) {
             var coords = this._view.imageToClient(this._spot);
             this._div.style.left = coords.x + 'px';
             this._div.style.top = coords.y + 'px';
-        },
+        }
     }));
 
     return SpotLabel2D;
