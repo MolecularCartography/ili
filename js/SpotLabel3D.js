@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'spotlabelbase', 'three', 'common'
+    'spotlabelbase', 'three', 'utils'
 ],
-function(SpotLabelBase, THREE, asProps) {
+function(SpotLabelBase, THREE, Utils) {
     function SpotLabel3D(group, scene) {
         SpotLabelBase.apply(this);
         this._group = group;
@@ -14,7 +14,7 @@ function(SpotLabelBase, THREE, asProps) {
         this._changed = false;
     }
 
-    SpotLabel3D.prototype = Object.create(SpotLabelBase.prototype, asProps({
+    SpotLabel3D.prototype = Object.create(SpotLabelBase.prototype, Utils.asProps({
         showFor: function(pageX, pageY) {
             if (this._raycastPromise) {
                 this._raycastPromise.cancel();

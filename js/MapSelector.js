@@ -10,8 +10,10 @@
 
 'use strict';
 
-define([],
-function() {
+define([
+    'utils'
+],
+function(Utils) {
     function MapSelector(workspace, div, mapName) {
         this._workspace = workspace;
         this._div = div;
@@ -29,7 +31,7 @@ function() {
         this._input.addEventListener('input', this._onInput.bind(this));
         this._input.addEventListener('blur', this._onBlur.bind(this));
 
-        this._input.addEventListener(g_keyPressEvent, this._onKeyPress.bind(this), false);
+        this._input.addEventListener(Utils.keyPressEvent(), this._onKeyPress.bind(this), false);
         this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
         this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
         this._onWorkspaceIntencitiesChange();

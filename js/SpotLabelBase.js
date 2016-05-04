@@ -1,14 +1,14 @@
 'use strict';
 
 define([
-    'common'
+    'utils'
 ],
-function(asProps) {
+function(Utils) {
     function SpotLabelBase() {
         this._div = null;
     }
 
-    SpotLabelBase.prototype = Object.create(null, asProps({
+    SpotLabelBase.prototype = Object.create(null, Utils.asProps({
         createDiv: function(className) {
             this._div = document.createElement('div');
             this._div.className = className;
