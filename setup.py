@@ -28,7 +28,7 @@ test = {"nose >= 0.10.1", "pep8", "flake8"}
 all_deps = base | doc | test
 
 setup(
-    name='`ili',
+    name='ili',
     version=__version__,
     description='`ili',
     author="",
