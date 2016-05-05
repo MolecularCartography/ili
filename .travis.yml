@@ -14,7 +14,7 @@ install:
   - conda create --yes -n env_name python=$TRAVIS_PYTHON_VERSION pip numpy${NUMPY_VERSION} scipy matplotlib openpyxl=1.8.2 pandas nose flake8 pep8
   - source activate env_name
   - pip install sphinx sphinx-bootstrap-theme coverage coveralls
-  # - pip install -e '.[all]'
+  - pip install -e '.[all]'
 script:
   - python tests/all_tests.py --ili_scripts_dir scripts
   - nosetests ili --with-coverage --cover-package=ili --cover-inclusive tests; fi
