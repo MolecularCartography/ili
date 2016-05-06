@@ -35,6 +35,8 @@ The best ways of running `ili in Chrome are either [from this website](http://il
 * for 2D mapping: a PNG to be used as the background image ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/bg.png)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/intensities.csv))
 * for 3D mapping: a binary STL of the 3D model ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/model.stl)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/intensities.csv))
 
+To create a CSV file suitable for input, you need two pieces of information: coordinates of your samples on your picture/model and intensities of features you're going to visualize in \`ili. Please find the instruction on how to create a CSV table with coordinates [here](https://github.com/alexandrovteam/Optimus/blob/master/Obtaining coordinates of sampling spots.md). Rows of the result table correspond to samples. Once you have it, you can add your features as new columns. Finally, you need to save it as a CSV file, and it is ready to be viewed in \`ili. Refer to the examples above to have an idea of the final look of the table.
+
 ## Demo
 
 You can find a pop-down list of ready-made examples at the top-left corner of \`ili window. Click any of them, and necessary files will be loaded to the app automatically.
