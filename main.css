@@ -7,17 +7,35 @@ body {
     width: 100%;
 }
 
+#ili-container {
+    position: absolute;
+    top: 15%;
+    left: 15%;
+    height: 70%;
+    width: 70%;
+    border: dashed 2px darkgreen;
+}
+
 #view-container {
     overflow: hidden;
     flex-grow: 1;
     position: relative;
     display:  flex;
+    height: 100%;
 }
 
 #examples-container {
     display: inherit;
     position: absolute;
-    left: 0;
+    left: 20px;
+    top: 0;
+    height: 1vh;
+}
+
+#controls-container {
+    display: inherit;
+    position: absolute;
+    right: 20px;
     top: 0;
     height: 1vh;
 }

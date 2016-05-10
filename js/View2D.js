@@ -106,7 +106,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                 // Make sure view looks good with zoom and on retina.
                 this._renderer.setPixelRatio(this._pixelRatio);
                 this._renderer.setSize(this._width, this._height);
-    			this._renderSpots();
+                this._renderSpots();
             }
         },
 
@@ -134,9 +134,9 @@ function(THREE, Scene2D, SpotLabel2D) {
                 var spotsCount = spots.length;
                 var positions = new Float32Array(spotsCount * 6 * 3);
                 var uvs = new Float32Array(spotsCount * 6 * 2);
-    			var colors = new Float32Array(spotsCount * 6 * 3);
-    			var color = new THREE.Color();
-    			var colorMap = this._scene.colorMap;
+                var colors = new Float32Array(spotsCount * 6 * 3);
+                var color = new THREE.Color();
+                var colorMap = this._scene.colorMap;
 
                 function setPoint(index, dx, dy) {
                     var idx = i * 6 + index;
@@ -164,10 +164,10 @@ function(THREE, Scene2D, SpotLabel2D) {
                 var geometry = new THREE.BufferGeometry();
                 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
                 geometry.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-    			geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-    			this._scene3js.add(new THREE.Mesh(geometry, this._material));
-    			this._renderSpots();
+                this._scene3js.add(new THREE.Mesh(geometry, this._material));
+                this._renderSpots();
             }
         },
 
@@ -337,7 +337,8 @@ function(THREE, Scene2D, SpotLabel2D) {
                 new View2D.MoveMouseAction().start(this, event);
 
                 this._spotLabel.hide();
-                var point = this.screenToImage({x: event.pageX, y: event.pageY});
+                var parentRect = this._div.getBoundingClientRect();
+                var point = this.screenToImage({x: event.pageX - parentRect.left, y: event.pageY - parentRect.top});
                 this._scene.findSpot(point).then(function(spot) {
                     if (spot) {
                         this._spotLabel.showFor(spot);

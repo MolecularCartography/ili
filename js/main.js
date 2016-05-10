@@ -4,34 +4,37 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'text!../template.html'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils) {
-    function init() {
-        var workspace = new Workspace();
-        var views = new ViewContainer(workspace, document.getElementById('view-container'));
-        var mapSelector = new MapSelector(workspace, document.getElementById('map-selector'), document.getElementById('current-map-label'));
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, appLayout) {
+    function init(appContainer) {
+        appContainer.innerHTML = appLayout;
 
-        var dashboard = initDashboard(workspace, views);
-        var examples = new Examples(workspace, dashboard);
+        var workspace = new Workspace();
+        var views = new ViewContainer(workspace, appContainer.querySelector('#view-container'));
+        var mapSelector = new MapSelector(workspace, appContainer.querySelector('#map-selector'), appContainer.querySelector('#current-map-label'));
+
+        var dashboard = initDashboard(appContainer, workspace, views);
+        var examples = new Examples(appContainer, workspace, dashboard);
 
         workspace.addEventListener(Workspace.Events.STATUS_CHANGE,
-                                     onWorkspaceStatusChange.bind(null, workspace));
+                                     onWorkspaceStatusChange.bind(null, appContainer, workspace));
         workspace.addEventListener(Workspace.Events.ERRORS_CHANGE,
-                                     onWorkspaceErrorsChange.bind(null, workspace));
+                                     onWorkspaceErrorsChange.bind(null, appContainer, workspace));
 
-        initKeyboardShortcuts(workspace, views, mapSelector);
+        initKeyboardShortcuts(appContainer, workspace, views, mapSelector);
 
-        document.getElementById('open-button').onclick = chooseFilesToOpen.bind(null, workspace);
-        document.getElementById('current-map-label').onclick = function() {mapSelector.activate();};
-        document.getElementById('view-container').onmousedown = function(event) {mapSelector.deactivate();};
-        document.querySelector('div#errors #close').onclick = clearErrors.bind(null, workspace);
+        appContainer.querySelector('#open-button').onclick = chooseFilesToOpen.bind(null, workspace);
+        appContainer.querySelector('#current-map-label').onclick = function() {mapSelector.activate();};
+        appContainer.querySelector('#view-container').onmousedown = function(event) {mapSelector.deactivate();};
+        appContainer.querySelector('div#errors #close').onclick = clearErrors.bind(null, workspace);
 
         DragAndDrop._workspace = workspace;
+        DragAndDrop._appContainer = appContainer;
         for (var e in DragAndDrop) {
             var fn = DragAndDrop[e];
             if (typeof fn != 'function') continue;
-            document.addEventListener(e, DragAndDrop[e], true);
+            appContainer.addEventListener(e, DragAndDrop[e], true);
         }
 
         if (window.location.search) {
@@ -51,7 +54,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         }
     };
 
-    function initKeyboardShortcuts(workspace, views, mapSelector) {
+    function initKeyboardShortcuts(appContainer, workspace, views, mapSelector) {
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '79' : '111'] = chooseFilesToOpen.bind(null, workspace); // Ctrl + O
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '70' : '102'] = mapSelector.activate.bind(mapSelector); // Ctrl + F
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '83' : '115'] = takeSnapshot.bind(null, workspace, views); // Ctrl + S
@@ -85,17 +88,18 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         }
     }
 
-    function onWorkspaceStatusChange(workspace) {
+    function onWorkspaceStatusChange(appContainer, workspace) {
+        var statusContainer = appContainer.querySelector('#status');
         if (workspace.status) {
-            document.getElementById('status').innerHTML = workspace.status;
-            document.getElementById('status').removeAttribute('hidden');
+            statusContainer.innerHTML = workspace.status;
+            statusContainer.removeAttribute('hidden');
         } else {
-            document.getElementById('status').setAttribute('hidden', 'true');
+            statusContainer.setAttribute('hidden', 'true');
         }
     }
 
-    function onWorkspaceErrorsChange(workspace) {
-        var errorBox = document.querySelector('div#errors');
+    function onWorkspaceErrorsChange(appContainer, workspace) {
+        var errorBox = appContainer.querySelector('div#errors');
         var list = errorBox.querySelector('ul');
         list.textContent = '';
         workspace.errors.forEach(function(error) {
@@ -117,8 +121,8 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
     /*
      * Initializing DAT.GUI (http://workshop.chromeexperiments.com/examples/gui) controls.
      */
-    function initDashboard(workspace, views) {
-        var dashboard = new dat.GUI();
+    function initDashboard(appContainer, workspace, views) {
+        var dashboard = new dat.GUI({autoPlace: false});
 
         var f2d = dashboard.addFolder('2D');
         f2d.add(workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
@@ -165,6 +169,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             f2d.closed = (workspace.mode != Workspace.Mode.MODE_2D);
             f3d.closed = (workspace.mode != Workspace.Mode.MODE_3D);
         });
+        appContainer.querySelector('#controls-container').appendChild(dashboard.domElement);
         return dashboard;
     }
 
@@ -191,17 +196,18 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
     var DragAndDrop = {
         _counter: 0,
         _workspace: null,
+        _appContainer: null,
 
         dragenter: function(e) {
             e.preventDefault();
             if (++DragAndDrop._counter == 1)
-                document.body.setAttribute('drop-target', '');
+                DragAndDrop._appContainer.setAttribute('drop-target', '');
         },
 
         dragleave: function(e) {
             e.preventDefault();
             if (--DragAndDrop._counter === 0)
-                document.body.removeAttribute('drop-target');
+                DragAndDrop._appContainer.removeAttribute('drop-target');
         },
 
         dragover: function(e) {
@@ -210,7 +216,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
 
         drop: function(e) {
             DragAndDrop._counter = 0;
-            document.body.removeAttribute('drop-target');
+            DragAndDrop._appContainer.removeAttribute('drop-target');
 
             e.preventDefault();
             e.stopPropagation();
