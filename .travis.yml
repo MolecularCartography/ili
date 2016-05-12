@@ -17,7 +17,7 @@ install:
   - pip install -e '.[all]'
 script:
   - python tests/all_tests.py --ili_scripts_dir scripts
-  - nosetests ili --with-coverage --cover-package=ili --cover-inclusive tests; fi
+  - nosetests ili --with-coverage --cover-package=ili --cover-inclusive tests
   # - make -C doc html
 after_success:
   - coveralls
