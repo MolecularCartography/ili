@@ -153,7 +153,8 @@ function(THREE, Scene3D, View3D, SpotLabel3D) {
 
         _onMouseDown: {
             value: function(event) {
-                this._spotLabel.showFor(event.pageX, event.pageY);
+                var parentRect = this._div.getBoundingClientRect();
+                this._spotLabel.showFor(event.pageX - parentRect.left, event.pageY - parentRect.top);
             }
         },
     });

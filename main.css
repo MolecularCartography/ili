@@ -7,17 +7,31 @@ body {
     width: 100%;
 }
 
+#ili-container {
+    height: 100%;
+    width: 100%;
+}
+
 #view-container {
     overflow: hidden;
     flex-grow: 1;
     position: relative;
     display:  flex;
+    height: 100%;
 }
 
 #examples-container {
     display: inherit;
     position: absolute;
-    left: 0;
+    left: 20px;
+    top: 0;
+    height: 1vh;
+}
+
+#controls-container {
+    display: inherit;
+    position: absolute;
+    right: 20px;
     top: 0;
     height: 1vh;
 }

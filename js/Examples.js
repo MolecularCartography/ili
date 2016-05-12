@@ -13,7 +13,7 @@ function(dat, Workspace) {
         }
     }
 
-    function Examples(workspace, dashboard) {
+    function Examples(appContainer, workspace, dashboard) {
         var examplesContainer = new dat.GUI({autoPlace: false});
 
         var folder = examplesContainer.addFolder('Examples');
@@ -83,7 +83,7 @@ function(dat, Workspace) {
             folder.add(item, item.name);
         });
 
-        var container = document.getElementById('examples-container');
+        var container = appContainer.querySelector('#examples-container');
         container.appendChild(examplesContainer.domElement);
     };
 
