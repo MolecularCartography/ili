@@ -8,12 +8,8 @@ body {
 }
 
 #ili-container {
-    position: absolute;
-    top: 15%;
-    left: 15%;
-    height: 70%;
-    width: 70%;
-    border: dashed 2px darkgreen;
+    height: 100%;
+    width: 100%;
 }
 
 #view-container {
