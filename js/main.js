@@ -67,6 +67,16 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             }
         },
 
+        render: {
+            value: function () {
+                if (this._workspace.mode == Workspace.Mode.MODE_2D) {
+                    this._view.v2d._renderSpots();
+                } else if (this._workspace.mode == Workspace.Mode.MODE_3D) {
+                    this._views.g3d.requestAnimationFrame();
+                }
+            }
+        },
+
         _initKeyboardShortcuts: {
             value: function() {
                 this._keyboardShortcuts = {
