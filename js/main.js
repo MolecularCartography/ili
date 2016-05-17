@@ -22,20 +22,20 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         workspace.addEventListener(Workspace.Events.ERRORS_CHANGE,
                                      onWorkspaceErrorsChange.bind(null, appContainer, workspace));
 
-        initKeyboardShortcuts(appContainer, workspace, views, mapSelector);
+        initKeyboardShortcuts(workspace, views, mapSelector);
 
         appContainer.querySelector('#open-button').onclick = chooseFilesToOpen.bind(null, workspace);
         appContainer.querySelector('#current-map-label').onclick = function() {mapSelector.activate();};
         appContainer.querySelector('#view-container').onmousedown = function(event) {mapSelector.deactivate();};
         appContainer.querySelector('div#errors #close').onclick = clearErrors.bind(null, workspace);
 
-        DragAndDrop._workspace = workspace;
-        DragAndDrop._appContainer = appContainer;
-        for (var e in DragAndDrop) {
-            var fn = DragAndDrop[e];
-            if (typeof fn != 'function') continue;
-            appContainer.addEventListener(e, DragAndDrop[e], true);
-        }
+        var dnd = new DragAndDrop(workspace, appContainer);
+        Object.getOwnPropertyNames(DragAndDrop.prototype).forEach(function(e) {
+            var fn = dnd[e];
+            if (typeof fn == 'function') {
+                appContainer.addEventListener(e, dnd[e].bind(dnd), true);
+            }
+        });
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
@@ -54,7 +54,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         }
     };
 
-    function initKeyboardShortcuts(appContainer, workspace, views, mapSelector) {
+    function initKeyboardShortcuts(workspace, views, mapSelector) {
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '79' : '111'] = chooseFilesToOpen.bind(null, workspace); // Ctrl + O
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '70' : '102'] = mapSelector.activate.bind(mapSelector); // Ctrl + F
         KEYBOARD_SHORTCUTS[Utils.isWebkit ? '83' : '115'] = takeSnapshot.bind(null, workspace, views); // Ctrl + S
@@ -193,37 +193,49 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
     /**
      * Implementation of dropping files via system's D&D.'
      */
-    var DragAndDrop = {
-        _counter: 0,
-        _workspace: null,
-        _appContainer: null,
+    function DragAndDrop(workspace, container) {
+        this._counter = 0;
+        this._workspace = workspace;
+        this._appContainer = container;
+    }
 
-        dragenter: function(e) {
-            e.preventDefault();
-            if (++DragAndDrop._counter == 1)
-                DragAndDrop._appContainer.setAttribute('drop-target', '');
+    DragAndDrop.prototype = Object.create(null, {
+        dragenter: {
+            value: function(e) {
+                e.preventDefault();
+                if (++this._counter == 1) {
+                    this._appContainer.setAttribute('drop-target', '');
+                }
+            }
         },
 
-        dragleave: function(e) {
-            e.preventDefault();
-            if (--DragAndDrop._counter === 0)
-                DragAndDrop._appContainer.removeAttribute('drop-target');
+        dragleave: {
+            value: function(e) {
+                e.preventDefault();
+                if (--this._counter === 0) {
+                    this._appContainer.removeAttribute('drop-target');
+                }
+            }
         },
 
-        dragover: function(e) {
-            e.preventDefault();
+        dragover: {
+            value: function(e) {
+                e.preventDefault();
+            }
         },
 
-        drop: function(e) {
-            DragAndDrop._counter = 0;
-            DragAndDrop._appContainer.removeAttribute('drop-target');
+        drop: {
+            value: function(e) {
+                this._counter = 0;
+                this._appContainer.removeAttribute('drop-target');
 
-            e.preventDefault();
-            e.stopPropagation();
+                e.preventDefault();
+                e.stopPropagation();
 
-            openFiles(DragAndDrop._workspace, e.dataTransfer.files);
+                openFiles(this._workspace, e.dataTransfer.files);
+            }
         }
-    };
+    });
 
     function openFiles(workspace, files) {
         var handlers = findFileHandlers(workspace, files);
