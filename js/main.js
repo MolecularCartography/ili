@@ -4,274 +4,231 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'text!../template.html'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, appLayout) {
-    function init(appContainer) {
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout) {
+    function ili(appContainer) {
         appContainer.innerHTML = appLayout;
 
-        var workspace = new Workspace();
-        var views = new ViewContainer(workspace, appContainer.querySelector('#view-container'));
-        var mapSelector = new MapSelector(workspace, appContainer.querySelector('#map-selector'), appContainer.querySelector('#current-map-label'));
+        this._workspace = new Workspace();
+        this._views = new ViewContainer(this._workspace, appContainer.querySelector('#view-container'));
+        this._mapSelector = new MapSelector(this._workspace, appContainer.querySelector('#map-selector'), appContainer.querySelector('#current-map-label'));
 
-        var dashboard = initDashboard(appContainer, workspace, views);
-        var examples = new Examples(appContainer, workspace, dashboard);
+        this._initDashboard(appContainer);
+        this._examples = new Examples(appContainer, this._workspace, this._dashboard);
 
-        workspace.addEventListener(Workspace.Events.STATUS_CHANGE,
-                                     onWorkspaceStatusChange.bind(null, appContainer, workspace));
-        workspace.addEventListener(Workspace.Events.ERRORS_CHANGE,
-                                     onWorkspaceErrorsChange.bind(null, appContainer, workspace));
+        this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this, appContainer));
+        this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this, appContainer));
 
-        initKeyboardShortcuts(workspace, views, mapSelector);
+        this._initKeyboardShortcuts(this._workspace, this._views, this._mapSelector);
 
-        appContainer.querySelector('#open-button').onclick = chooseFilesToOpen.bind(null, workspace);
-        appContainer.querySelector('#current-map-label').onclick = function() {mapSelector.activate();};
-        appContainer.querySelector('#view-container').onmousedown = function(event) {mapSelector.deactivate();};
-        appContainer.querySelector('div#errors #close').onclick = clearErrors.bind(null, workspace);
+        appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
+        appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
+        appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
+        appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
 
-        var dnd = new DragAndDrop(workspace, appContainer);
-        Object.getOwnPropertyNames(DragAndDrop.prototype).forEach(function(e) {
-            var fn = dnd[e];
-            if (typeof fn == 'function') {
-                appContainer.addEventListener(e, dnd[e].bind(dnd), true);
-            }
-        });
+        this._dnd = new DragAndDrop(this._workspace, appContainer, this._openFiles.bind(this));
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
-            workspace.download(fileNames);
+            this._workspace.download(fileNames);
         }
     }
 
-    var KEYBOARD_SHORTCUTS = {
-        '38': function(mapSelector) { // ArrowUp
-            mapSelector.blink();
-            mapSelector.navigate(MapSelector.Direction.UP);
+    ili.prototype = Object.create(null, {
+        chooseFilesToOpen: {
+            value: function() {
+                var fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.multiple = true;
+                fileInput.addEventListener('change', function() {
+                    this._openFiles(fileInput.files);
+                }.bind(this));
+                fileInput.click();
+            }
         },
-        '40': function(mapSelector) { // ArrowDown
-            mapSelector.blink();
-            mapSelector.navigate(MapSelector.Direction.DOWN);
-        }
-    };
 
-    function initKeyboardShortcuts(workspace, views, mapSelector) {
-        KEYBOARD_SHORTCUTS[Utils.isWebkit ? '79' : '111'] = chooseFilesToOpen.bind(null, workspace); // Ctrl + O
-        KEYBOARD_SHORTCUTS[Utils.isWebkit ? '70' : '102'] = mapSelector.activate.bind(mapSelector); // Ctrl + F
-        KEYBOARD_SHORTCUTS[Utils.isWebkit ? '83' : '115'] = takeSnapshot.bind(null, workspace, views); // Ctrl + S
+        takeSnapshot: {
+            value: function() {
+                var name = this._workspace.mapName || 'image';
+                this._views.export().then(function(blob) {
+                    saveAs(blob, name + '.png', 'image/png');
+                });
+            }
+        },
 
-        KEYBOARD_SHORTCUTS['38'] = KEYBOARD_SHORTCUTS['38'].bind(null, mapSelector);
-        KEYBOARD_SHORTCUTS['40'] = KEYBOARD_SHORTCUTS['40'].bind(null, mapSelector);
+        _initKeyboardShortcuts: {
+            value: function() {
+                this._keyboardShortcuts = {
+                    '38': function() { // ArrowUp
+                        this._mapSelector.blink();
+                        this._mapSelector.navigate(MapSelector.Direction.UP);
+                    },
+                    '40': function() { // ArrowDown
+                        this._mapSelector.blink();
+                        this._mapSelector.navigate(MapSelector.Direction.DOWN);
+                    }
+                };
+                this._keyboardShortcuts[Utils.isWebkit ? '79' : '111'] = this.chooseFilesToOpen; // Ctrl + O
+                this._keyboardShortcuts[Utils.isWebkit ? '70' : '102'] = function() { this._mapSelector.activate(); }; // Ctrl + F
+                this._keyboardShortcuts[Utils.isWebkit ? '83' : '115'] = this.takeSnapshot; // Ctrl + S
 
-        document.addEventListener(Utils.keyPressEvent(), onKeyPress, false);
-    }
+                this._keyboardShortcuts['38'] = this._keyboardShortcuts['38'];
+                this._keyboardShortcuts['40'] = this._keyboardShortcuts['40'];
 
-    function takeSnapshot(workspace, views) {
-        var name = workspace.mapName || 'image';
-        views.export().then(function(blob) {
-            saveAs(blob, name + '.png', 'image/png');
-        });
-    }
+                document.addEventListener(Utils.keyPressEvent(), this._onKeyPress.bind(this), false);
+            }
+        },
 
-    function onKeyPress(event) {
-        if ((/^Mac/i).test(navigator.platform)) {
-            if (event.ctrlKey || event.altKey || !event.metaKey) return;
-        } else {
-            if (!event.ctrlKey || event.altKey || event.metaKey) return;
-        }
+        _onKeyPress: {
+            value: function(event) {
+                if ((/^Mac/i).test(navigator.platform)) {
+                    if (event.ctrlKey || event.altKey || !event.metaKey) return;
+                } else {
+                    if (!event.ctrlKey || event.altKey || event.metaKey) return;
+                }
 
-        var key = (event.which ? event.which : event.keyCode).toString();
-        if (key in KEYBOARD_SHORTCUTS) {
-            event.preventDefault();
-            var handler = KEYBOARD_SHORTCUTS[key];
-            handler();
-            return false;
-        }
-    }
-
-    function onWorkspaceStatusChange(appContainer, workspace) {
-        var statusContainer = appContainer.querySelector('#status');
-        if (workspace.status) {
-            statusContainer.innerHTML = workspace.status;
-            statusContainer.removeAttribute('hidden');
-        } else {
-            statusContainer.setAttribute('hidden', 'true');
-        }
-    }
-
-    function onWorkspaceErrorsChange(appContainer, workspace) {
-        var errorBox = appContainer.querySelector('div#errors');
-        var list = errorBox.querySelector('ul');
-        list.textContent = '';
-        workspace.errors.forEach(function(error) {
-            var item = document.createElement('li');
-            item.textContent = error;
-            list.appendChild(item);
-        });
-        if (workspace.errors.length == 0) {
-            errorBox.setAttribute('hidden', 'true');
-        } else {
-            errorBox.removeAttribute('hidden');
-        }
-    }
-
-    function clearErrors(workspace) {
-        workspace.clearErrors();
-    }
-
-    /*
-     * Initializing DAT.GUI (http://workshop.chromeexperiments.com/examples/gui) controls.
-     */
-    function initDashboard(appContainer, workspace, views) {
-        var dashboard = new dat.GUI({autoPlace: false});
-
-        var f2d = dashboard.addFolder('2D');
-        f2d.add(workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
-
-        var f3d = dashboard.addFolder('3D');
-        f3d.add(views.g3d, 'layout', {
-            'Single view': ViewGroup3D.Layout.SINGLE,
-            'Double view': ViewGroup3D.Layout.DOUBLE,
-            'Triple view': ViewGroup3D.Layout.TRIPLE,
-            'Quadriple view': ViewGroup3D.Layout.QUADRIPLE,
-        }).name('Layout');
-        f3d.addColor(workspace.scene3d, 'color').name('Color');
-        f3d.addColor(workspace.scene3d, 'backgroundColor').name('Background');
-        f3d.add(workspace.scene3d.frontLight, 'intensity', 0, 3).name('Light');
-        f3d.add(workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
-        f3d.add(views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
-        var adjustment = f3d.addFolder('Adjustment');
-        adjustment.add(workspace.scene3d.adjustment, 'alpha', -180.0, 180.0).name('0X rotation').step(1);
-        adjustment.add(workspace.scene3d.adjustment, 'beta', -180.0, 180.0).name('0Y rotation').step(1);
-        adjustment.add(workspace.scene3d.adjustment, 'gamma', -180.0, 180.0).name('0Z rotation').step(1);
-        adjustment.add(workspace.scene3d.adjustment, 'x').name('X offset').step(0.1);
-        adjustment.add(workspace.scene3d.adjustment, 'y').name('Y offset').step(0.1);
-        adjustment.add(workspace.scene3d.adjustment, 'z').name('Z offset').step(0.1);
-
-        var fMapping = dashboard.addFolder('Mapping');
-        fMapping.add(workspace, 'scaleId', {'Linear': Workspace.Scale.LINEAR.id, 'Logarithmic': Workspace.Scale.LOG.id}).name('Scale');
-        fMapping.add(workspace, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
-        var colorMaps = Object.keys(ColorMap.Maps).reduce(function(m, k) {
-            m[ColorMap.Maps[k].name] = k;
-            return m;
-        }, {});
-        fMapping.add(workspace, 'colorMapId', colorMaps).name('Color map');
-
-        var mapping = {
-            flag: fMapping.add(workspace, 'autoMinMax').name('Auto MinMax'),
-            min: fMapping.add(workspace, 'minValue').name('Min value').step(0.00001),
-            max: fMapping.add(workspace, 'maxValue').name('Max value').step(0.00001),
-        };
-        workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE,
-                                     onAutoMappingChange.bind(null, workspace, mapping));
-        onAutoMappingChange(workspace, mapping);
-
-        workspace.addEventListener(Workspace.Events.MODE_CHANGE, function() {
-            f2d.closed = (workspace.mode != Workspace.Mode.MODE_2D);
-            f3d.closed = (workspace.mode != Workspace.Mode.MODE_3D);
-        });
-        appContainer.querySelector('#controls-container').appendChild(dashboard.domElement);
-        return dashboard;
-    }
-
-    function onAutoMappingChange(workspace, mapping) {
-        var disabled = workspace.autoMinMax;
-
-        if (disabled) {
-            mapping.min.domElement.querySelector('input').setAttribute('disabled', '');
-            mapping.max.domElement.querySelector('input').setAttribute('disabled', '');
-        } else {
-            mapping.min.domElement.querySelector('input').removeAttribute('disabled');
-            mapping.max.domElement.querySelector('input').removeAttribute('disabled');
-        }
-
-        if (workspace.autoMinMax) {
-            mapping.min.updateDisplay();
-            mapping.max.updateDisplay();
-        }
-    }
-
-    /**
-     * Implementation of dropping files via system's D&D.'
-     */
-    function DragAndDrop(workspace, container) {
-        this._counter = 0;
-        this._workspace = workspace;
-        this._appContainer = container;
-    }
-
-    DragAndDrop.prototype = Object.create(null, {
-        dragenter: {
-            value: function(e) {
-                e.preventDefault();
-                if (++this._counter == 1) {
-                    this._appContainer.setAttribute('drop-target', '');
+                var key = (event.which ? event.which : event.keyCode).toString();
+                if (key in this._keyboardShortcuts) {
+                    event.preventDefault();
+                    var handler = this._keyboardShortcuts[key];
+                    handler.call(this);
+                    return false;
                 }
             }
         },
 
-        dragleave: {
-            value: function(e) {
-                e.preventDefault();
-                if (--this._counter === 0) {
-                    this._appContainer.removeAttribute('drop-target');
+        _onWorkspaceStatusChange: {
+            value: function(appContainer) {
+                var statusContainer = appContainer.querySelector('#status');
+                if (this._workspace.status) {
+                    statusContainer.innerHTML = this._workspace.status;
+                    statusContainer.removeAttribute('hidden');
+                } else {
+                    statusContainer.setAttribute('hidden', 'true');
                 }
             }
         },
 
-        dragover: {
-            value: function(e) {
-                e.preventDefault();
+        _onWorkspaceErrorsChange: {
+            value: function (appContainer) {
+                var errorBox = appContainer.querySelector('div#errors');
+                var list = errorBox.querySelector('ul');
+                list.textContent = '';
+                this._workspace.errors.forEach(function (error) {
+                    var item = document.createElement('li');
+                    item.textContent = error;
+                    list.appendChild(item);
+                });
+                if (this._workspace.errors.length == 0) {
+                    errorBox.setAttribute('hidden', 'true');
+                } else {
+                    errorBox.removeAttribute('hidden');
+                }
             }
         },
 
-        drop: {
-            value: function(e) {
-                this._counter = 0;
-                this._appContainer.removeAttribute('drop-target');
+        _initDashboard: {
+            value: function(appContainer) {
+                this._dashboard = new dat.GUI({autoPlace: false});
 
-                e.preventDefault();
-                e.stopPropagation();
+                var f2d = this._dashboard.addFolder('2D');
+                f2d.add(this._workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
 
-                openFiles(this._workspace, e.dataTransfer.files);
+                var f3d = this._dashboard.addFolder('3D');
+                f3d.add(this._views.g3d, 'layout', {
+                    'Single view': ViewGroup3D.Layout.SINGLE,
+                    'Double view': ViewGroup3D.Layout.DOUBLE,
+                    'Triple view': ViewGroup3D.Layout.TRIPLE,
+                    'Quadriple view': ViewGroup3D.Layout.QUADRIPLE
+                }).name('Layout');
+                f3d.addColor(this._workspace.scene3d, 'color').name('Color');
+                f3d.addColor(this._workspace.scene3d, 'backgroundColor').name('Background');
+                f3d.add(this._workspace.scene3d.frontLight, 'intensity', 0, 3).name('Light');
+                f3d.add(this._workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+                f3d.add(this._views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
+                var adjustment = f3d.addFolder('Adjustment');
+                adjustment.add(this._workspace.scene3d.adjustment, 'alpha', -180.0, 180.0).name('0X rotation').step(1);
+                adjustment.add(this._workspace.scene3d.adjustment, 'beta', -180.0, 180.0).name('0Y rotation').step(1);
+                adjustment.add(this._workspace.scene3d.adjustment, 'gamma', -180.0, 180.0).name('0Z rotation').step(1);
+                adjustment.add(this._workspace.scene3d.adjustment, 'x').name('X offset').step(0.1);
+                adjustment.add(this._workspace.scene3d.adjustment, 'y').name('Y offset').step(0.1);
+                adjustment.add(this._workspace.scene3d.adjustment, 'z').name('Z offset').step(0.1);
+
+                var fMapping = this._dashboard.addFolder('Mapping');
+                fMapping.add(this._workspace, 'scaleId', {
+                    'Linear': Workspace.Scale.LINEAR.id,
+                    'Logarithmic': Workspace.Scale.LOG.id
+                }).name('Scale');
+                fMapping.add(this._workspace, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
+                var colorMaps = Object.keys(ColorMap.Maps).reduce(function (m, k) {
+                    m[ColorMap.Maps[k].name] = k;
+                    return m;
+                }, {});
+                fMapping.add(this._workspace, 'colorMapId', colorMaps).name('Color map');
+
+                var mapping = {
+                    flag: fMapping.add(this._workspace, 'autoMinMax').name('Auto MinMax'),
+                    min: fMapping.add(this._workspace, 'minValue').name('Min value').step(0.00001),
+                    max: fMapping.add(this._workspace, 'maxValue').name('Max value').step(0.00001),
+                };
+                this._workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, mapping));
+                this._onAutoMappingChange(mapping);
+
+                this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function() {
+                    f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
+                    f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
+                }.bind(this));
+                appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
+            }
+        },
+
+        _onAutoMappingChange: {
+            value: function(mapping) {
+                var disabled = this._workspace.autoMinMax;
+
+                if (disabled) {
+                    mapping.min.domElement.querySelector('input').setAttribute('disabled', '');
+                    mapping.max.domElement.querySelector('input').setAttribute('disabled', '');
+                } else {
+                    mapping.min.domElement.querySelector('input').removeAttribute('disabled');
+                    mapping.max.domElement.querySelector('input').removeAttribute('disabled');
+                }
+
+                if (this._workspace.autoMinMax) {
+                    mapping.min.updateDisplay();
+                    mapping.max.updateDisplay();
+                }
+            }
+        },
+
+        _openFiles: {
+            value: function(files) {
+                var handlers = this._findFileHandlers(files);
+                for (var i = 0; i < handlers.length; i++) {
+                    handlers[i]();
+                }
+            }
+        },
+
+        _findFileHandlers: {
+            value: function (files) {
+                var result = [];
+                for (var i = 0; i < files.length; i++) {
+                    var file = files[i];
+
+                    if ((/\.png$/i.test(file.name))) {
+                        result.push(this._workspace.loadImage.bind(this._workspace, file));
+                    } else if (/\.stl$/i.test(file.name)) {
+                        result.push(this._workspace.loadMesh.bind(this._workspace, file));
+                    } else if (/\.csv$/i.test(file.name)) {
+                        result.push(this._workspace.loadIntensities.bind(this._workspace, file));
+                    }
+                }
+                return result;
             }
         }
     });
 
-    function openFiles(workspace, files) {
-        var handlers = findFileHandlers(workspace, files);
-        for (var i = 0; i < handlers.length; i++) {
-            handlers[i]();
-        }
-    };
-
-    function findFileHandlers(workspace, files) {
-        var result = [];
-        for (var i = 0; i < files.length; i++) {
-            var file = files[i];
-
-            if ((/\.png$/i.test(file.name))) {
-                result.push(workspace.loadImage.bind(workspace, file));
-            } else if (/\.stl$/i.test(file.name)) {
-                result.push(workspace.loadMesh.bind(workspace, file));
-            } else if (/\.csv$/i.test(file.name)) {
-                result.push(workspace.loadIntensities.bind(workspace, file));
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Shows file open dialog.
-     */
-    function chooseFilesToOpen(workspace) {
-        var fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.multiple = true;
-        fileInput.addEventListener('change', function() {
-            openFiles(workspace, fileInput.files);
-        });
-        fileInput.click();
-    }
-
-    return init;
+    return ili;
 });
