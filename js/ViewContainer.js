@@ -14,12 +14,8 @@ function(View2D, ViewGroup3D, ViewLegend, Workspace) {
 
         this._exportPixelRatio3d = 1.0;
 
-        this._workspace.addEventListener(
-                'mode-change', this._onWorkspaceModeChange.bind(this));
-        window.addEventListener('resize', this.updateLayout.bind(this));
-
+        this._workspace.addEventListener('mode-change', this._onWorkspaceModeChange.bind(this));
         this._onWorkspaceModeChange();
-        this.updateLayout();
     }
 
     ViewContainer.prototype = Object.create(null, {

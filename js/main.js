@@ -8,26 +8,30 @@ define([
 ],
 function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout) {
     function ili(appContainer) {
-        appContainer.innerHTML = appLayout;
+        this._appContainer = appContainer;
+        this._appContainer.innerHTML = appLayout;
 
         this._workspace = new Workspace();
-        this._views = new ViewContainer(this._workspace, appContainer.querySelector('#view-container'));
-        this._mapSelector = new MapSelector(this._workspace, appContainer.querySelector('#map-selector'), appContainer.querySelector('#current-map-label'));
+        this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
+        this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'), this._appContainer.querySelector('#current-map-label'));
 
-        this._initDashboard(appContainer);
-        this._examples = new Examples(appContainer, this._workspace, this._dashboard);
+        this._initDashboard();
+        this._examples = new Examples(this._appContainer, this._workspace, this._dashboard);
 
-        this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this, appContainer));
-        this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this, appContainer));
+        this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this));
+        this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this));
 
         this._initKeyboardShortcuts(this._workspace, this._views, this._mapSelector);
 
-        appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
-        appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
-        appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
-        appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
+        this._appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
+        this._appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
+        this._appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
+        this._appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
+        window.addEventListener('resize', function() {
+            this.resize.call(this, window.innerWidth, window.innerHeight);
+        }.bind(this));
 
-        this._dnd = new DragAndDrop(this._workspace, appContainer, this._openFiles.bind(this));
+        this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._openFiles.bind(this));
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
@@ -54,6 +58,12 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
                 this._views.export().then(function(blob) {
                     saveAs(blob, name + '.png', 'image/png');
                 });
+            }
+        },
+
+        resize: {
+            value: function(width, height) {
+                this._views.updateLayout();
             }
         },
 
@@ -99,8 +109,8 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         },
 
         _onWorkspaceStatusChange: {
-            value: function(appContainer) {
-                var statusContainer = appContainer.querySelector('#status');
+            value: function() {
+                var statusContainer = this._appContainer.querySelector('#status');
                 if (this._workspace.status) {
                     statusContainer.innerHTML = this._workspace.status;
                     statusContainer.removeAttribute('hidden');
@@ -111,8 +121,8 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         },
 
         _onWorkspaceErrorsChange: {
-            value: function (appContainer) {
-                var errorBox = appContainer.querySelector('div#errors');
+            value: function () {
+                var errorBox = this._appContainer.querySelector('div#errors');
                 var list = errorBox.querySelector('ul');
                 list.textContent = '';
                 this._workspace.errors.forEach(function (error) {
@@ -129,7 +139,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         },
 
         _initDashboard: {
-            value: function(appContainer) {
+            value: function() {
                 this._dashboard = new dat.GUI({autoPlace: false});
 
                 var f2d = this._dashboard.addFolder('2D');
@@ -179,7 +189,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
                     f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
                     f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
                 }.bind(this));
-                appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
+                this._appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
             }
         },
 
