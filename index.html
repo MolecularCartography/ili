@@ -23,6 +23,7 @@
           'orbitcontrols': './js/lib/OrbitControls',
 
           /* `ili's objects */
+          'dragndrop': './js/DragAndDrop',
           'colormaps': './js/ColorMaps',
           'eventsource': './js/EventSource',
           'examples': './js/Examples',
@@ -55,8 +56,8 @@
         }
       });
 
-      require(["main"], function(init) {
-        init(document.getElementById('ili-container'));
+      require(["main"], function(ili) {
+        var app = new ili(document.getElementById('ili-container'));
       });
   </script>
 </head>

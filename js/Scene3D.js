@@ -44,13 +44,14 @@ function(EventSource, THREE) {
     };
 
     Scene3D._makeProxyProperty = function(field, properties, callback) {
-        var proxy;
+        var proxyName = 'proxy' + field;
+        this[proxyName] = null;
         return {
             get: function() {
-                if (proxy) return proxy;
-                proxy = {};
+                if (this[proxyName]) return this[proxyName];
+                this[proxyName] = {};
                 for (var i = 0; i < properties.length; i++) {
-                    Object.defineProperty(proxy, properties[i], {
+                    Object.defineProperty(this[proxyName], properties[i], {
                         get: function(prop) {
                             return this[field][prop]
                         }.bind(this, properties[i]),
@@ -61,12 +62,12 @@ function(EventSource, THREE) {
                         }.bind(this, properties[i])
                     });
                 }
-                return proxy;
+                return this[proxyName];
             },
 
             set: function(value) {
                 for (var i = 0; i < properties.length; i++) {
-                    var prop = properties[i]
+                    var prop = properties[i];
                     this[field][prop] = value[prop];
                 }
                 callback.call(this);
