@@ -64,15 +64,15 @@ function(THREE) {
 
     ColorMap.Maps = {
         VIRIDIS: new ColorMap('Viridis', [
-            '#440154',
-            '#482777',
-            '#3F4A8A',
-            '#31678E',
-            '#26838F',
-            '#1F9D8A',
-            '#6CCE5A',
-            '#B6DE2B',
-            '#FEE825']),
+                '#440154',
+                '#482777',
+                '#3F4A8A',
+                '#31678E',
+                '#26838F',
+                '#1F9D8A',
+                '#6CCE5A',
+                '#B6DE2B',
+                '#FEE825']),
 
         JET: new ColorMap('Jet', [
                 '#00007F',

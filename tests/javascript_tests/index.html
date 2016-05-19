@@ -1,47 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-      Note that all of the resources listed in this file assume the standard
-      base structure of ili. It is likely that this will not work properly
-      if it's not executed as suggested.
-  -->
   <title>ili test suite</title>
   <link rel="stylesheet" href="qunit/qunit-min.css" type="text/css" media="screen">
 
   <!-- Testing framework requirements -->
   <script src="qunit/qunit-min.js"></script>
-
-  <!-- Qunit depends on jQuery -->
-  <script src="../../js/lib/jquery-2.1.4.min.js"></script>
-
-  <!-- Libraries the code depends on -->
-
-  <!--Source files to test-->
-  <script src="../../js/ColorMaps.js"></script>
-  <script src="../../js/EventSource.js"></script>
-  <script src="../../js/Examples.js"></script>
-  <script src="../../js/MapSelector.js"></script>
-  <script src="../../js/Scene2D.js"></script>
-  <script src="../../js/Scene3D.js"></script>
-  <script src="../../js/SpotLabel2D.js"></script>
-  <script src="../../js/SpotLabel3D.js"></script>
-  <script src="../../js/SpotLabelBase.js"></script>
-  <script src="../../js/View2D.js"></script>
-  <script src="../../js/View3D.js"></script>
-  <script src="../../js/ViewContainer.js"></script>
-  <script src="../../js/ViewGroup3D.js"></script>
-  <script src="../../js/ViewLegend.js"></script>
-  <script src="../../js/Workspace.js"></script>
-  <script src="../../js/common.js"></script>
-  <script src="../../js/main.js"></script>
-  <script src="../../js/workers/Downloader.js"></script>
-  <script src="../../js/workers/Mapper.js"></script>
-  <script src="../../js/workers/MeasuresLoader.js"></script>
-  <script src="../../js/workers/MeshLoader.js"></script>
-  <script src="../../js/workers/Raycaster.js"></script>
-
-  <!-- Test cases -->
+  <script src="../../js/lib/require.min.js"></script>
 </head>
 <body>
   <div id="qunit"></div>
@@ -52,11 +17,75 @@
     </div>
   </div>
   <br>
-  <h1 class="qunit-header">ili Test Suite</h1>
+  <h1 class="qunit-header">Ili Test Suite</h1>
   <p>
     This test suite exercises all the functions that are used as part of
-    ili's front end. The functions that have direct interaction with the
+    Ili's front end. The functions that have direct interaction with the
     instantiation of the user interface are not tested.
   </p>
+  <script>
+    QUnit.config.autostart = false;
+
+    // Without this setTimeout, the specs don't always get execute in webKit
+    // browsers, this was taken from http://stackoverflow.com/q/13615679/379593
+    setTimeout(function () {
+      requirejs.config({
+        'baseUrl': '../../js/',
+
+        // the left side is the module name, and the right side is the path
+        // relative to the baseUrl attribute, do NOT include the .js extension
+        'paths': {
+          'filesaver': 'lib/FileSaver.min',
+          'datgui': 'lib/dat.gui.min',
+          'jquery': 'lib/jquery-2.1.4.min',
+
+          /* THREE.js */
+          'three': 'lib/three.min',
+          'orbitcontrols': 'lib/OrbitControls',
+
+          /* `ili's objects */
+          'colormaps': 'ColorMaps',
+          'eventsource': 'EventSource',
+          'examples': 'Examples',
+          'mapselector': 'MapSelector',
+          'scene2d': 'Scene2D',
+          'scene3d': 'Scene3D',
+          'spotlabel2d': 'SpotLabel2D',
+          'spotlabel3d': 'SpotLabel3D',
+          'spotlabelbase': 'SpotLabelBase',
+          'view2d': 'View2D',
+          'view3d': 'View3D',
+          'viewcontainer': 'ViewContainer',
+          'viewgroup3d': 'ViewGroup3D',
+          'viewlegend': 'ViewLegend',
+          'workspace': 'Workspace',
+          'utils': 'utils',
+          'main': 'main'
+        },
+        /*
+         Libraries that are not AMD compatible need shim to declare their
+         dependencies.
+         */
+        'shim': {
+          'orbitcontrols': {
+            'deps': ['three']
+          },
+          'datgui': {
+            exports: 'dat'
+          }
+        }
+      });
+
+      //load tests using require
+      require(
+          ['jquery'],
+            function ($) {
+              // now trigger the tests
+              $( document ).ready(function() {
+                QUnit.start();
+              });
+      });
+    }, 10);
+  </script>
 </body>
 </html>
