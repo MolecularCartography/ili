@@ -3,9 +3,11 @@
 
 `ili is a toolbox for 2D and 3D molecular mapping in Chrome.
 
-`ili is being developed by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
+`ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
 
 * Developers: Ivan Protsyuk, Sergey Ryazanov
+* External collaborators:
+  * Members of [Knight lab](http://knightlab.ucsd.edu): Antonio Gonzalez, Jamie Morton, Jose Navas, Yoshiki Vázquez Baeza
 * Principal investigator: Theodore Alexandrov 
 
 
@@ -34,6 +36,8 @@ The best ways of running `ili in Chrome are either [from this website](http://il
 `ili takes two files: 
 * for 2D mapping: a PNG to be used as the background image ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/bg.png)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/intensities.csv))
 * for 3D mapping: a binary STL of the 3D model ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/model.stl)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/intensities.csv))
+
+To create a CSV file suitable for input, you need two pieces of information: coordinates of your samples on your picture/model and intensities of features you're going to visualize in \`ili. Please find the instruction on how to create a CSV table with coordinates [here](https://github.com/alexandrovteam/Optimus/blob/master/Obtaining coordinates of sampling spots.md). Rows of the result table correspond to samples. Once you have it, you can add your features as new columns. Finally, you need to save it as a CSV file, and it is ready to be viewed in \`ili. Refer to the examples above to have an idea of the final look of the table.
 
 ## Demo
 

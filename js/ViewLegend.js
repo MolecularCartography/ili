@@ -19,16 +19,19 @@ function() {
         },
 
         update: {
-            value: function() {
+            value: function () {
                 var description = this._workspace.colorMap.gradient;
-                var stops = [];
-                for (var i in description) {
-                    stops.push('<stop offset="' + i + '" style="stop-color:' +
-                               description[i] + '" />');
-                }
-                this._svg.getElementById('colorMapGradient').innerHTML =
-                        stops.join('');
 
+                var colorBar = this._svg.getElementById('colorMapGradient');
+                while (colorBar.firstChild) {
+                    colorBar.removeChild(colorBar.firstChild);
+                }
+                for (var i in description) {
+                    var stopNode = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+                    stopNode.setAttribute('offset', i);
+                    stopNode.setAttribute('stop-color', description[i]);
+                    colorBar.appendChild(stopNode);
+                }
                 var workspace = this._workspace;
                 this._svg.getElementById('minLabel').textContent = format(workspace.minValue);
                 this._svg.getElementById('maxLabel').textContent = format(workspace.maxValue);
@@ -43,15 +46,21 @@ function() {
         export: {
             value: function(canvas, scale) {
                 return new Promise(function(accept, reject) {
+
+
                     var OFFSET = 10;
                     var legendStyle = window.getComputedStyle(this._svg);
                     var width = parseInt(legendStyle.getPropertyValue('width'), 10);
                     var height = parseInt(legendStyle.getPropertyValue('height'), 10);
-                    var source =
-                            '<svg xmlns="http://www.w3.org/2000/svg" width="' +
-                            width + '" height="' + height + '">' +
-                            this._svg.innerHTML +
-                            '</svg>';
+
+                    var source = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">';
+                    var subElements = this._svg.childNodes;
+                    for (var i = 0; i < subElements.length; ++i) {
+                        var element = subElements[i];
+                        source += new XMLSerializer().serializeToString(element);
+                    }
+                    source += '</svg>';
+
                     var image = new Image();
                     image.onload = function() {
                         var ctx = canvas.getContext('2d');
