@@ -12,6 +12,8 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
 
 #view-container[layout='welcome'] > .ViewWelcome {
     display: flex;
+    position: absolute;
+    margin: auto;
 }
 
 #examples-container .property-name {
