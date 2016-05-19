@@ -4,63 +4,73 @@
  * any specific map related to the same spots could be done much faster.
  */
 
-onmessage = function(e) {
-    var positions = e.data.verteces;
-    var spots = e.data.spots;
+'use strict';
 
-    var pointCount = (positions.length / 3) | 0;
-    var closestSpotIndeces = new Int32Array(pointCount);
-    var closestSpotDistances = new Float32Array(pointCount);
-    var progress = -1;
-    var nextChunk = 0;
-    var highlightedVerteces = 0;
+importScripts('../lib/require.min.js');
 
-    for (var i = 0; i < pointCount; i++) {
-        while (i >= nextChunk) {
-            progress++;
-            nextChunk = Math.ceil((progress + 1) * pointCount / 100);
-            postMessage({
-                status: 'working',
-                message: 'Mapping: ' + progress + '%',
-            });
-        }
-        var positionOffset = i * 3;
-        var x = positions[positionOffset + 0];
-        var y = positions[positionOffset + 1];
-        var z = positions[positionOffset + 2];
+require([],
+function() {
+    onmessage = function(e) {
+        var positions = e.data.verteces;
+        var spots = e.data.spots;
 
-        var closestSpotIndex = -1;
-        var closesSpotSquareDistance;
+        var pointCount = (positions.length / 3) | 0;
+        var closestSpotIndeces = new Int32Array(pointCount);
+        var closestSpotDistances = new Float32Array(pointCount);
+        var progress = -1;
+        var nextChunk = 0;
+        var highlightedVerteces = 0;
 
-        for (var j = 0; j < spots.length; j++) {
-            var spot = spots[j];
+        for (var i = 0; i < pointCount; i++) {
+            while (i >= nextChunk) {
+                progress++;
+                nextChunk = Math.ceil((progress + 1) * pointCount / 100);
+                postMessage({
+                    status: 'working',
+                    message: 'Mapping: ' + progress + '%',
+                });
+            }
+            var positionOffset = i * 3;
+            var x = positions[positionOffset + 0];
+            var y = positions[positionOffset + 1];
+            var z = positions[positionOffset + 2];
 
-            var dx = spot.x - x;
-            var dy = spot.y - y;
-            var dz = spot.z - z;
-            var rsq = dx * dx + dy * dy + dz * dz;
+            var closestSpotIndex = -1;
+            var closesSpotSquareDistance;
 
-            if (rsq > spot.r * spot.r) continue;
+            for (var j = 0; j < spots.length; j++) {
+                var spot = spots[j];
 
-            if (closestSpotIndex < 0 || rsq < closesSpotSquareDistance) {
-                closesSpotSquareDistance = rsq;
-                closestSpotIndex = j;
+                var dx = spot.x - x;
+                var dy = spot.y - y;
+                var dz = spot.z - z;
+                var rsq = dx * dx + dy * dy + dz * dz;
+
+                if (rsq > spot.r * spot.r) continue;
+
+                if (closestSpotIndex < 0 || rsq < closesSpotSquareDistance) {
+                    closesSpotSquareDistance = rsq;
+                    closestSpotIndex = j;
+                }
+            }
+
+            closestSpotIndeces[i] = closestSpotIndex;
+            if (closestSpotIndex >= 0) {
+                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) /
+                                          spots[closestSpotIndex].r;
+                highlightedVerteces++;
+            } else {
+                closestSpotDistances[i] = 1.0;
             }
         }
 
-        closestSpotIndeces[i] = closestSpotIndex;
-        if (closestSpotIndex >= 0) {
-            closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) /
-                                      spots[closestSpotIndex].r;
-            highlightedVerteces++;
-        } else {
-            closestSpotDistances[i] = 1.0;
-        }
-    }
-
+        postMessage({
+            status: 'completed',
+            closestSpotIndeces: closestSpotIndeces,
+            closestSpotDistances: closestSpotDistances,
+        });
+    };
     postMessage({
-        status: 'completed',
-        closestSpotIndeces: closestSpotIndeces,
-        closestSpotDistances: closestSpotDistances,
+        status: 'ready'
     });
-};
+});

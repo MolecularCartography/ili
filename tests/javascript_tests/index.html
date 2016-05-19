@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ili test suite</title>
+  <link rel="stylesheet" href="qunit/qunit-min.css" type="text/css" media="screen">
+
+  <!-- Testing framework requirements -->
+  <script src="qunit/qunit-min.js"></script>
+  <script src="../../js/lib/require.min.js"></script>
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <div id="map-test">
+      <div id="id1"></div>
+      <div id="id2"></div>
+    </div>
+  </div>
+  <br>
+  <h1 class="qunit-header">Ili Test Suite</h1>
+  <p>
+    This test suite exercises all the functions that are used as part of
+    Ili's front end. The functions that have direct interaction with the
+    instantiation of the user interface are not tested.
+  </p>
+  <script>
+    QUnit.config.autostart = false;
+
+    // Without this setTimeout, the specs don't always get execute in webKit
+    // browsers, this was taken from http://stackoverflow.com/q/13615679/379593
+    setTimeout(function () {
+      requirejs.config({
+        'baseUrl': '../../js/',
+
+        // the left side is the module name, and the right side is the path
+        // relative to the baseUrl attribute, do NOT include the .js extension
+        'paths': {
+          'filesaver': 'lib/FileSaver.min',
+          'datgui': 'lib/dat.gui.min',
+          'jquery': 'lib/jquery-2.1.4.min',
+
+          /* THREE.js */
+          'three': 'lib/three.min',
+          'orbitcontrols': 'lib/OrbitControls',
+
+          /* `ili's objects */
+          'colormaps': 'ColorMaps',
+          'eventsource': 'EventSource',
+          'examples': 'Examples',
+          'mapselector': 'MapSelector',
+          'scene2d': 'Scene2D',
+          'scene3d': 'Scene3D',
+          'spotlabel2d': 'SpotLabel2D',
+          'spotlabel3d': 'SpotLabel3D',
+          'spotlabelbase': 'SpotLabelBase',
+          'view2d': 'View2D',
+          'view3d': 'View3D',
+          'viewcontainer': 'ViewContainer',
+          'viewgroup3d': 'ViewGroup3D',
+          'viewlegend': 'ViewLegend',
+          'workspace': 'Workspace',
+          'utils': 'utils',
+          'main': 'main'
+        },
+        /*
+         Libraries that are not AMD compatible need shim to declare their
+         dependencies.
+         */
+        'shim': {
+          'orbitcontrols': {
+            'deps': ['three']
+          },
+          'datgui': {
+            exports: 'dat'
+          }
+        }
+      });
+
+      //load tests using require
+      require(
+          ['jquery'],
+            function ($) {
+              // now trigger the tests
+              $( document ).ready(function() {
+                QUnit.start();
+              });
+      });
+    }, 10);
+  </script>
+</body>
+</html>
