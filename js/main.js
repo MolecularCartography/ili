@@ -4,7 +4,7 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html', 'jquery', 'jqueryui'
 ],
 function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout) {
     function ili(appContainer) {
@@ -37,6 +37,26 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             var fileNames = window.location.search.substr(1).split(';');
             this._workspace.download(fileNames);
         }
+
+        $(this._appContainer.querySelector('#lol')[0]).tabs({heightStyle: 'fill'});
+
+    //     $
+    // this._$tabsContainer.tabs({heightStyle: 'fill',
+    //                            // The tabs on the plot space only get resized
+    //                            // when they are visible, thus we subscribe to
+    //                            // the event that's fired after a user selects a
+    //                            // tab.  If you don't do this, the width and
+    //                            // height of each of the view controllers will
+    //                            // be wrong.  We also found that subscribing to
+    //                            // document.ready() wouldn't work either as the
+    //                            // resize callback couldn't be executed on a tab
+    //                            // that didn't exist yet.
+    //                            activate: function(event, ui) {
+    //                              scope.resize(scope.$divId.width(),
+    //                                           scope.$divId.height());
+    //                            }});
+
+
     }
 
     ili.prototype = Object.create(null, {
