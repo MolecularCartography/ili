@@ -20,6 +20,13 @@
           'jquery': './js/lib/jquery-2.1.4.min',
           'jqueryui': './js/lib/jquery-ui.min',
 
+          'jquery_drag': './js/lib/jquery.event.drag-2.2.min',
+
+          /* jQuery plugins */
+          'chosen': './js/lib/chosen.jquery.min',
+
+
+
           /* THREE.js */
           'three': './js/lib/three.min',
           'orbitcontrols': './js/lib/OrbitControls',
@@ -42,19 +49,43 @@
           'viewlegend': './js/ViewLegend',
           'workspace': './js/Workspace',
           'utils': './js/utils',
-          'main': './js/main'
+          'main': './js/main',
+
+          /* emperor */
+          'viewcontroller': 'js/view-controller',
+
+          /* SlickGrid */
+          'slickcore': 'js/lib/slick.core.min',
+          'slickgrid': 'js/lib/slick.grid.min',
+          'slickformatters': 'js/lib/slick.editors.min',
+          'slickeditors': 'js/lib/slick.formatters.min',
+
         },
         /*
          Libraries that are not AMD compatible need shim to declare their
          dependencies.
          */
         'shim': {
+
+          'jquery_drag': {
+            'deps': ['jquery', 'jqueryui']
+          },
+          'chosen': {
+            'deps': ['jquery'],
+            'exports': 'jQuery.fn.chosen'
+          },
+
           'orbitcontrols': {
             'deps': ['three']
           },
           'datgui': {
             exports: 'dat'
-          }
+          },
+
+          'slickcore': ['jqueryui'],
+  
+          'slickgrid': ['slickcore', 'jquery_drag', 'slickformatters',
+                        'slickeditors']
         }
       });
 

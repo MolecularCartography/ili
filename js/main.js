@@ -4,9 +4,9 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html', 'jquery', 'jqueryui'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'viewcontroller'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout) {
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout, $, jqueryUI, viewcontroller) {
     function ili(appContainer) {
         this._appContainer = appContainer;
         this._appContainer.innerHTML = appLayout;
@@ -29,6 +29,10 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         this._appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
         window.addEventListener('resize', function() {
             this.resize.call(this, window.innerWidth, window.innerHeight);
+
+  
+
+
         }.bind(this));
 
         this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._openFiles.bind(this));
@@ -38,7 +42,9 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             this._workspace.download(fileNames);
         }
 
-        $(this._appContainer.querySelector('#lol')[0]).tabs({heightStyle: 'fill'});
+        console.log('hello');
+        $('#lol').tabs();
+        console.log('aloha');
 
     //     $
     // this._$tabsContainer.tabs({heightStyle: 'fill',
