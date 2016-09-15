@@ -4,9 +4,10 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'viewcontroller'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils',
+    'dragndrop', 'text!../template.html', 'jquery', 'tabcontroller2d', 'tabcontroller3d'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout, $, jqueryUI, viewcontroller) {
+function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout, $, TabController2D, TabController3D) {
     function ili(appContainer) {
         this._appContainer = appContainer;
         this._appContainer.innerHTML = appLayout;
@@ -15,6 +16,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
         this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'), this._appContainer.querySelector('#current-map-label'));
 
+        this._initTabs();
         this._initDashboard();
         this._examples = new Examples(this._appContainer, this._workspace, this._dashboard);
 
@@ -29,10 +31,6 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         this._appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
         window.addEventListener('resize', function() {
             this.resize.call(this, window.innerWidth, window.innerHeight);
-
-  
-
-
         }.bind(this));
 
         this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._openFiles.bind(this));
@@ -41,28 +39,6 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             var fileNames = window.location.search.substr(1).split(';');
             this._workspace.download(fileNames);
         }
-
-        console.log('hello');
-        $('#lol').tabs();
-        console.log('aloha');
-
-    //     $
-    // this._$tabsContainer.tabs({heightStyle: 'fill',
-    //                            // The tabs on the plot space only get resized
-    //                            // when they are visible, thus we subscribe to
-    //                            // the event that's fired after a user selects a
-    //                            // tab.  If you don't do this, the width and
-    //                            // height of each of the view controllers will
-    //                            // be wrong.  We also found that subscribing to
-    //                            // document.ready() wouldn't work either as the
-    //                            // resize callback couldn't be executed on a tab
-    //                            // that didn't exist yet.
-    //                            activate: function(event, ui) {
-    //                              scope.resize(scope.$divId.width(),
-    //                                           scope.$divId.height());
-    //                            }});
-
-
     }
 
     ili.prototype = Object.create(null, {
@@ -226,6 +202,41 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
                     f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
                 }.bind(this));
                 this._appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
+            }
+        },
+
+        _initTabs: {
+            value: function() {
+                this._tabsContainer = $(this._appContainer.querySelector('#tabs-container'));
+                this._tabsList = $(this._appContainer.querySelector('#tabs-list'));
+                this._tabsContainer.tabs({heightStyle: 'fill'});
+
+                this._addTab(TabController2D, this._workspace);
+                this._addTab(TabController3D, this._workspace);
+            }
+        },
+
+        _addTab: {
+            value: function(viewConstructor, params) {
+                // nothing but a temporary id
+                var id = (Math.round(1000000 * Math.random())).toString();
+
+                var tab = this._tabsContainer.append('<div class="emperor-tab-div" id="' + id + '"></div>');
+                tab.height(this._tabsContainer.height() - this._tabsList.height());
+
+                // dynamically instantiate the controller, see:
+                // http://stackoverflow.com/a/8843181
+                var params = [null, '#' + id, params];
+                var obj = new (Function.prototype.bind.apply(viewConstructor, params));
+
+                // set the identifier of the div to the one defined by the object
+                $('#' + id).attr('id', obj.identifier);
+
+                // now add the list element linking to the container div with the proper
+                // title
+                this._tabsList.append("<li><a href='#" + obj.identifier + "'>" + obj.title + '</a></li>');
+
+                return obj;
             }
         },
 

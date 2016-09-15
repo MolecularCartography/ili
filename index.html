@@ -5,7 +5,7 @@
   <title>`ili</title>
   <link rel="stylesheet" type="text/css" href="main.css">
   <link rel="stylesheet" type="text/css" href="layout.css">
-  <link rel="stylesheet" type="text/css" href="jquery-ui.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/jquery-ui.min.css">
   <script type="text/javascript" src="./js/lib/require.min.js"></script>
   <link href="img/favicon_256.png" type="image/png" rel="icon">
   <meta name="google-site-verification" content="cxpSm-lsEATF7z2pMt1-RCZPSaKRzb6h0RiIjaVQvsE" />
@@ -25,8 +25,6 @@
           /* jQuery plugins */
           'chosen': './js/lib/chosen.jquery.min',
 
-
-
           /* THREE.js */
           'three': './js/lib/three.min',
           'orbitcontrols': './js/lib/OrbitControls',
@@ -42,6 +40,8 @@
           'spotlabel2d': './js/SpotLabel2D',
           'spotlabel3d': './js/SpotLabel3D',
           'spotlabelbase': './js/SpotLabelBase',
+          'tabcontroller2d': './js/TabController2D',
+          'tabcontroller3d': './js/TabController3D',
           'view2d': './js/View2D',
           'view3d': './js/View3D',
           'viewcontainer': './js/ViewContainer',
@@ -52,21 +52,21 @@
           'main': './js/main',
 
           /* emperor */
-          'viewcontroller': 'js/view-controller',
+          'abcviewcontroller': 'js/emperor/abc-view-controller',
+
+          'underscore': 'js/lib/underscore.min',
 
           /* SlickGrid */
           'slickcore': 'js/lib/slick.core.min',
           'slickgrid': 'js/lib/slick.grid.min',
           'slickformatters': 'js/lib/slick.editors.min',
-          'slickeditors': 'js/lib/slick.formatters.min',
-
+          'slickeditors': 'js/lib/slick.formatters.min'
         },
         /*
          Libraries that are not AMD compatible need shim to declare their
          dependencies.
          */
         'shim': {
-
           'jquery_drag': {
             'deps': ['jquery', 'jqueryui']
           },
@@ -84,8 +84,7 @@
 
           'slickcore': ['jqueryui'],
   
-          'slickgrid': ['slickcore', 'jquery_drag', 'slickformatters',
-                        'slickeditors']
+          'slickgrid': ['slickcore', 'jquery_drag', 'slickformatters', 'slickeditors']
         }
       });
 
