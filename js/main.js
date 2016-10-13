@@ -66,6 +66,10 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         resize: {
             value: function(width, height) {
                 this._views.updateLayout();
+                var controlArea = document.getElementById('controls-area');
+                for (var i = 0; i < this._tabs.length; ++i) {
+                    this._tabs[i].resize(controlArea.offsetWidth, controlArea.offsetWidth);
+                }
             }
         },
 
@@ -208,25 +212,33 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
         _initTabs: {
             value: function() {
                 this._tabsContainer = $(this._appContainer.querySelector('#tabs-container'));
-                this._tabsList = $(this._appContainer.querySelector('#tabs-list'));
-                this._tabsContainer.tabs({heightStyle: 'fill'});
+                this._tabHeadersList = $(this._appContainer.querySelector('#tabs-list'));
 
-                this._addTab(TabController2D, this._workspace);
-                this._addTab(TabController3D, this._workspace);
+                this._tabs = []
+                this._tabs.push(this._addTab(TabController2D, this._workspace, this._views));
+                this._tabs.push(this._addTab(TabController3D, this._workspace, this._views));
+
+                var scope = this;
+                this._tabsContainer.tabs({
+                    heightStyle: 'fill',
+                    activate: function(event, ui) {
+                        scope.resize(scope._appContainer.offsetWidth, scope._appContainer.offsetHeight);
+                    }
+                });
             }
         },
 
         _addTab: {
-            value: function(viewConstructor, params) {
+            value: function(viewConstructor, workspace, views) {
                 // nothing but a temporary id
                 var id = (Math.round(1000000 * Math.random())).toString();
 
                 var tab = this._tabsContainer.append('<div class="emperor-tab-div" id="' + id + '"></div>');
-                tab.height(this._tabsContainer.height() - this._tabsList.height());
+                tab.height(this._tabsContainer.height() - this._tabHeadersList.height());
 
                 // dynamically instantiate the controller, see:
                 // http://stackoverflow.com/a/8843181
-                var params = [null, '#' + id, params];
+                var params = [null, '#' + id, workspace, views];
                 var obj = new (Function.prototype.bind.apply(viewConstructor, params));
 
                 // set the identifier of the div to the one defined by the object
@@ -234,7 +246,7 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
 
                 // now add the list element linking to the container div with the proper
                 // title
-                this._tabsList.append("<li><a href='#" + obj.identifier + "'>" + obj.title + '</a></li>');
+                this._tabHeadersList.append("<li><a href='#" + obj.identifier + "'>" + obj.title + '</a></li>');
 
                 return obj;
             }
