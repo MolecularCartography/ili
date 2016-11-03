@@ -1,68 +1,38 @@
 'use strict';
 
 define([
-    'jqueryui',
-    'abcviewcontroller',
+    'tabcontrollerbase',
     'viewgroup3d'
 ],
-function($ui, EmperorViewControllerABC, ViewGroup3D) {
+function (TabControllerBase, ViewGroup3D) {
     function TabController3D(container, workspace, views) {
         var description = 'Settings of 3D view';
         var title = '3D';
-        EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
+        TabControllerBase.call(this, container, title, description, workspace);
 
-        var layout = '<table>';
-        layout += '<tr><td class="control-name-column">Layout</td>';
-        layout += '<td class="control-set-column"><select id="3D-layout-select"></select></td></tr>';
-        layout += '</table>';
-        this.$body.append(layout);
-
-        this._workspace = workspace;
-        this._views = views;
         var layoutOptions = [
             ['Single view', ViewGroup3D.Layout.SINGLE],
             ['Double view', ViewGroup3D.Layout.DOUBLE],
             ['Triple view', ViewGroup3D.Layout.TRIPLE],
             ['Quadriple view', ViewGroup3D.Layout.QUADRIPLE]
         ];
-        var layoutSelectorOptions = layoutOptions.map(function(pair) {
-            return '<option value="' + pair[1] + '">' + pair[0] + '</option>';
-        });
-        $('#3D-layout-select').append(layoutSelectorOptions.join('')).selectmenu({
-            change: function(event, ui) {
-                views.g3d.layout = ui.item.value;
-            }
-        });
-
+        this.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);
+        this.addColor(workspace.scene3d, 'color', 'Color');
+        this.addColor(workspace.scene3d, 'backgroundColor', 'Background');
+        this.addNumeric(workspace.scene3d.frontLight, 'intensity', 'Light', 0, 3);
+        this.addNumeric(workspace.scene3d, 'spotBorder', 'Spot border', 0, 1);
+        this.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0, 4.0]);
+        var adjustment = this.addGroupBox('Adjustment');
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'alpha', '0X rotation', - 180.0, 180.0);
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'beta', '0Y rotation', -180.0, 180.0);
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'gamma', '0Z rotation', -180.0, 180.0);
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'x', 'X offset');
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'y', 'Y offset');
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'z', 'Z offset');
         return this;
     }
 
-    TabController3D.prototype = Object.create(EmperorViewControllerABC['EmperorViewControllerABC'].prototype, {
-        resize: {
-            value: function(width, height) {
-                EmperorViewControllerABC['EmperorViewControllerABC'].prototype.resize.call(this, width, height);
-
-                this.$body.height(this.$canvas.height() - this.$header.height());
-                this.$body.width(this.$canvas.width());
-
-                this.$body.find('.control-set-column').width(this.$body.find('table').width()
-                    - this.$body.find('control-name-column').width() - this.$body.find('control-value-column').width());
-            }
-        },
-
-        toJSON: {
-            value: function() {
-                return {'layout': this._views.g3d.layout};
-            }
-        },
-
-        fromJSON: {
-            value: function(json) {
-                $('#3D-layout-select').selectmenu(json['layout']);
-            }
-        }
-    });
-
+    TabController3D.prototype = Object.create(TabControllerBase.prototype);
 
     return TabController3D;
 });

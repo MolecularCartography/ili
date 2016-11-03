@@ -5,20 +5,22 @@
 
 define([
     'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils',
-    'dragndrop', 'text!../template.html', 'jquery', 'tabcontroller2d', 'tabcontroller3d'
+    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'tabcontroller2d', 'tabcontroller3d', 'tabcontrollermapping',
+    'tabcontrollerexamples'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout, $, TabController2D, TabController3D) {
+function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout,
+    $, $ui, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples)
+{
     function ili(appContainer) {
         this._appContainer = appContainer;
         this._appContainer.innerHTML = appLayout;
 
         this._workspace = new Workspace();
         this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
-        this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'), this._appContainer.querySelector('#current-map-label'));
+        this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'),
+            this._appContainer.querySelector('#current-map-label'));
 
         this._initTabs();
-        this._initDashboard();
-        this._examples = new Examples(this._appContainer, this._workspace, this._dashboard);
 
         this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this));
@@ -154,76 +156,28 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             }
         },
 
-        _initDashboard: {
-            value: function() {
-                this._dashboard = new dat.GUI({autoPlace: false});
-
-                var f2d = this._dashboard.addFolder('2D');
-                f2d.add(this._workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
-
-                var f3d = this._dashboard.addFolder('3D');
-                f3d.add(this._views.g3d, 'layout', {
-                    'Single view': ViewGroup3D.Layout.SINGLE,
-                    'Double view': ViewGroup3D.Layout.DOUBLE,
-                    'Triple view': ViewGroup3D.Layout.TRIPLE,
-                    'Quadriple view': ViewGroup3D.Layout.QUADRIPLE
-                }).name('Layout');
-                f3d.addColor(this._workspace.scene3d, 'color').name('Color');
-                f3d.addColor(this._workspace.scene3d, 'backgroundColor').name('Background');
-                f3d.add(this._workspace.scene3d.frontLight, 'intensity', 0, 3).name('Light');
-                f3d.add(this._workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
-                f3d.add(this._views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
-                var adjustment = f3d.addFolder('Adjustment');
-                adjustment.add(this._workspace.scene3d.adjustment, 'alpha', -180.0, 180.0).name('0X rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'beta', -180.0, 180.0).name('0Y rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'gamma', -180.0, 180.0).name('0Z rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'x').name('X offset').step(0.1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'y').name('Y offset').step(0.1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'z').name('Z offset').step(0.1);
-
-                var fMapping = this._dashboard.addFolder('Mapping');
-                fMapping.add(this._workspace, 'scaleId', {
-                    'Linear': Workspace.Scale.LINEAR.id,
-                    'Logarithmic': Workspace.Scale.LOG.id
-                }).name('Scale');
-                fMapping.add(this._workspace, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
-                var colorMaps = Object.keys(ColorMap.Maps).reduce(function (m, k) {
-                    m[ColorMap.Maps[k].name] = k;
-                    return m;
-                }, {});
-                fMapping.add(this._workspace, 'colorMapId', colorMaps).name('Color map');
-
-                var mapping = {
-                    flag: fMapping.add(this._workspace, 'autoMinMax').name('Auto MinMax'),
-                    min: fMapping.add(this._workspace, 'minValue').name('Min value').step(0.00001),
-                    max: fMapping.add(this._workspace, 'maxValue').name('Max value').step(0.00001),
-                };
-                this._workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, mapping));
-                this._onAutoMappingChange(mapping);
-
-                this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function() {
-                    f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
-                    f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
-                }.bind(this));
-                this._appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
-            }
-        },
-
         _initTabs: {
             value: function() {
                 this._tabsContainer = $(this._appContainer.querySelector('#tabs-container'));
                 this._tabHeadersList = $(this._appContainer.querySelector('#tabs-list'));
 
-                this._tabs = []
+                this._tabs = [];
                 this._tabs.push(this._addTab(TabController2D, this._workspace, this._views));
                 this._tabs.push(this._addTab(TabController3D, this._workspace, this._views));
+                this._tabs.push(this._addTab(TabControllerMapping, this._workspace, this._views));
+                this._tabs.push(this._addTab(TabControllerExamples, this._workspace, this._views));
 
-                var scope = this;
+                // TODO: implement
+                /* this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
+                    f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
+                    f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
+                }.bind(this));*/
+
                 this._tabsContainer.tabs({
                     heightStyle: 'fill',
                     activate: function(event, ui) {
-                        scope.resize(scope._appContainer.offsetWidth, scope._appContainer.offsetHeight);
-                    }
+                        this.resize(this._appContainer.offsetWidth, this._appContainer.offsetHeight);
+                    }.bind(this)
                 });
             }
         },
@@ -249,25 +203,6 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
                 this._tabHeadersList.append("<li><a href='#" + obj.identifier + "'>" + obj.title + '</a></li>');
 
                 return obj;
-            }
-        },
-
-        _onAutoMappingChange: {
-            value: function(mapping) {
-                var disabled = this._workspace.autoMinMax;
-
-                if (disabled) {
-                    mapping.min.domElement.querySelector('input').setAttribute('disabled', '');
-                    mapping.max.domElement.querySelector('input').setAttribute('disabled', '');
-                } else {
-                    mapping.min.domElement.querySelector('input').removeAttribute('disabled');
-                    mapping.max.domElement.querySelector('input').removeAttribute('disabled');
-                }
-
-                if (this._workspace.autoMinMax) {
-                    mapping.min.updateDisplay();
-                    mapping.max.updateDisplay();
-                }
             }
         },
 
