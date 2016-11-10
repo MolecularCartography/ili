@@ -21,7 +21,6 @@
         'paths': {
           'text': './js/lib/text.min',
           'filesaver': './js/lib/FileSaver.min',
-          'datgui': './js/lib/dat.gui.min',
           'jquery': './js/lib/jquery-2.1.4.min',
           'jqueryui': './js/lib/jquery-ui.min',
           'bootstrap': './js/lib/bootstrap.min',
@@ -45,7 +44,6 @@
           'colormaps': './js/ColorMaps',
           'controlsgrid': './js/ControlsGrid',
           'eventsource': './js/EventSource',
-          'examples': './js/Examples',
           'mapselector': './js/MapSelector',
           'scene2d': './js/Scene2D',
           'scene3d': './js/Scene3D',
@@ -88,23 +86,20 @@
             exports: 'jQuery.fn.chosen'
           },
           'orbitcontrols': ['three'],
-          'datgui': {
-            exports: 'dat'
-          },
           'slickcore': ['jqueryui'],
           'slickgrid': ['slickcore', 'jquery_drag', 'slickformatters', 'slickeditors'],
           'bootstrap': ['jquery'],
           'bootstrap_colorpicker': ['bootstrap'],
           'bootstrap_select': ['bootstrap'],
           'bootstrap_slider': {
-              deps: ['bootstrap'],
-              exports: 'Slider'
+            deps: ['bootstrap'],
+            exports: 'Slider'
           },
           'bootstrap_spinbox': ['bootstrap', 'jqueryui']
         }
       });
 
-      require(["main"], function(ili) {
+      require(['main'], function (ili) {
         var app = new ili(document.getElementById('ili-container'));
       });
   </script>

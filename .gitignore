@@ -7,7 +7,14 @@
 Icon?
 ehthumbs.db
 Thumbs.db
-*.jsproj
+
+# MSVS project files
+.vs
+/bin
+/obj
+/packages
+*.sln
+*.csproj
 *.user
 
 # python files

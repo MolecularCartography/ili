@@ -4,11 +4,11 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils',
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
     'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'tabcontroller2d', 'tabcontroller3d', 'tabcontrollermapping',
     'tabcontrollerexamples'
 ],
-function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout,
+function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils, DragAndDrop, appLayout,
     $, $ui, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples)
 {
     function ili(appContainer) {
@@ -68,10 +68,6 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Col
         resize: {
             value: function(width, height) {
                 this._views.updateLayout();
-                var controlArea = document.getElementById('controls-area');
-                for (var i = 0; i < this._tabs.length; ++i) {
-                    this._tabs[i].resize(controlArea.offsetWidth, controlArea.offsetWidth);
-                }
             }
         },
 
@@ -162,23 +158,23 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Col
                 this._tabHeadersList = $(this._appContainer.querySelector('#tabs-list'));
 
                 this._tabs = [];
-                this._tabs.push(this._addTab(TabController2D, this._workspace, this._views));
-                this._tabs.push(this._addTab(TabController3D, this._workspace, this._views));
+                var tab2D = this._addTab(TabController2D, this._workspace, this._views);
+                this._tabs.push(tab2D);
+                var tab3D = this._addTab(TabController3D, this._workspace, this._views);
+                this._tabs.push(tab3D);
                 this._tabs.push(this._addTab(TabControllerMapping, this._workspace, this._views));
-                this._tabs.push(this._addTab(TabControllerExamples, this._workspace, this._views));
+                var tabExamples = this._addTab(TabControllerExamples, this._workspace, this._views);
+                this._tabs.push(tabExamples);
 
-                // TODO: implement
-                /* this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
-                    f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
-                    f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
-                }.bind(this));*/
+                tabExamples.activate();
 
-                this._tabsContainer.tabs({
-                    heightStyle: 'fill',
-                    activate: function(event, ui) {
-                        this.resize(this._appContainer.offsetWidth, this._appContainer.offsetHeight);
-                    }.bind(this)
-                });
+                this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
+                    if (this._workspace.mode === Workspace.Mode.MODE_2D) {
+                        tab2D.activate();
+                    } else if (this._workspace.mode === Workspace.Mode.MODE_3D) {
+                        tab3D.activate();
+                    }
+                }.bind(this));
             }
         },
 
@@ -187,8 +183,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Col
                 // nothing but a temporary id
                 var id = (Math.round(1000000 * Math.random())).toString();
 
-                var tab = this._tabsContainer.append('<div class="emperor-tab-div" id="' + id + '"></div>');
-                tab.height(this._tabsContainer.height() - this._tabHeadersList.height());
+                var tab = this._tabsContainer.append('<div class="emperor-tab-div tab-pane fade" id="' + id + '"></div>');
 
                 // dynamically instantiate the controller, see:
                 // http://stackoverflow.com/a/8843181
@@ -200,7 +195,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Col
 
                 // now add the list element linking to the container div with the proper
                 // title
-                this._tabHeadersList.append("<li><a href='#" + obj.identifier + "'>" + obj.title + '</a></li>');
+                this._tabHeadersList.append('<li><a data-toggle="tab" href="#'
+                    + obj.identifier + '">' + obj.title + '</a></li>');
 
                 return obj;
             }

@@ -53,16 +53,17 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
 
                 return {
                     get() {
-                        return slider.slider('getValue');
+                        return slider.bootstrapSlider('getValue');
                     },
                     set(val) {
-                        slider.slider('setValue', val);
+                        slider.bootstrapSlider('setValue', val);
+                        paramValue.innerText = val;
                     },
                     enable() {
-                        slider.slider('enable');
+                        slider.bootstrapSlider('enable');
                     },
                     disable() {
-                        slider.slider('disable');
+                        slider.bootstrapSlider('disable');
                     },
                     refresh() {
                         this.set(object[key]);
@@ -189,13 +190,13 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         return colorPicker.colorpicker('getValue');
                     },
                     set(val) {
-                        colorPicker.colorPicker('setValue', val);
+                        colorPicker.colorpicker('setValue', val);
                     },
                     enable() {
-                        colorPicker.colorPicker('enable');
+                        colorPicker.colorpicker('enable');
                     },
                     disable() {
-                        colorPicker.colorPicker('disable');
+                        colorPicker.colorpicker('disable');
                     },
                     refresh() {
                         this.set(object[key]);

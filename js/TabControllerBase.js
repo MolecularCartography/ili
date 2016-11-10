@@ -9,21 +9,13 @@ function (EmperorViewControllerABC, ControlGrid, Workspace) {
     function TabControllerBase(container, title, description, workspace) {
         EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
 
-        workspace.addEventListener(Workspace.Events.MAPPING_CHANGE, this.refresh.bind(this));
+        workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this.refresh.bind(this));
 
         this._controlGrid = new ControlGrid(this.$body);
         return this;
     }
 
     TabControllerBase.prototype = Object.create(EmperorViewControllerABC['EmperorViewControllerABC'].prototype, {
-        resize: {
-            value: function (width, height) {
-                EmperorViewControllerABC['EmperorViewControllerABC'].prototype.resize.call(this, width, height);
-                this.$body.height(this.$canvas.height() - this.$header.height());
-                this.$body.width(this.$canvas.width());
-            }
-        },
-
         addNumeric: {
             value: function (object, key, name, min, max) {
                 return this._controlGrid.addNumeric(object, key, name, min, max);
@@ -69,6 +61,12 @@ function (EmperorViewControllerABC, ControlGrid, Workspace) {
         refresh: {
             value: function () {
                 this._controlGrid.refresh();
+            }
+        },
+
+        activate: {
+            value: function () {
+                $('a[href=#' + this.identifier + ']').tab('show');
             }
         },
 

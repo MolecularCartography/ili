@@ -1,3 +1,99 @@
+/* Bootstrap tab styles start */
+
+#ili-container > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#ili-container > .row > * {
+    padding: 0;
+}
+
+.tab-pane:not(.active) {
+    display: none; /* otherwise non-active tabs create blank areas */
+}
+
+.emperor-tab-div input[type=text],
+.emperor-tab-div .bootstrap-select,
+.emperor-tab-div .bootstrap-select .dropdown-menu,
+.emperor-tab-div .slider-horizontal,
+.emperor-tab-div .bootstrap-touchspin
+{
+    max-width: 100%;
+    min-width: 100%;
+}
+
+.emperor-tab-div input[type=text],
+.emperor-tab-div .bootstrap-select .filter-option,
+.emperor-tab-div .bootstrap-select .dropdown-menu li .text,
+.emperor-tab-div .panel-group .panel-title
+{
+    text-overflow: ellipsis;
+}
+
+.emperor-tab-div .bootstrap-select .filter-option,
+.emperor-tab-div input[type=text] {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: center !important;
+}
+
+.emperor-tab-div .control-name-column,
+.emperor-tab-div .control-value-column
+{
+    padding: 6px 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.emperor-tab-div .row {
+    margin-top: 10px;
+    margin-right: 0;
+    margin-left: 0;
+}
+
+.emperor-tab-div .row .col-xs-12 {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.emperor-tab-div .bootstrap-touchspin button {
+    height: 34px; /* for some reason it's 35.5px by default which breaks the layout */
+}
+
+.emperor-tab-div .panel-heading {
+    cursor: pointer;
+}
+
+.emperor-tab-div .panel-collapse {
+    margin-left: 10px;
+}
+
+.input-group-btn {
+    font-size: inherit; /* for some reason it's set to zero in bootstrap.css */
+}
+
+.emperor-tab-div .slider-horizontal {
+    margin-top: 6px;
+}
+
+.emperor-tab-div .slider-horizontal .slider-selection {
+	background: #BABABA;
+}
+
+.emperor-tab-div .checkbox input {
+    margin-left: 0; /* default is 20px */
+}
+
+.btn-text { /* For buttons and panel headers */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Bootstrap tab styles end */
+
 #view-container > * {
     display: none;
     width: 100%;

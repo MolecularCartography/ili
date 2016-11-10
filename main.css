@@ -1,117 +1,33 @@
+#ili-container {
+    height: 100%;
+    width: 100%;
+}
+
 body {
     margin: 0;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
 }
 
+.emperor-tab-div,
+.emperor-tab-div div[name="emperor-view-controller-canvas"],
+.emperor-tab-div div[name="emperor-view-controller-canvas"] div[name="emperor-view-controller-body"] {
+    width: 100% !important;
+}
+
 #tabs-container {
-    background-color: #EEEEEE;
     height: 100%;
+    width: 100%;
+    padding: 5px 10px;
+    float: right;
+    overflow-y: auto;
+    background-color: #EEEEEE;
 }
 
 #tabs-list li a {
     text-overflow: ellipsis;
-}
-
-.emperor-tab-div {
-    padding: 5px !important;
-    overflow: hidden !important;
-    height: 100%;
-}
-
-/* Bootstrap tab styles start */
-
-.emperor-tab-div input[type=text],
-.emperor-tab-div .bootstrap-select,
-.emperor-tab-div .bootstrap-select .dropdown-menu,
-.emperor-tab-div .slider-horizontal,
-.emperor-tab-div .bootstrap-touchspin
-{
-    max-width: 100%;
-}
-
-.emperor-tab-div input[type=text],
-.emperor-tab-div .bootstrap-select .filter-option,
-.emperor-tab-div .bootstrap-select .dropdown-menu li .text,
-.emperor-tab-div .panel-group .panel-title
-{
-    text-overflow: ellipsis;
-}
-
-.emperor-tab-div .bootstrap-select .filter-option,
-.emperor-tab-div input[type=text] {
-    padding-left: 0;
-    padding-right: 0;
-    text-align: center !important;
-}
-
-.emperor-tab-div .control-name-column,
-.emperor-tab-div .control-value-column
-{
-    padding: 6px 0;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.emperor-tab-div .row {
-    margin-top: 10px;
-    margin-right: 0;
-    margin-left: 0;
-    max-width: 90%;
-}
-
-.emperor-tab-div .row .col-xs-12 {
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.emperor-tab-div .bootstrap-touchspin button {
-    height: 34px; /* for some reason it's 35.5px by default which breaks the layout */
-}
-
-.emperor-tab-div .panel-heading {
-    cursor: pointer;
-}
-
-.emperor-tab-div .panel-collapse {
-    margin-left: 10px;
-}
-
-.input-group-btn {
-    font-size: inherit; /* for some reason it's set to zero in bootstrap.css */
-}
-
-.emperor-tab-div .slider-horizontal {
-    margin-top: 6px;
-}
-
-.emperor-tab-div .slider-horizontal .slider-selection {
-	background: #BABABA;
-}
-
-.emperor-tab-div .checkbox input {
-    margin-left: 0; /* default is 20px */
-}
-
-.btn-text { /* For buttons and panel headers */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Bootstrap tab styles end */
-.colorbox {
-    border: 1px solid black;
-    height: 18px;
-    width: 18px;
-}
-
-.ui-tabs .ui-tabs-nav li a {
-    padding: 2px 5px !important;
 }
 
 /*
@@ -124,38 +40,6 @@ body {
  **/
 .slick-row.ui-widget-content, .slick-cell {
     background: none;
-}
-/*
-#rendering-area {
-    height: 100%;
-    width: 73%;
-    font-size: 10px;
-    overflow: hidden;
-    float: left;
-    position: relative;
-    margin: 0;
-}*/
-
-/* #emperor-menu and #emperor-menu-tabs the two things that show in the right
- * side-bar, #emperor-menu is the container for all the tabs and
- * #emperor-menu-tabs is the container for the name of the tabs */
-/*
-#controls-area {
-    height: 100%;
-    width: 27%;
-
-    font-family: Helvetica, sans-serif;
-    font-size: 10px;
-
-    overflow: hidden;
-    float: left;
-    padding: 0px;
-    margin: 0;
-}*/
-
-#ili-container {
-    height: 100%;
-    width: 100%;
 }
 
 #view-container {
@@ -242,10 +126,7 @@ body {
     right: 0;
     display: flex;
     background-color: rgba(255,255,255,0.8);
-}
-
-#drop-target-informer {
-    display: none
+    display: none;
 }
 
 body[drop-target] > #drop-target-informer {

@@ -206,6 +206,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                                     case 'application/vnd.ms-excel':
                                     case 'text/plain':
                                     case 'text/csv':
+                                    case 'application/octet-stream':
                                         this.loadIntensities(blob);
                                         break;
 
