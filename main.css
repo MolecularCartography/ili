@@ -17,6 +17,10 @@ body {
     width: 100% !important;
 }
 
+#controls-area[aria-expanded="false"] {
+    display: none;
+}
+
 #tabs-container {
     height: 100%;
     width: 100%;
@@ -28,6 +32,15 @@ body {
 
 #tabs-list li a {
     text-overflow: ellipsis;
+}
+
+#controls-switcher {
+    top: 5px;
+    right: 5px;
+    z-index: 1;
+    display: inline !important;
+    width: initial !important;
+    height: initial !important;
 }
 
 /*

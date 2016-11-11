@@ -27,6 +27,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
 
         this._initKeyboardShortcuts(this._workspace, this._views, this._mapSelector);
 
+        this._appContainer.querySelector('#controls-switcher').onclick = this._toggleControlsPanel.bind(this);
         this._appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
         this._appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
         this._appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
@@ -199,6 +200,19 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                     + obj.identifier + '">' + obj.title + '</a></li>');
 
                 return obj;
+            }
+        },
+
+        _toggleControlsPanel: {
+            value: function () {
+                // timeout is used because a blank vertical stripe remains from a scrollbar of the sidebar,
+                // which gets updated asynchronously, it seems
+                window.setTimeout(function () {
+                    var renderingArea = $(this._appContainer.querySelector('#rendering-area'));
+                    renderingArea.toggleClass('col-xs-8');
+                    renderingArea.toggleClass('col-xs-12');
+                    this._views.updateLayout();
+                }.bind(this));
             }
         },
 

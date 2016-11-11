@@ -13,6 +13,10 @@
     display: none; /* otherwise non-active tabs create blank areas */
 }
 
+button.btn > .glyphicon.glyphicon-th-list {
+    padding-bottom: 3px;
+}
+
 .emperor-tab-div input[type=text],
 .emperor-tab-div .bootstrap-select,
 .emperor-tab-div .bootstrap-select .dropdown-menu,
@@ -110,10 +114,6 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
     display: flex;
     position: absolute;
     margin: auto;
-}
-
-#examples-container .property-name {
-    width: 200px;
 }
 
 #view-container[layout|='mode'] > .ViewLegend {

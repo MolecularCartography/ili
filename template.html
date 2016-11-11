@@ -1,6 +1,7 @@
 <div class="row">
     <div id="rendering-area" class="col-xs-8">
         <div id="view-container">
+            <button id="controls-switcher" class="btn btn-default" data-toggle="collapse" data-target="#controls-area"><span class="glyphicon glyphicon-th-list"></span></button>
             <div class="ViewWelcome">
                 <div class="message"><div><span id="open-button">Open</span> files or drag-and-drop them into the window</div></div>
             </div>
@@ -31,8 +32,6 @@
                 <text id="maxLabel" x="190" y="70" fill="black" text-anchor="end" font-size="14" />
             </svg>
         </div>
-        <div id="controls-container"></div>
-        <div id="examples-container"></div>
         <div id="status" hidden></div>
         <div id="map-selector" hidden><input type="text" autocomplete="off"><div class="items"></div></div>
         <div id="drop-target-informer"><div class="message">Drop files here</div></div>
@@ -42,7 +41,7 @@
             <button id="close">Close</button>
         </div>
     </div>
-    <div id="controls-area" class="col-xs-4">
+    <div id="controls-area" class="col-xs-4 in" aria-expanded="true">
         <div id="tabs-container">
             <ul id="tabs-list" class="nav nav-tabs sidebar-tabs" role="tablist"></ul>
         </div>
