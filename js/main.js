@@ -4,25 +4,30 @@
 'use strict';
 
 define([
-    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'examples', 'datgui', 'colormaps', 'filesaver', 'utils', 'dragndrop', 'text!../template.html'
+    'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
+    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'tabcontroller2d', 'tabcontroller3d', 'tabcontrollermapping',
+    'tabcontrollerexamples'
 ],
-function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, ColorMap, saveAs, Utils, DragAndDrop, appLayout) {
+function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils, DragAndDrop, appLayout,
+    $, $ui, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples)
+{
     function ili(appContainer) {
         this._appContainer = appContainer;
         this._appContainer.innerHTML = appLayout;
 
         this._workspace = new Workspace();
         this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
-        this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'), this._appContainer.querySelector('#current-map-label'));
+        this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'),
+            this._appContainer.querySelector('#current-map-label'));
 
-        this._initDashboard();
-        this._examples = new Examples(this._appContainer, this._workspace, this._dashboard);
+        this._initTabs();
 
         this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this));
 
         this._initKeyboardShortcuts(this._workspace, this._views, this._mapSelector);
 
+        this._appContainer.querySelector('#controls-switcher').onclick = this._toggleControlsPanel.bind(this);
         this._appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
         this._appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
         this._appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
@@ -148,77 +153,66 @@ function(Workspace, ViewContainer, ViewGroup3D, MapSelector, Examples, dat, Colo
             }
         },
 
-        _initDashboard: {
+        _initTabs: {
             value: function() {
-                this._dashboard = new dat.GUI({autoPlace: false});
+                this._tabsContainer = $(this._appContainer.querySelector('#tabs-container'));
+                this._tabHeadersList = $(this._appContainer.querySelector('#tabs-list'));
 
-                var f2d = this._dashboard.addFolder('2D');
-                f2d.add(this._workspace.scene2d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
+                this._tabs = [];
+                var tab2D = this._addTab(TabController2D, this._workspace, this._views);
+                this._tabs.push(tab2D);
+                var tab3D = this._addTab(TabController3D, this._workspace, this._views);
+                this._tabs.push(tab3D);
+                this._tabs.push(this._addTab(TabControllerMapping, this._workspace, this._views));
+                var tabExamples = this._addTab(TabControllerExamples, this._workspace, this._views);
+                this._tabs.push(tabExamples);
 
-                var f3d = this._dashboard.addFolder('3D');
-                f3d.add(this._views.g3d, 'layout', {
-                    'Single view': ViewGroup3D.Layout.SINGLE,
-                    'Double view': ViewGroup3D.Layout.DOUBLE,
-                    'Triple view': ViewGroup3D.Layout.TRIPLE,
-                    'Quadriple view': ViewGroup3D.Layout.QUADRIPLE
-                }).name('Layout');
-                f3d.addColor(this._workspace.scene3d, 'color').name('Color');
-                f3d.addColor(this._workspace.scene3d, 'backgroundColor').name('Background');
-                f3d.add(this._workspace.scene3d.frontLight, 'intensity', 0, 3).name('Light');
-                f3d.add(this._workspace.scene3d, 'spotBorder', 0, 1).name('Spot border').step(0.01);
-                f3d.add(this._views, 'exportPixelRatio3d', [0.5, 1.0, 2.0, 4.0]).name('Export pixel ratio');
-                var adjustment = f3d.addFolder('Adjustment');
-                adjustment.add(this._workspace.scene3d.adjustment, 'alpha', -180.0, 180.0).name('0X rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'beta', -180.0, 180.0).name('0Y rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'gamma', -180.0, 180.0).name('0Z rotation').step(1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'x').name('X offset').step(0.1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'y').name('Y offset').step(0.1);
-                adjustment.add(this._workspace.scene3d.adjustment, 'z').name('Z offset').step(0.1);
+                tabExamples.activate();
 
-                var fMapping = this._dashboard.addFolder('Mapping');
-                fMapping.add(this._workspace, 'scaleId', {
-                    'Linear': Workspace.Scale.LINEAR.id,
-                    'Logarithmic': Workspace.Scale.LOG.id
-                }).name('Scale');
-                fMapping.add(this._workspace, 'hotspotQuantile').name('Hotspot quantile').step(0.0001);
-                var colorMaps = Object.keys(ColorMap.Maps).reduce(function (m, k) {
-                    m[ColorMap.Maps[k].name] = k;
-                    return m;
-                }, {});
-                fMapping.add(this._workspace, 'colorMapId', colorMaps).name('Color map');
-
-                var mapping = {
-                    flag: fMapping.add(this._workspace, 'autoMinMax').name('Auto MinMax'),
-                    min: fMapping.add(this._workspace, 'minValue').name('Min value').step(0.00001),
-                    max: fMapping.add(this._workspace, 'maxValue').name('Max value').step(0.00001),
-                };
-                this._workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, mapping));
-                this._onAutoMappingChange(mapping);
-
-                this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function() {
-                    f2d.closed = (this._workspace.mode != Workspace.Mode.MODE_2D);
-                    f3d.closed = (this._workspace.mode != Workspace.Mode.MODE_3D);
+                this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
+                    if (this._workspace.mode === Workspace.Mode.MODE_2D) {
+                        tab2D.activate();
+                    } else if (this._workspace.mode === Workspace.Mode.MODE_3D) {
+                        tab3D.activate();
+                    }
                 }.bind(this));
-                this._appContainer.querySelector('#controls-container').appendChild(this._dashboard.domElement);
             }
         },
 
-        _onAutoMappingChange: {
-            value: function(mapping) {
-                var disabled = this._workspace.autoMinMax;
+        _addTab: {
+            value: function(viewConstructor, workspace, views) {
+                // nothing but a temporary id
+                var id = (Math.round(1000000 * Math.random())).toString();
 
-                if (disabled) {
-                    mapping.min.domElement.querySelector('input').setAttribute('disabled', '');
-                    mapping.max.domElement.querySelector('input').setAttribute('disabled', '');
-                } else {
-                    mapping.min.domElement.querySelector('input').removeAttribute('disabled');
-                    mapping.max.domElement.querySelector('input').removeAttribute('disabled');
-                }
+                var tab = this._tabsContainer.append('<div class="emperor-tab-div tab-pane fade" id="' + id + '"></div>');
 
-                if (this._workspace.autoMinMax) {
-                    mapping.min.updateDisplay();
-                    mapping.max.updateDisplay();
-                }
+                // dynamically instantiate the controller, see:
+                // http://stackoverflow.com/a/8843181
+                var params = [null, '#' + id, workspace, views];
+                var obj = new (Function.prototype.bind.apply(viewConstructor, params));
+
+                // set the identifier of the div to the one defined by the object
+                $('#' + id).attr('id', obj.identifier);
+
+                // now add the list element linking to the container div with the proper
+                // title
+                this._tabHeadersList.append('<li><a data-toggle="tab" href="#'
+                    + obj.identifier + '">' + obj.title + '</a></li>');
+
+                return obj;
+            }
+        },
+
+        _toggleControlsPanel: {
+            value: function () {
+                // timeout is used because a blank vertical stripe remains from a scrollbar of the sidebar,
+                // which gets updated asynchronously, it seems
+                window.setTimeout(function () {
+                    var renderingArea = $(this._appContainer.querySelector('#rendering-area'));
+                    renderingArea.toggleClass('col-xs-8');
+                    renderingArea.toggleClass('col-xs-12');
+                    this._views.updateLayout();
+                }.bind(this));
             }
         },
 

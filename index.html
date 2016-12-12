@@ -3,6 +3,12 @@
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
   <title>`ili</title>
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/bootstrap-colorpicker.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/bootstrap-select.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/bootstrap-slider.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/jquery-ui.min.css">
+  <link rel="stylesheet" type="text/css" href="/js/lib/css/jquery.bootstrap-touchspin.min.css">
   <link rel="stylesheet" type="text/css" href="main.css">
   <link rel="stylesheet" type="text/css" href="layout.css">
   <script type="text/javascript" src="./js/lib/require.min.js"></script>
@@ -15,8 +21,19 @@
         'paths': {
           'text': './js/lib/text.min',
           'filesaver': './js/lib/FileSaver.min',
-          'datgui': './js/lib/dat.gui.min',
           'jquery': './js/lib/jquery-2.1.4.min',
+          'jqueryui': './js/lib/jquery-ui.min',
+          'bootstrap': './js/lib/bootstrap.min',
+
+          /* jQuery plugins */
+          'jquery_drag': './js/lib/jquery.event.drag-2.2.min',
+          'chosen': './js/lib/chosen.jquery.min',
+
+          /* Bootstrap plugins */
+          'bootstrap_colorpicker': './js/lib/bootstrap-colorpicker.min',
+          'bootstrap_select': './js/lib/bootstrap-select.min',
+          'bootstrap_slider': './js/lib/bootstrap-slider.min',
+          'bootstrap_spinbox': './js/lib/jquery.bootstrap-touchspin.min',
 
           /* THREE.js */
           'three': './js/lib/three.min',
@@ -25,14 +42,19 @@
           /* `ili's objects */
           'dragndrop': './js/DragAndDrop',
           'colormaps': './js/ColorMaps',
+          'controlsgrid': './js/ControlsGrid',
           'eventsource': './js/EventSource',
-          'examples': './js/Examples',
           'mapselector': './js/MapSelector',
           'scene2d': './js/Scene2D',
           'scene3d': './js/Scene3D',
           'spotlabel2d': './js/SpotLabel2D',
           'spotlabel3d': './js/SpotLabel3D',
           'spotlabelbase': './js/SpotLabelBase',
+          'tabcontroller2d': './js/TabController2D',
+          'tabcontroller3d': './js/TabController3D',
+          'tabcontrollerbase': './js/TabControllerBase',
+          'tabcontrollerexamples': './js/TabControllerExamples',
+          'tabcontrollermapping': './js/TabControllerMapping',
           'view2d': './js/View2D',
           'view3d': './js/View3D',
           'viewcontainer': './js/ViewContainer',
@@ -40,23 +62,44 @@
           'viewlegend': './js/ViewLegend',
           'workspace': './js/Workspace',
           'utils': './js/utils',
-          'main': './js/main'
+          'main': './js/main',
+
+          /* emperor */
+          'abcviewcontroller': 'js/emperor/abc-view-controller',
+
+          'underscore': 'js/lib/underscore.min',
+
+          /* SlickGrid */
+          'slickcore': 'js/lib/slick.core.min',
+          'slickgrid': 'js/lib/slick.grid.min',
+          'slickformatters': 'js/lib/slick.editors.min',
+          'slickeditors': 'js/lib/slick.formatters.min'
         },
         /*
          Libraries that are not AMD compatible need shim to declare their
          dependencies.
          */
         'shim': {
-          'orbitcontrols': {
-            'deps': ['three']
+          'jquery_drag': ['jquery', 'jqueryui'],
+          'chosen': {
+            deps: ['jquery'],
+            exports: 'jQuery.fn.chosen'
           },
-          'datgui': {
-            exports: 'dat'
-          }
+          'orbitcontrols': ['three'],
+          'slickcore': ['jqueryui'],
+          'slickgrid': ['slickcore', 'jquery_drag', 'slickformatters', 'slickeditors'],
+          'bootstrap': ['jquery'],
+          'bootstrap_colorpicker': ['bootstrap'],
+          'bootstrap_select': ['bootstrap'],
+          'bootstrap_slider': {
+            deps: ['bootstrap'],
+            exports: 'Slider'
+          },
+          'bootstrap_spinbox': ['bootstrap', 'jqueryui']
         }
       });
 
-      require(["main"], function(ili) {
+      require(['main'], function (ili) {
         var app = new ili(document.getElementById('ili-container'));
       });
   </script>
