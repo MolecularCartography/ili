@@ -10,11 +10,6 @@ require({
     'paths': {
         'three': '../lib/three.min',
         'stlloader': '../lib/STLLoader'
-    },
-    'shim': {
-        'stlloader': {
-            'deps': ['three']
-        }
     }
 }, [
     'three', 'stlloader'
@@ -28,7 +23,7 @@ function(THREE, STLLoader) {
 
     function readContents(contents) {
         try {
-            var geometry = new THREE.STLLoader().parse(contents);
+            var geometry = new STLLoader().parse(contents);
         } catch (e) {
             console.info('Failure parsing STL file', e);
             postMessage({

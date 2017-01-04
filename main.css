@@ -181,7 +181,7 @@ dialog#errors > ul {
 
 .SpotLabel3D, .SpotLabel2D {
     position: absolute;
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.5);
     padding: 0 4px;
     pointer-events: none;
 }

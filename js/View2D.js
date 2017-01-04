@@ -35,7 +35,6 @@ function(THREE, Scene2D, SpotLabel2D) {
             vertexShader: View2D.VERTEX_SHADER,
             fragmentShader: View2D.FRAGMENT_SHADER,
             vertexColors: THREE.VertexColors,
-            combine: THREE.MultiplyBlending,
             depthTest: true,
             transparent: true,
         });

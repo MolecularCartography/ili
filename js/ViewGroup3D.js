@@ -57,7 +57,7 @@ function(THREE, Scene3D, View3D, SpotLabel3D) {
                     var viewportBottom = this._height - v.top - v.height;
                     renderer.setViewport(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissor(v.left, viewportBottom, v.width, v.height);
-                    renderer.enableScissorTest(true);
+                    renderer.setScissorTest(true);
                     scene.render(renderer, v.camera);
                 }
             }

@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'eventsource'
+    'eventsource', 'three'
 ],
-function(EventSource) {
+function(EventSource, THREE) {
     function Scene2D() {
         EventSource.call(this, Scene2D.Events);
 

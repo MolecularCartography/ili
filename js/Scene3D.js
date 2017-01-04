@@ -17,7 +17,6 @@ function(EventSource, THREE) {
             vertexColors: THREE.VertexColors,
             transparent: true,
             opacity: 0.9,
-            shininess: 3,
             shading: THREE.SmoothShading
         });
 
@@ -233,7 +232,7 @@ function(EventSource, THREE) {
                 if (geometry) {
                     geometry.computeBoundingBox();
                     this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
-                    this._mesh.position.copy(geometry.boundingBox.center().negate());
+                    this._mesh.position.copy(geometry.boundingBox.getCenter().negate());
                     this._meshContainer.add(this._mesh);
                     this._applyAdjustment();
                     this._recolor();
