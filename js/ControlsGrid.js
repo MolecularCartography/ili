@@ -266,7 +266,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
             value: function (text) {
                 var layout = '<div class="row">';
                 layout += '<div class="col-xs-12">';
-                layout += '<div class="alert alert-success" role="alert">' + text + '</div></div>';
+                layout += '<div class="alert alert-success" role="alert"><p class="text-center">' + text + '</p></div></div>';
                 this._$container.append(layout);
             }
         },
