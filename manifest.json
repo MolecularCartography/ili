@@ -17,8 +17,8 @@
         }
     },
     "icons": {
-        "16": "img/favicon_16.png",
         "48": "img/logo_48.png",
-        "128": "img/logo_128.png"
+        "128": "img/logo_128.png",
+        "512": "img/logo_512.png"
     }
 }
