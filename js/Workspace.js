@@ -199,25 +199,14 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                             var blob = result.items[i].blob;
 
                             var fileName = result.items[i].fileName;
-                            if (/\.stl$/i.test(fileName)) {
+                            if (fileName.toLowerCase().endsWith('.stl')) {
                                 this.loadMesh(blob);
+                            } else if (fileName.toLowerCase().endsWith('.csv')) {
+                                this.loadIntensities(blob);
+                            } else if (blob.type == 'image/jpeg' || blob.type == 'image/png') {
+                                this.loadImage(blob);
                             } else {
-                                switch (blob.type) {
-                                    case 'application/vnd.ms-excel':
-                                    case 'text/plain':
-                                    case 'text/csv':
-                                    case 'application/octet-stream':
-                                        this.loadIntensities(blob);
-                                        break;
-
-                                    case 'image/jpeg':
-                                    case 'image/png':
-                                        this.loadImage(blob);
-                                        break;
-
-                                    default:
-                                        console.info('Unrecognized file type: ' + fileName + ' (' + blob.type + ')');
-                                }
+                                console.info('Unrecognized file type: ' + fileName + ' (' + blob.type + ')');
                             }
                         }
                     }.bind(this));

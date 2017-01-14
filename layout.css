@@ -82,10 +82,6 @@ button.btn > .glyphicon.glyphicon-th-list {
     margin-top: 6px;
 }
 
-.emperor-tab-div .slider-horizontal .slider-selection {
-	background: #BABABA;
-}
-
 .emperor-tab-div .checkbox input {
     margin-left: 0; /* default is 20px */
 }
@@ -95,6 +91,51 @@ button.btn > .glyphicon.glyphicon-th-list {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Sidebar dark theme start */
+
+#tabs-container {
+    background-color: #111;
+}
+
+#tabs-list > li > a,
+.emperor-tab-div .control-name-column,
+.emperor-tab-div .control-value-column
+{
+    color: #F5F5F5;
+}
+
+#tabs-list > li > a:hover,
+#tabs-list > li.active > a
+{
+    color: #555;
+}
+
+.emperor-tab-div .btn-default {
+    background-color: #F2DC5D;
+}
+
+.emperor-tab-div .btn-default:hover,
+.emperor-tab-div .btn-default.dropdown-toggle[aria-expanded="true"],
+.emperor-tab-div .form-control,
+.emperor-tab-div .slider-horizontal .slider-track-high
+{
+    background-color: #FCF8E3;
+}
+
+.emperor-tab-div .form-control[disabled] {
+    background-color: #ddd;
+}
+
+.emperor-tab-div .slider-horizontal .slider-selection {
+	background: #F2A359;
+}
+
+.emperor-tab-div .slider-horizontal .slider-handle {
+	background-image: linear-gradient(to bottom, #F2DC5D 0, #AD9B35 100%);
+}
+
+/* Sidebar dark theme end */
 
 /* Bootstrap tab styles end */
 

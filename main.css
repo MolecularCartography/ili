@@ -27,7 +27,6 @@ body {
     padding: 5px 10px;
     float: right;
     overflow-y: auto;
-    background-color: #EEEEEE;
 }
 
 #tabs-list li a {
