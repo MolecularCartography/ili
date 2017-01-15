@@ -58,6 +58,12 @@ function (EmperorViewControllerABC, ControlGrid, Workspace) {
             }
         },
 
+        addHtmlBlock: {
+            value: function (html) {
+                return this._controlGrid.addHtmlBlock(html);
+            }
+        },
+
         refresh: {
             value: function () {
                 this._controlGrid.refresh();

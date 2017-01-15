@@ -266,7 +266,16 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
             value: function (text) {
                 var layout = '<div class="row">';
                 layout += '<div class="col-xs-12">';
-                layout += '<div class="alert alert-success" role="alert"><p class="text-center">' + text + '</p></div></div>';
+                layout += '<div class="alert alert-success" role="alert"><p class="text-center">' + text + '</p></div></div></div>';
+                this._$container.append(layout);
+            }
+        },
+
+        addHtmlBlock: {
+            value: function (html) {
+                var layout = '<div class="row">';
+                layout += '<div class="col-xs-12">';
+                layout += html + '</div></div>';
                 this._$container.append(layout);
             }
         },

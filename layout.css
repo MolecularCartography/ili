@@ -100,7 +100,8 @@ button.btn > .glyphicon.glyphicon-th-list {
 
 #tabs-list > li > a,
 .emperor-tab-div .control-name-column,
-.emperor-tab-div .control-value-column
+.emperor-tab-div .control-value-column,
+#documentation-container > *
 {
     color: #F5F5F5;
 }
@@ -138,6 +139,18 @@ button.btn > .glyphicon.glyphicon-th-list {
 /* Sidebar dark theme end */
 
 /* Bootstrap tab styles end */
+
+#documentation-container td,
+#documentation-container th
+{
+    padding: 5px;
+}
+
+#documentation-container a,
+#documentation-container .highlighted-text
+{
+    color: #F2DC5D;
+}
 
 #view-container > * {
     display: none;

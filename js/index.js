@@ -38,6 +38,7 @@ require.config({
     'tabcontrollerbase': './js/TabControllerBase',
     'tabcontrollerexamples': './js/TabControllerExamples',
     'tabcontrollermapping': './js/TabControllerMapping',
+    'tabcontrollerdocumentation': './js/TabControllerDocumentation',
     'view2d': './js/View2D',
     'view3d': './js/View3D',
     'viewcontainer': './js/ViewContainer',

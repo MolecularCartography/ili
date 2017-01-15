@@ -6,10 +6,10 @@
 define([
     'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
     'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'tabcontroller2d', 'tabcontroller3d', 'tabcontrollermapping',
-    'tabcontrollerexamples'
+    'tabcontrollerexamples', 'tabcontrollerdocumentation'
 ],
 function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils, DragAndDrop, appLayout,
-    $, $ui, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples)
+    $, $ui, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples, TabControllerDocumentation)
 {
     // Copied from https://github.com/miguelmota/webgl-detect
     function webglEnabled() {
@@ -193,6 +193,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 this._tabs.push(this._addTab(TabControllerMapping, this._workspace, this._views));
                 var tabExamples = this._addTab(TabControllerExamples, this._workspace, this._views);
                 this._tabs.push(tabExamples);
+                this._tabs.push(this._addTab(TabControllerDocumentation, this._workspace, this._views));
 
                 tabExamples.activate();
 
@@ -257,12 +258,12 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 var result = [];
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
-
-                    if ((/\.png$/i.test(file.name))) {
+                    var filenameLowecased = file.name.toLowerCase();
+                    if (filenameLowecased.endsWith('.png') || filenameLowecased.endsWith('.jpeg')) {
                         result.push(this._workspace.loadImage.bind(this._workspace, file));
-                    } else if (/\.stl$/i.test(file.name)) {
+                    } else if (filenameLowecased.endsWith('.stl')) {
                         result.push(this._workspace.loadMesh.bind(this._workspace, file));
-                    } else if (/\.csv$/i.test(file.name)) {
+                    } else if (filenameLowecased.endsWith('.csv')) {
                         result.push(this._workspace.loadIntensities.bind(this._workspace, file));
                     }
                 }
