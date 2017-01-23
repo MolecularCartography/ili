@@ -52,20 +52,20 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 });
 
                 return {
-                    get() {
+                    get: function() {
                         return slider.bootstrapSlider('getValue');
                     },
-                    set(val) {
+                    set: function(val) {
                         slider.bootstrapSlider('setValue', val);
                         paramValue.innerText = val;
                     },
-                    enable() {
+                    enable: function() {
                         slider.bootstrapSlider('enable');
                     },
-                    disable() {
+                    disable: function() {
                         slider.bootstrapSlider('disable');
                     },
-                    refresh() {
+                    refresh: function() {
                         this.set(object[key]);
                     }
                 };
@@ -95,19 +95,19 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 });
 
                 return {
-                    get() {
+                    get: function() {
                         return spinbox.val();
                     },
-                    set(val) {
+                    set: function(val) {
                         spinbox.val(val);
                     },
-                    enable() {
+                    enable: function() {
                         spinbox.prop('disabled', false);
                     },
-                    disable() {
+                    disable: function() {
                         spinbox.prop('disabled', true);
                     },
-                    refresh() {
+                    refresh: function() {
                         this.set(object[key]);
                     }
                 };
@@ -125,12 +125,10 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 layout += '<div class="col-xs-7">';
                 layout += '<select class="selectpicker" id="' + controlId + '">';
 
-                var values = [];
                 options.map(function (val) {
-                    var complexVal = Array.isArray(val);
-                    var displayVal = complexVal ? val[0] : val;
-                    var dataVal = values.length;
-                    values.push(complexVal ? val[1] : val);
+                    var isComplexVal = Array.isArray(val);
+                    var displayVal = isComplexVal ? val[0] : val;
+                    var dataVal = isComplexVal ? val[1] : val;
                     layout += '<option value="' + dataVal + '">' + displayVal + '</option>';
                 });
                 layout += '</select></div></div></div>';
@@ -138,26 +136,26 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 this._$container.append(layout);
                 var selector = $('#' + controlId).selectpicker();
                 selector.on('changed.bs.select', function(e, clickedIndex, newValue, oldValue) {
-                    object[key] = values[e.target.value];
+                    object[key] = newValue;
                 });
 
                 var result = {
-                    get() {
+                    get: function() {
                         return selector.val();
                     },
-                    set(val) {
+                    set: function(val) {
                         selector.selectpicker('val', val);
                         selector.selectpicker('refresh');
                     },
-                    enable() {
+                    enable: function() {
                         selector.prop('disabled', false);
                         selector.selectpicker('refresh');
                     },
-                    disable() {
+                    disable: function() {
                         selector.prop('disabled', true);
                         selector.selectpicker('refresh');
                     },
-                    refresh() {
+                    refresh: function() {
                         this.set(object[key]);
                     }
                 };
@@ -186,19 +184,19 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 colorPicker.css('background-color', object[key]);
                 colorPicker.css('color', this._getContrastColor(object[key]));
                 var result = {
-                    get() {
+                    get: function() {
                         return colorPicker.colorpicker('getValue');
                     },
-                    set(val) {
+                    set: function(val) {
                         colorPicker.colorpicker('setValue', val);
                     },
-                    enable() {
+                    enable: function() {
                         colorPicker.colorpicker('enable');
                     },
-                    disable() {
+                    disable: function() {
                         colorPicker.colorpicker('disable');
                     },
-                    refresh() {
+                    refresh: function() {
                         this.set(object[key]);
                     }
                 };
@@ -225,20 +223,20 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     object[key] = $(this).prop('checked');
                 });
                 var result = {
-                    get() {
+                    get: function() {
                         return checkbox.prop('checked');
                     },
-                    set(val) {
+                    set: function(val) {
                         colorPicker.prop('checked', val);
                         object[key] = val; // 'change' event isn't fired when the value is set programmatically
                     },
-                    enable() {
+                    enable: function() {
                         checkbox.prop('disabled', false);
                     },
-                    disable() {
+                    disable: function() {
                         checkbox.prop('disabled', true);
                     },
-                    refresh() {
+                    refresh: function () {
                         checkbox.prop('checked', object[key]);
                     }
                 };
@@ -262,7 +260,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
             }
         },
 
-        addTextBlock: {
+        addHintBlock: {
             value: function (text) {
                 var layout = '<div class="row">';
                 layout += '<div class="col-xs-12">';

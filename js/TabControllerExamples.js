@@ -67,7 +67,7 @@ function (TabControllerBase, Workspace) {
             }
         ];
 
-        this.addTextBlock('Select any of the examples below');
+        this.addHintBlock('Select any of the examples below');
         items.forEach(function (item) {
             item[item.name] = openExample.bind(item);
             this.addAction(item.name, item[item.name]);

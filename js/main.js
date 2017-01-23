@@ -236,9 +236,15 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 // timeout is used because a blank vertical stripe remains from a scrollbar of the sidebar,
                 // which gets updated asynchronously, it seems
                 window.setTimeout(function () {
+                    // update rendering area width
                     var renderingArea = $(this._appContainer.querySelector('#rendering-area'));
                     renderingArea.toggleClass('col-xs-8');
                     renderingArea.toggleClass('col-xs-12');
+                    // change toggle button icon
+                    var sideBarSwitcher = $(this._appContainer.querySelector('#controls-switcher .glyphicon'));
+                    sideBarSwitcher.toggleClass('glyphicon-chevron-right');
+                    sideBarSwitcher.toggleClass('glyphicon-chevron-left');
+                    // redraw the scene
                     this._views.updateLayout();
                 }.bind(this));
             }

@@ -52,9 +52,9 @@ function (EmperorViewControllerABC, ControlGrid, Workspace) {
             }
         },
 
-        addTextBlock: {
+        addHintBlock: {
             value: function (text) {
-                return this._controlGrid.addTextBlock(text);
+                return this._controlGrid.addHintBlock(text);
             }
         },
 
