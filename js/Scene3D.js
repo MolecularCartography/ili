@@ -11,6 +11,8 @@ function(EventSource, THREE) {
         this._frontLight = new THREE.PointLight(0xffffff, 1.5, 0);
         this._mesh = null;
         this._meshContainer = new THREE.Object3D();
+        this._meshScaleFactor = 1.0;
+        this._MAX_MESH_SIZE = 80;
         this._color = new THREE.Color('#575757');
         this._backgroundColor = new THREE.Color('black');
         this._meshMaterial = new THREE.MeshLambertMaterial({
@@ -22,7 +24,7 @@ function(EventSource, THREE) {
 
         this._spotBorder = 0.05;
         this._colorMap = null;
-        this._adjustment = {x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0};
+        this._adjustment = { x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0 };
 
         this._spots = null;
         this._mapping = null;
@@ -232,7 +234,10 @@ function(EventSource, THREE) {
                 if (geometry) {
                     geometry.computeBoundingBox();
                     this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
-                    this._mesh.position.copy(geometry.boundingBox.getCenter().negate());
+                    this._meshScaleFactor = this._MAX_MESH_SIZE / geometry.boundingBox.getSize().length();
+                    // bounding box is invalid after the scaling below. Needs to be recomputed for further use
+                    this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
+                    this._mesh.position.copy(geometry.boundingBox.getCenter().negate().multiplyScalar(this._meshScaleFactor));
                     this._meshContainer.add(this._mesh);
                     this._applyAdjustment();
                     this._recolor();
