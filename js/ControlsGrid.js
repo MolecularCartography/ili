@@ -88,13 +88,31 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 var spinbox = $('#' + controlId).TouchSpin({
                     min: -Number.MAX_SAFE_INTEGER,
                     max: Number.MAX_SAFE_INTEGER,
-                    initval: object[key]
+                    initval: object[key],
+                    decimals: 2
                 });
                 spinbox.on('change', function (event) {
                     object[key] = spinbox.val();
                 });
 
-                return {
+                var spinboxPropWrapper = function (prop, initVal) {
+                    spinbox.prop(prop, initVal);
+                    return function (val) {
+                        if (val === undefined) {
+                            return spinbox.prop(prop);
+                        } else {
+                            var settings = {};
+                            settings[prop] = val;
+                            spinbox.trigger("touchspin.updatesettings", settings);
+                            // have to duplicate the value as an HTML attribute to be able to read it later
+                            // TouchSpin doesn't currently support options retrieval
+                            spinbox.prop(prop, val);
+                            return this;
+                        }
+                    };
+                };
+
+                var result = {
                     get: function() {
                         return spinbox.val();
                     },
@@ -111,6 +129,10 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         this.set(object[key]);
                     }
                 };
+                result.step = spinboxPropWrapper('step', 1);
+                result.min = spinboxPropWrapper('min', -Number.MAX_SAFE_INTEGER);
+                result.max = spinboxPropWrapper('max', Number.MAX_SAFE_INTEGER);
+                return result;
             }
         },
 

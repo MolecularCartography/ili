@@ -26,9 +26,9 @@ function (TabControllerBase, ViewGroup3D) {
         adjustment.addNumeric(workspace.scene3d.adjustment, 'alpha', '0X rotation', - 180.0, 180.0);
         adjustment.addNumeric(workspace.scene3d.adjustment, 'beta', '0Y rotation', -180.0, 180.0);
         adjustment.addNumeric(workspace.scene3d.adjustment, 'gamma', '0Z rotation', -180.0, 180.0);
-        adjustment.addNumeric(workspace.scene3d.adjustment, 'x', 'X offset');
-        adjustment.addNumeric(workspace.scene3d.adjustment, 'y', 'Y offset');
-        adjustment.addNumeric(workspace.scene3d.adjustment, 'z', 'Z offset');
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'x', 'X offset').step(1);
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'y', 'Y offset').step(1);
+        adjustment.addNumeric(workspace.scene3d.adjustment, 'z', 'Z offset').step(1);
         return this;
     }
 
