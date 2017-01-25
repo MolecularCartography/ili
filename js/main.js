@@ -5,10 +5,10 @@
 
 define([
     'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
-    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'sidebarcontroller'
+    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'appsettingscontroller'
 ],
 function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils,
-    DragAndDrop, appLayout, $, $ui, SidebarController)
+    DragAndDrop, appLayout, $, $ui, AppSettingsController)
 {
     // Copied from https://github.com/miguelmota/webgl-detect
     function webglEnabled() {
@@ -45,7 +45,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
         this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'),
             this._appContainer.querySelector('#current-map-label'));
-        this._sidebarController = new SidebarController(this._appContainer, this._workspace, this._views);
+        this._settingsController = new AppSettingsController(this._appContainer, this._workspace, this._views);
 
         this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this));
@@ -110,7 +110,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         saveSettings: {
             value: function () {
                 var name = this._workspace.mapName || 'ili_settings';
-                saveAs(this._sidebarController.serialize(), name + '.json');
+                saveAs(this._settingsController.serialize(), name + '.json');
             }
         },
 

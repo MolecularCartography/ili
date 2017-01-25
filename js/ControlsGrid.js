@@ -158,7 +158,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 this._$container.append(layout);
                 var selector = $('#' + controlId).selectpicker();
                 selector.on('changed.bs.select', function(e, clickedIndex, newValue, oldValue) {
-                    object[key] = newValue;
+                    object[key] = e.currentTarget[clickedIndex].value;
                 });
 
                 var result = {

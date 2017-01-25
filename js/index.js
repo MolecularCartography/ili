@@ -30,7 +30,7 @@ require.config({
     'mapselector': './js/MapSelector',
     'scene2d': './js/Scene2D',
     'scene3d': './js/Scene3D',
-    'sidebarcontroller': './js/SidebarController',
+    'appsettingscontroller': './js/AppSettingsController',
     'spotlabel2d': './js/SpotLabel2D',
     'spotlabel3d': './js/SpotLabel3D',
     'spotlabelbase': './js/SpotLabelBase',

@@ -5,26 +5,27 @@ define([
     'tabcontrollerexamples', 'tabcontrollerdocumentation'
 ],
 function (Workspace, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples, TabControllerDocumentation) {
-    function SidebarController(appContainer, workspace, views) {
+    function AppSettingsController(appContainer, workspace, views) {
+        this._workspace = workspace;
         this._tabsContainer = $(appContainer.querySelector('#tabs-container'));
         this._tabHeadersList = $(appContainer.querySelector('#tabs-list'));
 
         this._tabs = {};
-        var tab2D = this._addTab(TabController2D, workspace, views);
+        var tab2D = this._addTab(TabController2D, views);
         this._tabs['2D'] = tab2D;
-        var tab3D = this._addTab(TabController3D, workspace, views);
+        var tab3D = this._addTab(TabController3D, views);
         this._tabs['3D'] = tab3D;
-        this._tabs['mapping'] = this._addTab(TabControllerMapping, workspace, views);
-        var tabExamples = this._addTab(TabControllerExamples, workspace, views);
+        this._tabs['mapping'] = this._addTab(TabControllerMapping, views);
+        var tabExamples = this._addTab(TabControllerExamples, views);
         this._tabs['examples'] = tabExamples;
-        this._tabs['doc'] = this._addTab(TabControllerDocumentation, workspace, views);
+        this._tabs['doc'] = this._addTab(TabControllerDocumentation, views);
 
         tabExamples.activate();
 
-        workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
-            if (workspace.mode === Workspace.Mode.MODE_2D) {
+        this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
+            if (this._workspace.mode === Workspace.Mode.MODE_2D) {
                 tab2D.activate();
-            } else if (workspace.mode === Workspace.Mode.MODE_3D) {
+            } else if (this._workspace.mode === Workspace.Mode.MODE_3D) {
                 tab3D.activate();
             }
         }.bind(this));
@@ -32,16 +33,22 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
         return this;
     }
 
-    SidebarController.VERSION = {
+    AppSettingsController.VERSION = {
         current: 1.0,
         minCompatible: 1.0
     };
 
-    SidebarController.prototype = Object.create(null, {
+    AppSettingsController.SETTINGS_KEYS = {
+        VERSION: 'version',
+        SELECTED_MAP: 'selected_map'
+    };
+
+    AppSettingsController.prototype = Object.create(null, {
         serialize: {
             value: function () {
                 var data = {};
-                data['version'] = SidebarController.VERSION;
+                data[AppSettingsController.SETTINGS_KEYS.VERSION] = AppSettingsController.VERSION;
+                data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.mapName;
                 for (var key in this._tabs) {
                     data[key] = this._tabs[key];
                 }
@@ -50,7 +57,7 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
         },
 
         _addTab: {
-            value: function (viewConstructor, workspace, views) {
+            value: function (viewConstructor, views) {
                 // nothing but a temporary id
                 var id = (Math.round(1000000 * Math.random())).toString();
 
@@ -58,7 +65,7 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
 
                 // dynamically instantiate the controller, see:
                 // http://stackoverflow.com/a/8843181
-                var params = [null, '#' + id, workspace, views];
+                var params = [null, '#' + id, this._workspace, views];
                 var obj = new (Function.prototype.bind.apply(viewConstructor, params));
 
                 // set the identifier of the div to the one defined by the object
@@ -74,5 +81,5 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
         }
     });
 
-    return SidebarController;
+    return AppSettingsController;
 });
