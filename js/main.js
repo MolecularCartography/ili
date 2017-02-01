@@ -217,6 +217,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         _findFileHandlers: {
             value: function (files) {
                 var result = [];
+                var unrecognizedFiles = [];
+                var settingsFile = null;
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     var filenameLowecased = file.name.toLowerCase();
@@ -226,7 +228,18 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                         result.push(this._workspace.loadMesh.bind(this._workspace, file));
                     } else if (filenameLowecased.endsWith('.csv')) {
                         result.push(this._workspace.loadIntensities.bind(this._workspace, file));
+                    } else if (filenameLowecased.endsWith('.json')) {
+                        settingsFile = file;
+                    } else {
+                        unrecognizedFiles.push(file.name);
                     }
+                }
+                if (settingsFile !== null) {
+                    result.push(this._workspace.loadSettings.bind(this._workspace, settingsFile));
+                }
+
+                if (unrecognizedFiles.length > 0) {
+                    alert('Some files have not been recognized by `ili: ' + unrecognizedFiles.join(', '));
                 }
                 return result;
             }

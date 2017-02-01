@@ -56,7 +56,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         return slider.bootstrapSlider('getValue');
                     },
                     set: function(val) {
-                        slider.bootstrapSlider('setValue', val);
+                        slider.bootstrapSlider('setValue', val, true);
                         paramValue.innerText = val;
                     },
                     enable: function() {
@@ -92,7 +92,9 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     decimals: 2
                 });
                 spinbox.on('change', function (event) {
-                    object[key] = spinbox.val();
+                    if (!spinbox.prop('settings_update_ongoing')) {
+                        object[key] = spinbox.val();
+                    }
                 });
 
                 var spinboxPropWrapper = function (prop, initVal) {
@@ -101,12 +103,14 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         if (val === undefined) {
                             return spinbox.prop(prop);
                         } else {
+                            spinbox.prop('settings_update_ongoing', true);
                             var settings = {};
                             settings[prop] = val;
                             spinbox.trigger("touchspin.updatesettings", settings);
                             // have to duplicate the value as an HTML attribute to be able to read it later
                             // TouchSpin doesn't currently support options retrieval
                             spinbox.prop(prop, val);
+                            spinbox.prop('settings_update_ongoing', false);
                             return this;
                         }
                     };
@@ -118,6 +122,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     },
                     set: function(val) {
                         spinbox.val(val);
+                        spinbox.trigger('change');
                     },
                     enable: function() {
                         spinbox.prop('disabled', false);
@@ -157,8 +162,14 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
 
                 this._$container.append(layout);
                 var selector = $('#' + controlId).selectpicker();
-                selector.on('changed.bs.select', function(e, clickedIndex, newValue, oldValue) {
-                    object[key] = e.currentTarget[clickedIndex].value;
+                var countOfOptions = options.length;
+                selector.on('changed.bs.select', function (e, clickedIndex, newValue, oldValue) {
+                    for (var i = 0; i < countOfOptions; ++i) {
+                        if (e.currentTarget[i].selected) {
+                            object[key] = e.currentTarget[i].value;
+                            break;
+                        }
+                    }
                 });
 
                 var result = {
@@ -168,6 +179,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     set: function(val) {
                         selector.selectpicker('val', val);
                         selector.selectpicker('refresh');
+                        selector.trigger('changed.bs.select');
                     },
                     enable: function() {
                         selector.prop('disabled', false);
@@ -249,8 +261,8 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         return checkbox.prop('checked');
                     },
                     set: function(val) {
-                        colorPicker.prop('checked', val);
-                        object[key] = val; // 'change' event isn't fired when the value is set programmatically
+                        checkbox.prop('checked', val);
+                        checkbox.trigger('change'); // 'change' event isn't fired when the value is set programmatically
                     },
                     enable: function() {
                         checkbox.prop('disabled', false);
@@ -260,7 +272,8 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     },
                     refresh: function () {
                         checkbox.prop('checked', object[key]);
-                    }
+                    },
+                    restoreFirst: false
                 };
                 this._params[this._toKey(name)] = result;
                 return result;
@@ -349,13 +362,39 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
 
         fromJSON: {
             value: function (json) {
-                Object.keys(json).map(function (key, index) {
-                    if (typeof this._params[key].set === 'function') {
-                        this._params[key].set(json[key]);
+                var firstToBeRestored = {};
+                var rest = {};
+                for (var key in this._params) {
+                    if ('restoreFirst' in this._params[key] && this._params[key].restoreFirst) {
+                        firstToBeRestored[key] = this._params[key];
                     } else {
-                        this._params[key].fromJSON(json[key]);
+                        rest[key] = this._params[key];
                     }
-                });
+                }
+
+                for (var key in firstToBeRestored) {
+                    if (key in json) {
+                        this._paramFromJSON(key, json[key]);
+                    }
+                }
+
+                for (var key in rest) {
+                    if (key in json) {
+                        this._paramFromJSON(key, json[key]);
+                    }
+                }
+            }
+        },
+
+        _paramFromJSON: {
+            value: function (key, newValue) {
+                if (key in this._params) {
+                    if (typeof this._params[key].set === 'function') {
+                        this._params[key].set(newValue);
+                    } else {
+                        this._params[key].fromJSON(newValue);
+                    }
+                }
             }
         },
 

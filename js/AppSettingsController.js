@@ -7,18 +7,19 @@ define([
 function (Workspace, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples, TabControllerDocumentation) {
     function AppSettingsController(appContainer, workspace, views) {
         this._workspace = workspace;
+        this._views = views;
         this._tabsContainer = $(appContainer.querySelector('#tabs-container'));
         this._tabHeadersList = $(appContainer.querySelector('#tabs-list'));
 
         this._tabs = {};
-        var tab2D = this._addTab(TabController2D, views);
+        var tab2D = this._addTab(TabController2D, this._views);
         this._tabs['2D'] = tab2D;
-        var tab3D = this._addTab(TabController3D, views);
+        var tab3D = this._addTab(TabController3D, this._views);
         this._tabs['3D'] = tab3D;
-        this._tabs['mapping'] = this._addTab(TabControllerMapping, views);
-        var tabExamples = this._addTab(TabControllerExamples, views);
+        this._tabs['mapping'] = this._addTab(TabControllerMapping, this._views);
+        var tabExamples = this._addTab(TabControllerExamples, this._views);
         this._tabs['examples'] = tabExamples;
-        this._tabs['doc'] = this._addTab(TabControllerDocumentation, views);
+        this._tabs['doc'] = this._addTab(TabControllerDocumentation, this._views);
 
         tabExamples.activate();
 
@@ -29,18 +30,21 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
                 tab3D.activate();
             }
         }.bind(this));
+        this._workspace.addEventListener(Workspace.Events.SETTINGS_CHANGE, this.restore.bind(this));
 
         return this;
     }
 
     AppSettingsController.VERSION = {
-        current: 1.0,
-        minCompatible: 1.0
+        current: 1,
+        minCompatible: 1
     };
 
     AppSettingsController.SETTINGS_KEYS = {
         VERSION: 'version',
-        SELECTED_MAP: 'selected_map'
+        SELECTED_MAP: 'selected_map',
+        VIEWS: 'views_state',
+        PARAMS: 'params'
     };
 
     AppSettingsController.prototype = Object.create(null, {
@@ -49,10 +53,49 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
                 var data = {};
                 data[AppSettingsController.SETTINGS_KEYS.VERSION] = AppSettingsController.VERSION;
                 data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.mapName;
+                data[AppSettingsController.SETTINGS_KEYS.VIEWS] = this._views.toJSON();
+
+                var tabs = {};
+                data[AppSettingsController.SETTINGS_KEYS.PARAMS] = tabs;
                 for (var key in this._tabs) {
-                    data[key] = this._tabs[key];
+                    tabs[key] = this._tabs[key];
                 }
                 return new Blob([JSON.stringify(data)], { type: 'application/json' })
+            }
+        },
+
+        restore: {
+            value: function() {
+                var newSettings = this._workspace.loadedSettings;
+
+                var newSettingsVersion = newSettings[AppSettingsController.SETTINGS_KEYS.VERSION];
+                if (typeof newSettingsVersion == 'undefined') {
+                    alert('Loading failed: the file with visualization settings does not contain information about `ili version it is compatible with.');
+                    return;
+                }
+                if (AppSettingsController.VERSION.current > newSettingsVersion.current) {
+                    alert('Warning: the file with visualization settings was created by an older version of `ili. Settings may be restored partially.');
+                }
+                if (AppSettingsController.VERSION.current < newSettingsVersion.minCompatible) {
+                    alert('Loading failed: the file with visualization settings was created by a newer version of `ili that is not compatible with the current one.');
+                    return;
+                }
+
+                var viewsSettings = newSettings[AppSettingsController.SETTINGS_KEYS.VIEWS];
+                if (typeof viewsSettings != 'undefined') {
+                    this._views.fromJSON(viewsSettings);
+                } else {
+                    console.error('File with settings does not contain info about views state.');
+                }
+
+                var tabs = newSettings[AppSettingsController.SETTINGS_KEYS.PARAMS];
+                for (var tabId in tabs) {
+                    if (tabId in this._tabs) {
+                        this._tabs[tabId].fromJSON(tabs[tabId]);
+                    } else {
+                        console.error('Tab with ID "' + tabId + '" is not present on the sidebar, but found in the file with visualization settings.');
+                    }
+                }
             }
         },
 

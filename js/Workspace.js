@@ -41,9 +41,13 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         this._scene2d = new Scene2D();
         this._scene3d.colorMap = this._colorMap;
         this._scene2d.colorMap = this._colorMap;
+        this._loadedSettings = null;
 
         this._status = '';
         this._tasks = {};
+        this._settingsToLoad = null;
+
+        this.addEventListener(Workspace.Events.NO_TASKS, this._loadPendingSettings.bind(this));
     }
 
     Workspace.Events = {
@@ -53,6 +57,8 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         INTENSITIES_CHANGE: 'intensities-change',
         ERRORS_CHANGE: 'errors-change',
         AUTO_MAPPING_CHANGE: 'auto-mapping-change',
+        SETTINGS_CHANGE: 'settings-change',
+        NO_TASKS: 'no-tasks'
     }
 
     Workspace.Mode = {
@@ -115,6 +121,11 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         LOAD_MEASURES: {
             key: 'load-measures',
             worker: 'MeasuresLoader.js'
+        },
+
+        LOAD_SETTINGS: {
+            key: 'load-settings',
+            worker: 'SettingsLoader.js'
         },
 
         MAP: {
@@ -184,6 +195,13 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             }
         },
 
+        loadSettings: {
+            value: function (blob) {
+                this._settingsToLoad = blob;
+                this._loadPendingSettings();
+            }
+        },
+
         download: {
             value: function(fileNames) {
                 if (!fileNames) return;
@@ -194,7 +212,8 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 if (!fileNames.length) return;
 
                 this._doTask(Workspace.TaskType.DOWNLOAD, fileNames).
-                    then(function(result) {
+                    then(function (result) {
+                        var settingsFile = null;
                         for (var i = 0; i < result.items.length; i++) {
                             var blob = result.items[i].blob;
 
@@ -205,9 +224,14 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                                 this.loadIntensities(blob);
                             } else if (blob.type == 'image/jpeg' || blob.type == 'image/png') {
                                 this.loadImage(blob);
+                            } else if (blob.type == 'application/json') {
+                                settingsFile = blob;
                             } else {
                                 console.info('Unrecognized file type: ' + fileName + ' (' + blob.type + ')');
                             }
+                        }
+                        if (settingsFile !== null) {
+                            loadSettings(blob);
                         }
                     }.bind(this));
             }
@@ -216,7 +240,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         /*
          * @param {index} Index in the this.measures list.
          */
-        selectMap: {
+        selectMapByIndex: {
             value: function(index) {
                 if (!this._measures) return;
 
@@ -316,6 +340,22 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 if (taskType.key in this._tasks) {
                     this._tasks[taskType.key].worker.terminate();
                     delete this._tasks[taskType.key];
+                }
+                if (Object.keys(this._tasks).length < 1) {
+                    this._notify(Workspace.Events.NO_TASKS);
+                }
+            }
+        },
+
+        _loadPendingSettings: {
+            value: function () {
+                if (Object.keys(this._tasks).length < 1 && this._settingsToLoad !== null) {
+                    this._doTask(Workspace.TaskType.LOAD_SETTINGS, this._settingsToLoad).
+                        then(function (result) {
+                            this._loadedSettings = result.settings;
+                            this._notify(Workspace.Events.SETTINGS_CHANGE);
+                        }.bind(this));
+                    this._settingsToLoad = null;
                 }
             }
         },
@@ -558,6 +598,12 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                     this._scene3d.colorMap = this._colorMap;
                     this._notify(Workspace.Events.MAPPING_CHANGE);
                 }
+            }
+        },
+
+        loadedSettings: {
+            get: function () {
+                return this._loadedSettings;
             }
         }
     });

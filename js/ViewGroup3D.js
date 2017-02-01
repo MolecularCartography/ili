@@ -157,6 +157,24 @@ function(THREE, Scene3D, View3D, SpotLabel3D) {
                 this._spotLabel.showFor(event.pageX - parentRect.left, event.pageY - parentRect.top);
             }
         },
+
+        toJSON: {
+            value: function () {
+                var result = [];
+                for (var i = 0; i < this._views.length; ++i) {
+                    result.push(this._views[i].toJSON());
+                }
+                return result;
+            }
+        },
+
+        fromJSON: {
+            value: function (json) {
+                for (var i = 0; i < json.length; i++) {
+                    this._views[i].fromJSON(json[i]);
+                }
+            }
+        }
     });
 
     ViewGroup3D.Layout = {

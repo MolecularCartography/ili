@@ -17,7 +17,6 @@ function (ColorMap, TabControllerBase, Workspace, Scene3D) {
             ['Logarithmic', Workspace.Scale.LOG.id]
         ];
         this.addChoice(workspace, 'scaleId', 'Scale', scaleOptions);
-        this._hotspotQuantile = this.addNumeric(workspace, 'hotspotQuantile', 'Hotspot quantile', 0, 1);
 
         var colorMapOptions = Object.keys(ColorMap.Maps).reduce(function (prev, cur) {
             prev.push([ColorMap.Maps[cur].name, cur]);
@@ -25,11 +24,16 @@ function (ColorMap, TabControllerBase, Workspace, Scene3D) {
         }, []);
         this.addChoice(workspace, 'colorMapId', 'Color map', colorMapOptions);
 
-        this._minIntensity = this.addNumeric(workspace, 'minValue', 'Min intensity').min(0);
-        this._maxIntensity = this.addNumeric(workspace, 'maxValue', 'Max intensity').min(0);
-        this._autoMinMax = this.addFlag(workspace, 'autoMinMax', 'Auto Min/Max');
+        var autoMinMax = this.addFlag(workspace, 'autoMinMax', 'Auto Min/Max');
+        autoMinMax.restoreFirst = true;
+
+        this._hotspotQuantile = this.addNumeric(workspace, 'hotspotQuantile', 'Hotspot quantile', 0, 1);
+
+        this._minIntensity = this.addNumeric(workspace, 'minValue', 'Min intensity');
+        this._maxIntensity = this.addNumeric(workspace, 'maxValue', 'Max intensity');
+
         workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, workspace));
-        workspace.scene3d.addEventListener(Scene3D.Events.CHANGE, this._onSceneChange.bind(this));
+        workspace.addEventListener(Workspace.Events.MAPPING_CHANGE, this._onSceneChange.bind(this));
 
         return this;
     }

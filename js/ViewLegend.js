@@ -1,11 +1,11 @@
 'use strict';
 
-define([],
-function() {
+define(['workspace'],
+function(Workspace) {
     function ViewLegend(workspace, svg) {
         this._workspace = workspace;
         this._svg = svg;
-        this._workspace.addEventListener('mapping-change', this.update.bind(this));
+        this._workspace.addEventListener(Workspace.Events.MAPPING_CHANGE, this.update.bind(this));
         this.update();
     }
 
@@ -77,6 +77,18 @@ function() {
                 }.bind(this));
             }
         },
+
+        toJSON: {
+            value: function () {
+                return {};
+            }
+        },
+
+        fromJSON: {
+            value: function (json) {
+
+            }
+        }
     });
 
     return ViewLegend;

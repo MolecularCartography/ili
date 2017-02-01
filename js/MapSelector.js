@@ -11,9 +11,9 @@
 'use strict';
 
 define([
-    'utils'
+    'appsettingscontroller', 'utils', 'workspace'
 ],
-function(Utils) {
+function(AppSettingsController, Utils, Workspace) {
     function MapSelector(workspace, div, mapName) {
         this._workspace = workspace;
         this._div = div;
@@ -26,8 +26,8 @@ function(Utils) {
         this._selectedIndex = -1;
         this._div.style.opacity = 0;
         this._active = false;
-        this._workspace.addEventListener(
-                'intensities-change', this._onWorkspaceIntencitiesChange.bind(this));
+        this._workspace.addEventListener(Workspace.Events.INTENSITIES_CHANGE, this._onWorkspaceIntencitiesChange.bind(this));
+        this._workspace.addEventListener(Workspace.Events.SETTINGS_CHANGE, this._onWorkspaceSettingsChange.bind(this));
         this._input.addEventListener('input', this._onInput.bind(this));
         this._input.addEventListener('blur', this._onBlur.bind(this));
 
@@ -59,6 +59,25 @@ function(Utils) {
                 this._selectIndex(this._measures.length ? 0 : -1);
 
                 this._applyFilter();
+            }
+        },
+
+        _onWorkspaceSettingsChange: {
+            value: function () {
+                if (!this._measures) {
+                    return;
+                }
+
+                var mapName = this._workspace.loadedSettings[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP];
+                var idx = this._measures.findIndex(function (i) {
+                    return i.name == mapName;
+                });
+                if (idx > -1) {
+                    this._selectIndex(idx);
+                    this._applyFilter();
+                } else {
+                    console.error('Cannot find a map named "' + mapName + '"');
+                }
             }
         },
 
@@ -192,7 +211,7 @@ function(Utils) {
                 this._selectedIndex = value;
                 if (value >= 0) {
                     this._mapName.textContent = this._measures[value].name;
-                    this._workspace.selectMap(value);
+                    this._workspace.selectMapByIndex(value);
                 } else {
                     this._mapName.textContent = '';
                 }

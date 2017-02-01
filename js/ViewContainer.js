@@ -122,6 +122,25 @@ function(View2D, ViewGroup3D, ViewLegend, Workspace) {
                 this._div.setAttribute('layout', this.layoutName);
                 this.updateLayout();
             }
+        },
+
+        toJSON: {
+            value: function () {
+                var result = [];
+                for (var i = 0; i < this.all.length; i++) {
+                    result.push(this.all[i].toJSON());
+                }
+                return result;
+            }
+        },
+
+        fromJSON: {
+            value: function (json) {
+                for (var i = 0; i < json.length; i++) {
+                    this.all[i].fromJSON(json[i]);
+                }
+                //this.legend.update();
+            }
         }
     });
 

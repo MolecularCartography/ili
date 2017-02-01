@@ -357,6 +357,22 @@ function(THREE, Scene2D, SpotLabel2D) {
                 this._action = state;
             }
         },
+
+        toJSON: {
+            value: function () {
+                return {
+                    scale: this._scale,
+                    offset: this._offset
+                };
+            }
+        },
+
+        fromJSON: {
+            value: function (json) {
+                this._scale = json.scale;
+                this.offset = json.offset;
+            }
+        }
     });
 
     View2D.MoveMouseAction = function() {

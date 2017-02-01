@@ -142,6 +142,25 @@ function(OrbitControls, THREE) {
                     this._group.requestAnimationFrame();
                 }
             }
+        },
+
+        toJSON: {
+            value: function () {
+                return {
+                    camera_coords: this._camera.position.toArray(),
+                    controls_target: this._controls.target.toArray(),
+                    camera_zoom: this._camera.zoom
+                };
+            }
+        },
+
+        fromJSON: {
+            value: function (json) {
+                this._camera.position.fromArray(json.camera_coords);
+                this._controls.target.fromArray(json.controls_target);
+                this._camera.zoom = json.camera_zoom;
+                this._controls.update();
+            }
         }
     });
 
