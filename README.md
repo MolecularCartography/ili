@@ -1,7 +1,7 @@
 
 ## <img src="img/marquee.png" alt="`ili" width="1400"/>
 
-`ili is a toolbox for 2D and 3D molecular mapping in Chrome.
+`ili is a toolbox for 2D and 3D molecular mapping.
 
 `ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
 
@@ -13,7 +13,7 @@
 
 ## Hello bee
 
-For a demonstration, open in Google Chrome 
+For a demonstration, open
 * [3D human skin metabolome example](http://ili-toolbox.github.io/?human/man.stl;human/man_LCMS_small.csv) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
@@ -29,11 +29,11 @@ For a demonstration, open in Google Chrome
 
 ## Installation
 
-The best ways of running `ili in Chrome are either [from this website](http://ili-toolbox.github.io/) or as a [Chrome App](https://goo.gl/wiQG5s).
+The best ways of running `ili are either [from this website](http://ili-toolbox.github.io/) or as a [Chrome App](https://goo.gl/3KAA8U).
 
 ## Input
 
-`ili takes two files: 
+`ili takes two files:
 * for 2D mapping: a PNG to be used as the background image ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/bg.png)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/intensities.csv))
 * for 3D mapping: a binary STL of the 3D model ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/model.stl)), and a CSV with intensities and coordinates ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/intensities.csv))
 
@@ -41,11 +41,11 @@ To create a CSV file suitable for input, you need two pieces of information: coo
 
 ## Demo
 
-You can find a pop-down list of ready-made examples at the top-left corner of \`ili window. Click any of them, and necessary files will be loaded to the app automatically.
+You can find a list of ready-made examples in the "Examples" tab in the \`ili sidebar. Click on any of them, and necessary files will be loaded to the app automatically.
 
 ## How to use it?
 
-One of the fundamental ideas behind the `ili interface is the simplicity of usage. Therefore, some operations can be performed with keyboard shortcuts.
+One of the fundamental ideas behind the `ili interface is the simplicity of usage. Therefore, most operations can be performed with keyboard shortcuts.
 
 |Action|Shortcut on Windows, Linux|Shortcut on OS X|Alternative|
 |------|--------------------------|----------------|-----------|
@@ -53,8 +53,9 @@ One of the fundamental ideas behind the `ili interface is the simplicity of usag
 |Switch between molecular maps|<kbd>Ctrl</kbd>+<kbd>↑</kbd>, <kbd>Ctrl</kbd>+<kbd>↓</kbd>|<kbd>⌘</kbd>+<kbd>↑</kbd> , <kbd>⌘</kbd>+<kbd>↓</kbd>|Click on a name of an active map above a colorbar at the right-bottom corner of an app window and select another map with mouse.|
 |Find a molecular map by its name|<kbd>Ctrl</kbd>+<kbd>F</kbd>|<kbd>⌘</kbd>+<kbd>F</kbd>|Click on a name of an active map above a colorbar at the right-bottom corner of an app window and start typing.|
 |Make a snapshot|<kbd>Ctrl</kbd>+<kbd>S</kbd>|<kbd>⌘</kbd>+<kbd>S</kbd>|NA
+|Save current view parameters|<kbd>Ctrl</kbd>+<kbd>E</kbd>|<kbd>⌘</kbd>+<kbd>E</kbd>|NA
 
-Many other controls for adjusting visualization are available in a pop-down menu at the top-right corner of `ili window. Three main sections there "2D", "3D" and "Mapping" correspond to settings affecting 2D/3D views and colormaps.
+Many other controls for adjusting visualization are available in the `ili sidebar. Three main sections there "2D", "3D" and "Mapping" correspond to settings affecting 2D/3D views and colormaps.
 
 Mouse buttons can be used to adjust point of view on a model/picture.
 
@@ -69,7 +70,7 @@ Mouse buttons can be used to adjust point of view on a model/picture.
 
 ## Any questions?
 
-Feel free to leave your questions and suggestions at ["Support" section](https://goo.gl/fUTQrg) on the `ili page at Google web store.
+Feel free to leave your questions and suggestions as issues in this repository or at the ["Support" section](https://goo.gl/D8DH53) on the `ili page at Google web store.
 
 ## How to stay updated
 
