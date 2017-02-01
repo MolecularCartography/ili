@@ -22,7 +22,7 @@ function (TabControllerBase, ViewGroup3D) {
         this.addNumeric(workspace.scene3d.frontLight, 'intensity', 'Light', 0, 3);
         this.addNumeric(workspace.scene3d, 'spotBorder', 'Spot border', 0, 1);
         this.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0, 4.0]);
-        var adjustment = this.addGroupBox('Adjustment');
+        var adjustment = this.addGroupBox('Coordinates adjustment');
         adjustment.addNumeric(workspace.scene3d.adjustment, 'alpha', '0X rotation', - 180.0, 180.0);
         adjustment.addNumeric(workspace.scene3d.adjustment, 'beta', '0Y rotation', -180.0, 180.0);
         adjustment.addNumeric(workspace.scene3d.adjustment, 'gamma', '0Z rotation', -180.0, 180.0);

@@ -103,7 +103,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         if (val === undefined) {
                             return spinbox.prop(prop);
                         } else {
-                            spinbox.prop('settings_update_ongoing', true);
+                            spinbox.prop('settings_update_ongoing', true); // for some reason, "touchspin.updatesettings" event triggers unnecessary "change" event
                             var settings = {};
                             settings[prop] = val;
                             spinbox.trigger("touchspin.updatesettings", settings);
