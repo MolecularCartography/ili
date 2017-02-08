@@ -29,7 +29,8 @@ function(EventSource, THREE) {
         this._spots = null;
         this._mapping = null;
 
-        this._scene.add(new THREE.AxisHelper(20));
+        this._axisHelper = new THREE.AxisHelper(20);
+        this._scene.add(this._axisHelper);
         this._scene.add(this._meshContainer);
         this._scene.add(this._frontLight);
     };
@@ -149,6 +150,21 @@ function(EventSource, THREE) {
                     this._recolor();
                     this._notify(Scene3D.Events.CHANGE);
                 }
+            }
+        },
+
+        axisHelper: {
+            get: function() {
+                return -1 != this._scene.children.indexOf(this._axisHelper);
+            },
+
+            set: function (value) {
+                if (value && !this.axisHelper) {
+                    this._scene.add(this._axisHelper);
+                } else if (!value) {
+                    this._scene.remove(this._axisHelper);
+                }
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
