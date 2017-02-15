@@ -231,7 +231,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                             }
                         }
                         if (settingsFile !== null) {
-                            loadSettings(blob);
+                            this.loadSettings(blob);
                         }
                     }.bind(this));
             }
