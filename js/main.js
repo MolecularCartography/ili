@@ -129,10 +129,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 this._keyboardShortcuts[Utils.isWebkit ? '79' : '111'] = this.chooseFilesToOpen; // Ctrl + O
                 this._keyboardShortcuts[Utils.isWebkit ? '70' : '102'] = function() { this._mapSelector.activate(); }; // Ctrl + F
                 this._keyboardShortcuts[Utils.isWebkit ? '83' : '115'] = this.takeSnapshot; // Ctrl + S
-                this._keyboardShortcuts['69'] = this.saveSettings; // Ctrl + E
-
-                this._keyboardShortcuts['38'] = this._keyboardShortcuts['38'];
-                this._keyboardShortcuts['40'] = this._keyboardShortcuts['40'];
+                this._keyboardShortcuts[Utils.isWebkit ? '69' : '101'] = this.saveSettings; // Ctrl + E
 
                 document.addEventListener(Utils.keyPressEvent(), this._onKeyPress.bind(this), false);
             }
