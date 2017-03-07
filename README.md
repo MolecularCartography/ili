@@ -88,6 +88,10 @@ Please sign up to the mailing list by sending an email to ili-toolbox+subscribe@
 * **How to record videos or screencasts in `ili?** Please use a third-party software, for example ScreenCastify plugin to Chrome
 * **How can I cite `ili in my scientific publication?** We haven't published a paper devoted to \`ili yet, so please cite [*Bouslimani et al. (2015) PNAS*](http://www.pnas.org/content/112/17/E2120.abstract?sid=3ff11025-6bea-4b97-808e-0b4d49b7f837), our publication which motivated us the create and release \`ili.
 
+## License
+
+The content of this project is licensed under the Apache 2.0 licence, see LICENSE.md.
+
 ## Funding
 
 This project is funded from the European projects [3D-MASSOMICS](http://3d-massomics.eu/) (FP7 HEALTH program, grant agreement no. 305259), [METASPACE](http://metaspace2020.eu/) (Horizon2020 program, grant agreement no. 634402) and from the internal funds of European Molecular Biology Laboratory.
