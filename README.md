@@ -43,7 +43,7 @@ To create a mapping file suitable for input, you need two pieces of information:
 
 \`ili facilitates reproducible data analysis by providing the feature of cartographical snapshots: a complete copy of all visualization settings saved to a file. The file can be reused later or shared with other users, who, afterwards, will be able not only to recover the same view, but also use it as a starting point for further analysis.
 
-The cartographical snapshot is a file in JSON format that can be opened in \`ili along with corresponding files of 3D model/image and spatial mapping.
+The cartographical snapshot is a file in JSON format that can be opened in \`ili using drag&drop along with corresponding files of 3D model/image and spatial mapping.
 
 ## Demo
 
