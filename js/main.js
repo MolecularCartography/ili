@@ -157,7 +157,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             value: function() {
                 var statusContainer = this._appContainer.querySelector('#status');
                 if (this._workspace.status) {
-                    statusContainer.innerHTML = this._workspace.status;
+                    var textField = statusContainer.querySelector('span');
+                    textField.innerHTML = this._workspace.status;
                     statusContainer.removeAttribute('hidden');
                 } else {
                     statusContainer.setAttribute('hidden', 'true');
