@@ -84,9 +84,9 @@ Please sign up to the mailing list by sending an email to ili-toolbox+subscribe@
 
 ## Miscellaneous
 
-* **Why is it called `ili?** `ili in Hawaiian means skin and, among others, surface, area, or cover.
+* **Why is it called \`ili?** \`ili in Hawaiian means skin and, among others, surface, area, or cover.
 * **How to record videos or screencasts in `ili?** Please use a third-party software, for example ScreenCastify plugin to Chrome
-* **How can I cite `ili in my scientific publication?** We haven't published a paper devoted to \`ili yet, so please cite [*Bouslimani et al. (2015) PNAS*](http://www.pnas.org/content/112/17/E2120.abstract?sid=3ff11025-6bea-4b97-808e-0b4d49b7f837), our publication which motivated us the create and release \`ili.
+* **How can I cite \`ili in my scientific publication?** We haven't published a paper devoted to \`ili yet, so please cite [*Bouslimani et al. (2015) PNAS*](http://www.pnas.org/content/112/17/E2120.abstract?sid=3ff11025-6bea-4b97-808e-0b4d49b7f837), our publication which motivated us the create and release \`ili.
 
 ## License
 
