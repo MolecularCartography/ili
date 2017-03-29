@@ -28,7 +28,7 @@ function() {
         this.failed = false;
     }
 
-    Downloader.DATA_PATH = '../../data';
+    Downloader.FILE_SERVICE = 'https://ili-file-service.herokuapp.com/';
 
     Downloader.prototype = {
         add: function(fileName) {
@@ -108,16 +108,9 @@ function() {
     };
 
     Downloader.Item = function(fileName) {
-        var path = Downloader.DATA_PATH.split('/');
-        fileName.split('/').forEach(function(chunk) {
-            if (!/^\w[\w\.-]*$/.test(chunk)) {
-                throw 'File "' + fileName + '" can\'t be downloaded';
-            }
-            path.push(chunk);
-        });
         this.fileName = fileName;
         this.request = new XMLHttpRequest();
-        this.request.open('GET', path.join('/'), true);
+        this.request.open('GET', Downloader.FILE_SERVICE + '?' + fileName, true);
         this.request.responseType = 'blob';
         this.total = NaN;
         this.loaded = 0;
