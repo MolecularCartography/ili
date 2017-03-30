@@ -187,8 +187,12 @@ body[drop-target] > #drop-target-informer {
     margin: 20px;
 }
 
-dialog#errors > ul {
-    color: red;
+#errors {
+    color: white;
+}
+
+#errors button {
+    color: black;
 }
 
 .View3D > canvas,

@@ -39,7 +39,11 @@ function() {
             this.items.push(item);
         },
 
-        start: function() {
+        start: function () {
+            postMessage({
+                status: 'working',
+                message: 'Waiting for external data...'
+            });
             for (var i = 0; i < this.items.length; i++) {
                 this.items[i].request.send();
             }
