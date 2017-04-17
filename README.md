@@ -3,10 +3,10 @@
 
 `ili is a toolbox for 2D and 3D molecular mapping.
 
-`ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)).
+`ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)) in collaboration with the [Dorrestein Lab](http://dorresteinlab.ucsd.edu/Dorrestein_Lab/Welcome.html) and the [Knight Lab](https://knightlab.ucsd.edu/) at UCSD.
 
 * Developers: Ivan Protsyuk, Sergey Ryazanov
-* External collaborators:
+* External contributors:
   * Members of [Knight lab](http://knightlab.ucsd.edu): Antonio Gonzalez, Jamie Morton, Jose Navas, Yoshiki Vázquez Baeza
 * Principal investigator: Theodore Alexandrov 
 
