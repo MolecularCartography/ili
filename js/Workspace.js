@@ -261,6 +261,12 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
+        setSpotsVisibility: {
+            value: function (visibility) {
+                return this._scene3d.setSpotsVisibility(visibility);
+            }
+        },
+
         autoMinMax: {
             get: function() {
                 return this._autoMinMax;

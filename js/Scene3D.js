@@ -192,6 +192,7 @@ function(EventSource, THREE) {
                             r: value[i].r,
                             intensity: value[i].intensity,
                             color: new THREE.Color(),
+                            visibility: 1.0,
                             name: value[i].name,
                         };
                     }
@@ -206,6 +207,25 @@ function(EventSource, THREE) {
                         this._notify(Scene3D.Events.CHANGE);
                     }
                 }
+            }
+        },
+
+        setSpotsVisibility: {
+            value: function (visibility) {
+                if (!this._spots) {
+                    return;
+                }
+
+                for (var i = 0; i < this._spots.length; i++) {
+                    var spot = this._spots[i];
+                    if (spot.name in visibility) {
+                        var v = visibility[spot.name];
+                        v = v < 0 ? 0 : v > 1 ? 1 : v;
+                        spot.visibility = v;
+                    }
+                }
+                this._recolor();
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -434,7 +454,7 @@ function(EventSource, THREE) {
                         if (index >= 0) {
                             var spot = spots[index];
                             if (!isNaN(spot.intensity)) {
-                                var alpha = 1.0 - spotBorder * closestSpotDistances[i];
+                                var alpha = (1.0 - spotBorder * closestSpotDistances[i]) * spot.visibility;
                                 var base = i * 3;
                                 color[base + 0] += (spot.color.r - color[base + 0]) * alpha;
                                 color[base + 1] += (spot.color.g - color[base + 1]) * alpha;

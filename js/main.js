@@ -114,6 +114,13 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             }
         },
 
+        /* @visibility should be an object { spot_name: visibility (Number from 0 to 1) } */
+        setSpotsVisibility: {
+            value: function (visibility) {
+                this._workspace.setSpotsVisibility(visibility);
+            }
+        },
+
         _initKeyboardShortcuts: {
             value: function() {
                 this._keyboardShortcuts = {
