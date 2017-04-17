@@ -115,9 +115,12 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         },
 
         /* @visibility should be an object { spot_name: visibility (Number from 0 to 1) } */
-        setSpotsVisibility: {
-            value: function (visibility) {
-                this._workspace.setSpotsVisibility(visibility);
+        spotsVisibility: {
+            get: function() {
+                return this._workspace.spotsVisibility;
+            },
+            set: function (visibility) {
+                this._workspace.spotsVisibility = visibility;
             }
         },
 

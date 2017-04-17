@@ -210,8 +210,16 @@ function(EventSource, THREE) {
             }
         },
 
-        setSpotsVisibility: {
-            value: function (visibility) {
+        spotsVisibility: {
+            get: function() {
+                var result = {};
+                for (var i = 0; i < this._spots.length; i++) {
+                    var spot = this._spots[i];
+                    result[spot.name] = spot.visibility;
+                }
+                return result;
+            },
+            set: function (visibility) {
                 if (!this._spots) {
                     return;
                 }
