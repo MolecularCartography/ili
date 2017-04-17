@@ -35,7 +35,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
 
     function ili(appContainer) {
         if (!webglEnabled()) {
-            alert('WebGL technology is not enabled in your browser. Please, turn it on to get `ili functioning properly.');
+            alert('WebGL technology is not enabled in your browser. Turn it on to get `ili functioning properly.');
         }
 
         this._appContainer = appContainer;
@@ -61,7 +61,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             this.resize.call(this, window.innerWidth, window.innerHeight);
         }.bind(this));
 
-        this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._openFiles.bind(this));
+        this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._workspace.loadFiles.bind(this._workspace));
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
@@ -75,8 +75,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 var fileInput = document.createElement('input');
                 fileInput.type = 'file';
                 fileInput.multiple = true;
-                fileInput.addEventListener('change', function() {
-                    this._openFiles(fileInput.files);
+                fileInput.addEventListener('change', function () {
+                    this._workspace.loadFiles(Array.from(fileInput.files));
                 }.bind(this));
                 fileInput.click();
             }
@@ -202,46 +202,6 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 }.bind(this));
             }
         },
-
-        _openFiles: {
-            value: function(files) {
-                var handlers = this._findFileHandlers(files);
-                for (var i = 0; i < handlers.length; i++) {
-                    handlers[i]();
-                }
-            }
-        },
-
-        _findFileHandlers: {
-            value: function (files) {
-                var result = [];
-                var unrecognizedFiles = [];
-                var settingsFile = null;
-                for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    var filenameLowecased = file.name.toLowerCase();
-                    if (filenameLowecased.endsWith('.png') || filenameLowecased.endsWith('.jpeg')) {
-                        result.push(this._workspace.loadImage.bind(this._workspace, file));
-                    } else if (filenameLowecased.endsWith('.stl')) {
-                        result.push(this._workspace.loadMesh.bind(this._workspace, file));
-                    } else if (filenameLowecased.endsWith('.csv')) {
-                        result.push(this._workspace.loadIntensities.bind(this._workspace, file));
-                    } else if (filenameLowecased.endsWith('.json')) {
-                        settingsFile = file;
-                    } else {
-                        unrecognizedFiles.push(file.name);
-                    }
-                }
-                if (settingsFile !== null) {
-                    result.push(this._workspace.loadSettings.bind(this._workspace, settingsFile));
-                }
-
-                if (unrecognizedFiles.length > 0) {
-                    alert('Some files have not been recognized by `ili: ' + unrecognizedFiles.join(', '));
-                }
-                return result;
-            }
-        }
     });
 
     return ili;

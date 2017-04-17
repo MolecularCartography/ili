@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'colormaps', 'eventsource', 'scene2d', 'scene3d', 'three'
+    'colormaps', 'eventsource', 'imageloader', 'inputfilesprocessor', 'materialloader', 'scene2d', 'scene3d', 'three'
 ],
-function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
+function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader, Scene2D, Scene3D, THREE) {
     /**
      * Main application workspace. It works in 3 modes:
      * 1. UNDEFINED. In may have measures but with no visual representation.
@@ -42,6 +42,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
         this._scene3d.colorMap = this._colorMap;
         this._scene2d.colorMap = this._colorMap;
         this._loadedSettings = null;
+        this._inputFilesProcessor = new InputFilesProcessor(this);
 
         this._status = '';
         this._tasks = {};
@@ -110,12 +111,17 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
 
         LOAD_IMAGE: {
             key: 'load-image',
-            worker: null // Workspace.ImageLoader
+            worker: ImageLoader
         },
 
         LOAD_MESH: {
             key: 'load-mesh',
             worker: 'MeshLoader.js'
+        },
+
+        LOAD_MATERIAL: {
+            key: 'load-material',
+            worker: MaterialLoader
         },
 
         LOAD_MEASURES: {
@@ -143,7 +149,7 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 this.mode = Workspace.Mode.MODE_2D;
 
                 this._scene2d.resetImage();
-                this._doTask(Workspace.TaskType.LOAD_IMAGE, blob).
+                this._doTask(Workspace.TaskType.LOAD_IMAGE, blob[0]).
                     then(function(result) {
                         this._scene2d.setImage(result.url, result.width, result.height);
                     }.bind(this));
@@ -157,14 +163,14 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
 
-                this.mesh = null;
-                this._doTask(Workspace.TaskType.LOAD_MESH, blob).then(function(result) {
+                this._doTask(Workspace.TaskType.LOAD_MESH, blob[0]).then(function(result) {
                     var geometry = new THREE.BufferGeometry();
-                    for (var name in result.attributes) {
-                        var attribute = result.attributes[name];
+                    for (var name in result.attributes.geometry) {
+                        var attribute = result.attributes.geometry[name];
                         geometry.addAttribute(name, new THREE.BufferAttribute(
                             attribute.array, attribute.itemSize));
                     }
+                    this._scene3d.materialName = result.attributes.materialName;
                     this._scene3d.geometry = geometry;
                     if (this._spots) {
                         this._scene3d.spots = this._spots;
@@ -174,12 +180,22 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             }
         },
 
+        loadMaterial: {
+            value: function (blob) {
+                this.mode = Workspace.Mode.MODE_3D;
+
+                this._doTask(Workspace.TaskType.LOAD_MATERIAL, blob).then(function (result) {
+                    this._scene3d.materials = result.materials;
+                }.bind(this));
+            }
+        },
+
         /**
          * Starts loading intensities file.
          */
         loadIntensities: {
             value: function(blob) {
-                this._doTask(Workspace.TaskType.LOAD_MEASURES, blob).
+                this._doTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
                     then(function(result) {
                         this._spots = result.spots;
                         this._measures = result.measures;
@@ -197,8 +213,14 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
 
         loadSettings: {
             value: function (blob) {
-                this._settingsToLoad = blob;
+                this._settingsToLoad = blob[0];
                 this._loadPendingSettings();
+            }
+        },
+
+        loadFiles: {
+            value: function(files) {
+                this._inputFilesProcessor.process(files);
             }
         },
 
@@ -209,30 +231,13 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
                 fileNames = fileNames.filter(function(name) {
                     return name != '';
                 });
-                if (!fileNames.length) return;
+                if (!fileNames.length) {
+                    return;
+                }
 
                 this._doTask(Workspace.TaskType.DOWNLOAD, fileNames).
                     then(function (result) {
-                        var settingsFile = null;
-                        for (var i = 0; i < result.items.length; i++) {
-                            var blob = result.items[i].blob;
-
-                            var fileName = result.items[i].fileName;
-                            if (fileName.toLowerCase().endsWith('.stl')) {
-                                this.loadMesh(blob);
-                            } else if (fileName.toLowerCase().endsWith('.csv')) {
-                                this.loadIntensities(blob);
-                            } else if (blob.type == 'image/jpeg' || blob.type == 'image/png') {
-                                this.loadImage(blob);
-                            } else if (blob.type == 'application/json') {
-                                settingsFile = blob;
-                            } else {
-                                console.info('Unrecognized file type: ' + fileName + ' (' + blob.type + ')');
-                            }
-                        }
-                        if (settingsFile !== null) {
-                            this.loadSettings(settingsFile);
-                        }
+                        this.loadFiles(result.items);
                     }.bind(this));
             }
         },
@@ -607,73 +612,6 @@ function(ColorMap, EventSource, Scene2D, Scene3D, THREE) {
             }
         }
     });
-
-    /**
-     * Worker-like object what loads an image and calculate it sizes
-     * (can't be a worker because uses Image).
-     */
-    Workspace.ImageLoader = function() {
-        this.onmessage = null;
-        this._reader = new FileReader();
-        this._reader.onload = this._onFileLoad.bind(this);
-        this._reader.onerror = this._onError.bind(this);
-        this._image = new Image();
-        this._image.onload = this._onImageLoad.bind(this);
-        this._image.onerror = this._onError.bind(this);
-        this._terminated = false;
-        this._url = null;
-        this._fileType = null;
-    };
-
-    Workspace.TaskType.LOAD_IMAGE.worker = Workspace.ImageLoader;
-
-    Workspace.ImageLoader.prototype = {
-        terminate: function() {
-            this._terminated = true;
-            if (this._reader.readyState == 1) {
-                this._reader.abort();
-            }
-            if (this._url) {
-                URL.revokeObjectURL(this._url);
-                this._url = null;
-            }
-        },
-
-        postMessage: function(blob) {
-            this._fileType = blob.type;
-            this._reader.readAsArrayBuffer(blob);
-        },
-
-        _send: function(message) {
-            if (!this._terminated && this.onmessage)
-                this.onmessage({data: message});
-        },
-
-        _onFileLoad: function(event) {
-            var blob = new Blob([event.target.result], {type: this._fileType});
-            this._url = URL.createObjectURL(blob);
-            this._image.src = this._url;
-        },
-
-        _onImageLoad: function(event) {
-            var url = this._url;
-            this._url = null; // Ownership transfered.
-            this._send({
-                status: 'completed',
-                url: url,
-                width: this._image.width,
-                height: this._image.height
-            });
-        },
-
-        _onError: function(event) {
-            console.info('Failure loading image', event);
-            this._send({
-                status: 'failed',
-                message: 'Can not read image. See log for details.',
-            });
-        }
-    };
 
     return Workspace;
 });

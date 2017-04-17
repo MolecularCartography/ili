@@ -49,7 +49,7 @@ function() {
                 e.preventDefault();
                 e.stopPropagation();
 
-                this._fileHandler(e.dataTransfer.files);
+                this._fileHandler(Array.from(e.dataTransfer.files));
             }
         }
     });

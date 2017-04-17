@@ -21,16 +21,21 @@ require.config({
     /* THREE.js */
     'three': './js/lib/three.min',
     'orbitcontrols': './js/lib/OrbitControls',
+    'mtlloader': './js/lib/MTLLoader',
 
     /* `ili's objects */
-    'dragndrop': './js/DragAndDrop',
+    'appsettingscontroller': './js/AppSettingsController',
     'colormaps': './js/ColorMaps',
     'controlsgrid': './js/ControlsGrid',
+    'dragndrop': './js/DragAndDrop',
     'eventsource': './js/EventSource',
+    'imageloader': './js/workers/ImageLoader',
+    'inputfilesprocessor': './js/InputFilesProcessor',
+    'main': './js/main',
     'mapselector': './js/MapSelector',
+    'materialloader': './js/workers/MaterialLoader',
     'scene2d': './js/Scene2D',
     'scene3d': './js/Scene3D',
-    'appsettingscontroller': './js/AppSettingsController',
     'spotlabel2d': './js/SpotLabel2D',
     'spotlabel3d': './js/SpotLabel3D',
     'spotlabelbase': './js/SpotLabelBase',
@@ -47,7 +52,6 @@ require.config({
     'viewlegend': './js/ViewLegend',
     'workspace': './js/Workspace',
     'utils': './js/utils',
-    'main': './js/main',
 
     /* emperor */
     'abcviewcontroller': 'js/emperor/abc-view-controller',

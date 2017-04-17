@@ -17,6 +17,7 @@ Thumbs.db
 *.csproj
 *.user
 *.suo
+*.config
 
 # python files
 *.pyc

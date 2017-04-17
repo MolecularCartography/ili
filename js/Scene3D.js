@@ -15,12 +15,15 @@ function(EventSource, THREE) {
         this._MAX_MESH_SIZE = 80;
         this._color = new THREE.Color('#575757');
         this._backgroundColor = new THREE.Color('black');
-        this._meshMaterial = new THREE.MeshLambertMaterial({
+        this._meshMaterials = [];
+        this._defaultMeshMaterial = new THREE.MeshLambertMaterial({
             vertexColors: THREE.VertexColors,
             transparent: true,
             opacity: 0.9,
             shading: THREE.SmoothShading
         });
+        // this property should be used to select correct material if mesh contains multiple ones
+        this._meshMaterialName = null;
 
         this._spotBorder = 0.05;
         this._colorMap = null;
@@ -87,12 +90,9 @@ function(EventSource, THREE) {
                 result.spotBorder = this.spotBorder;
                 result.colorMap = this.colorMap;
                 result.adjustment = this.adjustment;
-                var geometry = new THREE.BufferGeometry();
-                for (var i in this.geometry.attributes) {
-                    var a = this.geometry.attributes[i];
-                    geometry.addAttribute(i, new THREE.BufferAttribute(a.array, a.itemSize));
-                }
-                result.geometry = geometry;
+                result._meshMaterialName = this._meshMaterialName;
+                result._meshMaterials = this._meshMaterials.map(function (m) { return m.clone(); });
+                result.geometry = this.geometry.clone();
                 result.spots = this.spots;
                 result.mapping = this.mapping;
                 return result;
@@ -228,8 +228,13 @@ function(EventSource, THREE) {
                 return this._mapping;
             },
 
-            set: function(value) {
-                if (!this._spots) throw "Mapping donesn't make sense without spots";
+            set: function (value) {
+                if (this._mapping === null && value === null) {
+                    return;
+                }
+                if (!this._spots) {
+                    throw "Mapping donesn't make sense without spots";
+                }
                 this._mapping = value;
                 if (this._mesh) {
                     this._recolor();
@@ -249,7 +254,7 @@ function(EventSource, THREE) {
                 this._mapping = null;
                 if (geometry) {
                     geometry.computeBoundingBox();
-                    this._mesh = new THREE.Mesh(geometry, this._meshMaterial);
+                    this._mesh = new THREE.Mesh(geometry, this._getMeshMaterial(this._meshMaterialName));
                     this._meshScaleFactor = this._MAX_MESH_SIZE / geometry.boundingBox.getSize().length();
                     // bounding box is invalid after the scaling below. Needs to be recomputed for further use
                     this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
@@ -261,6 +266,33 @@ function(EventSource, THREE) {
                     this._mesh = null;
                 }
                 this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        materialName: {
+            set: function (materialName) {
+                this._meshMaterialName = materialName || null;
+            }
+        },
+
+        _getMeshMaterial: {
+            value: function (materialName) {
+                if (materialName) {
+                    return this._meshMaterials.find(function (material) {
+                        return material.name === materialName;
+                    });
+                } else {
+                    return this._defaultMeshMaterial;
+                }
+            }
+        },
+
+        materials: {
+            set: function (materials) {
+                this._meshMaterials = materials;
+                if (this._mesh && this._meshMaterialName) {
+                    this._mesh.material = this._getMeshMaterial(this._meshMaterialName);
+                }
             }
         },
 

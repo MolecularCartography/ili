@@ -94,10 +94,7 @@ function() {
             postMessage({
                 status: 'completed',
                 items: this.items.map(function(item) {
-                    return {
-                        blob: item.request.response,
-                        fileName: item.fileName
-                    };
+                    return new File([item.request.response], item.fileName);
                 }),
             });
         },
