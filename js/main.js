@@ -124,6 +124,15 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             }
         },
 
+        spotsColors: {
+            get: function () {
+                return this._workspace.spotsColors;
+            },
+            set: function (colors) {
+                this._workspace.spotsColors = colors;
+            }
+        },
+
         _initKeyboardShortcuts: {
             value: function() {
                 this._keyboardShortcuts = {

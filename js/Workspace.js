@@ -270,6 +270,15 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
+        spotsColors: {
+            get: function() {
+                return this._scene3d.spotsColors;
+            },
+            set: function (colors) {
+                this._scene3d.spotsColors = colors;
+            }
+        },
+
         autoMinMax: {
             get: function() {
                 return this._autoMinMax;

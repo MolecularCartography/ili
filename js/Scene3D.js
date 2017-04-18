@@ -232,7 +232,32 @@ function(EventSource, THREE) {
                         spot.visibility = v;
                     }
                 }
-                this._recolor();
+                this._recolor(true);
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        spotsColors: {
+            get: function () {
+                var result = {};
+                for (var i = 0; i < this._spots.length; i++) {
+                    var spot = this._spots[i];
+                    result[spot.name] = spot.color.getHexString();
+                }
+                return result;
+            },
+            set: function (colors) {
+                if (!this._spots) {
+                    return;
+                }
+
+                for (var i = 0; i < this._spots.length; i++) {
+                    var spot = this._spots[i];
+                    if (spot.name in colors) {
+                        spot.color = new THREE.Color(colors[spot.name]);
+                    }
+                }
+                this._recolor(true);
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
@@ -412,16 +437,17 @@ function(EventSource, THREE) {
         },
 
         _recolor: {
-            value: function() {
+            value: function(ignoreColormap) {
                 var startTime = new Date();
                 var geometry = this.geometry;
                 var mapping = this.mapping;
                 var spots = this.spots;
+                var ignoreColormap = ignoreColormap || false;
 
                 var position = geometry.getAttribute('position');
                 var positionCount = position.array.length / position.itemSize;
 
-                if (mapping) {
+                if (mapping && !ignoreColormap) {
                     for (var i = 0; i < spots.length; i++) {
                         if (!isNaN(spots[i].intensity)) {
                             this._colorMap.map(spots[i].color, spots[i].intensity);
