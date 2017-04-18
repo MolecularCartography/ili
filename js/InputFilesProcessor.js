@@ -22,13 +22,11 @@ function (Utils) {
                     return item.name.toLowerCase();
                 });
 
-                var fileRecognitionSorter = function (match1, match2) {
-                    return match1.files.length < match2.files.length;
-                };
-
                 var recognizedInput = this._supportedInput.map(function (fileCombination) {
                     return fileCombination.getMatchingFiles(inputFileUrls);
-                }).sort(fileRecognitionSorter);
+                }).sort(function (match1, match2) {
+                    return match1.files.length < match2.files.length;
+                });
 
                 // leave unambiguous set of file handlers, i.e. 1 file -> 1 handler
                 var allRecognizedFiles = {};
@@ -147,20 +145,17 @@ function (Utils) {
         getMatchingFiles: {
             value: function (urls) {
                 if (this.children) {
-                    var skipToEnd = false;
                     var defaultValue = { files: [], handler: null };
-                    return this.children.reduce(function (accumulator, childCombination, childIndex) {
-                        if (skipToEnd) {
-                            return accumulator;
-                        }
-                        var childMatch = childCombination.getMatchingFiles(urls);
+                    var result = { files: [], handler: null };
+
+                    for (var i = 0; i < this.children.length; ++i) {
+                        var childMatch = this.children[i].getMatchingFiles(urls);
                         var matchValid = childMatch.files.length > 0;
                         var accepted = false;
                         switch (this.relation) {
                             case FileCombination.RELATION.AND:
                                 /* All combinations should match */
                                 if (!matchValid) {
-                                    skipToEnd = true;
                                     return defaultValue;
                                 } else {
                                     accepted = true;
@@ -172,21 +167,20 @@ function (Utils) {
                             case FileCombination.RELATION.OPTIONAL:
                                 /* The first file should match, the rest are optional */
                                 if (childIndex == 0 && !matchValid) {
-                                    skipToEnd = true;
                                     return defaultValue;
                                 } else {
                                     accepted = true;
                                 }
                                 break;
                             default:
-                                throw 'Relation between input file types is not specified';
+                                throw 'Unexpected relation between input file types';
                         }
                         if (accepted) {
-                            Array.prototype.push.apply(accumulator.files, childMatch.files);
-                            accumulator.handler = this._handler || null;
+                            Array.prototype.push.apply(result.files, childMatch.files);
+                            result.handler = this._handler || null;
                         }
-                        return accumulator;
-                    }.bind(this), defaultValue);
+                    }
+                    return result;
                 } else if (this.extension) {
                     var match = urls.find(function (url) {
                         return Utils.getFileExtension(url) === this.extension;
