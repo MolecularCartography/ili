@@ -330,13 +330,13 @@ function(EventSource, THREE) {
 
         _getMeshMaterial: {
             value: function (materialName) {
+                var result = undefined;
                 if (materialName) {
-                    return this._meshMaterials.find(function (material) {
+                    result = this._meshMaterials.find(function (material) {
                         return material.name === materialName;
                     });
-                } else {
-                    return this._defaultMeshMaterial;
                 }
+                return result || this._defaultMeshMaterial;
             }
         },
 
