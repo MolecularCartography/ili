@@ -114,22 +114,57 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             }
         },
 
-        /* @visibility should be an object { spot_name: visibility (Number from 0 to 1) } */
-        spotsVisibility: {
+        /* @visibility should be an object { spot_name: visibility_value }
+         *
+         * visibility_value should be a number from the interval of [0; 1]
+         */
+        spotVisibility: {
             get: function() {
-                return this._workspace.spotsVisibility;
+                return this._workspace.spotVisibility;
             },
             set: function (visibility) {
-                this._workspace.spotsVisibility = visibility;
+                this._workspace.spotVisibility = visibility;
             }
         },
 
-        spotsColors: {
+        /* @colors should be an object { spot_name: color_value }
+         *
+         * color_value can be expressed in the following ways:
+         * * hex Number (e.g. 0xff0000)
+         * * RGB string (e.g. "rgb(255, 0, 0)" or "rgb(100%, 0%, 0%)")
+         * * X11 color name (e.g. "skyblue")
+         * * HSL string (e.g. "hsl(0, 100%, 50%)")
+         */
+        spotColors: {
             get: function () {
-                return this._workspace.spotsColors;
+                return this._workspace.spotColors;
             },
             set: function (colors) {
-                this._workspace.spotsColors = colors;
+                this._workspace.spotColors = colors;
+            }
+        },
+
+        /* @scale should be an object { spot_name: scale_value }
+         *
+         * scale_value should be a non-negative number
+         */
+        spotScale: {
+            get: function() {
+                return this._workspace.spotScale;
+            },
+            set: function (scale) {
+                this._workspace.spotScale = scale;
+            }
+        },
+
+        /* @scale should be a non-negative number
+         */
+        globalSpotScale: {
+            get: function () {
+                return this._workspace.globalSpotScale;
+            },
+            set: function (scale) {
+                this._workspace.globalSpotScale = scale;
             }
         },
 
@@ -178,9 +213,9 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 if (this._workspace.status) {
                     var textField = statusContainer.querySelector('span');
                     textField.innerHTML = this._workspace.status;
-                    statusContainer.removeAttribute('hidden');
+                    statusContainer.style.visibility = 'visible';
                 } else {
-                    statusContainer.setAttribute('hidden', 'true');
+                    statusContainer.style.visibility = 'hidden';
                 }
             }
         },

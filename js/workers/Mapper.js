@@ -11,8 +11,9 @@ importScripts('../lib/require.min.js');
 require([],
 function() {
     onmessage = function(e) {
-        var positions = e.data.verteces;
+        var positions = e.data.vertices;
         var spots = e.data.spots;
+        var spotScale = e.data.scale;
 
         var pointCount = (positions.length / 3) | 0;
         var closestSpotIndeces = new Int32Array(pointCount);
@@ -46,7 +47,9 @@ function() {
                 var dz = spot.z - z;
                 var rsq = dx * dx + dy * dy + dz * dz;
 
-                if (rsq > spot.r * spot.r) continue;
+                if (rsq > spot.r * spot.r * spot.scale * spot.scale * spotScale * spotScale) {
+                    continue;
+                }
 
                 if (closestSpotIndex < 0 || rsq < closesSpotSquareDistance) {
                     closesSpotSquareDistance = rsq;
@@ -56,8 +59,8 @@ function() {
 
             closestSpotIndeces[i] = closestSpotIndex;
             if (closestSpotIndex >= 0) {
-                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) /
-                                          spots[closestSpotIndex].r;
+                var closestSpot = spots[closestSpotIndex];
+                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) / (closestSpot.r * closestSpot.scale * spotScale);
                 highlightedVerteces++;
             } else {
                 closestSpotDistances[i] = 1.0;

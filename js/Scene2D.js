@@ -91,6 +91,9 @@ function(EventSource, THREE) {
                             r: s.r,
                             name: s.name,
                             intensity: s.intensity,
+                            visibility: s.visibility,
+                            color: s.color,
+                            scale: s.scale
                         };
                     });
                 } else {
@@ -98,6 +101,12 @@ function(EventSource, THREE) {
                     return;
                 }
 
+                this._notify(Scene2D.Events.SPOTS_CHANGE);
+            }
+        },
+
+        refreshSpots: {
+            value: function() {
                 this._notify(Scene2D.Events.SPOTS_CHANGE);
             }
         },

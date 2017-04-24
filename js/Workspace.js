@@ -33,12 +33,12 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         this._colorMap = ColorMap.Maps.VIRIDIS;
         this._scale = Workspace.Scale.LINEAR;
         this._hotspotQuantile = 1.0;
-        this._spotBorder = 0.0;
         this._autoMinMax = true;
         this._minValue = 0.0;
         this._maxValue = 0.0;
         this._scene3d = new Scene3D();
         this._scene2d = new Scene2D();
+        this._currentScene = null;
         this._scene3d.colorMap = this._colorMap;
         this._scene2d.colorMap = this._colorMap;
         this._loadedSettings = null;
@@ -140,6 +140,82 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         },
     };
 
+    Workspace._createCurrentSceneProperty = function(prop, postModificationCallback) {
+        return {
+            get: function () {
+                if (!this._currentScene) {
+                    console.log('Data is not loaded');
+                } else {
+                    return this._currentScene[prop];
+                }
+            },
+            set: function (value) {
+                if (!this._currentScene) {
+                    console.log('Data is not loaded');
+                } else {
+                    this._currentScene[prop] = value;
+                    if (postModificationCallback) {
+                        postModificationCallback.bind(this)();
+                    }
+                }
+            }
+        };
+    };
+
+    Workspace._createSpotsProperty = function (getter, setter, postModificationCallback) {
+        if (typeof getter === 'string') {
+            var getName = getter;
+            getter = function (spot) {
+                return spot[getName];
+            }
+        } else if (!(getter instanceof Function)) {
+            throw 'Scene property specifier must be function or string';
+        }
+
+        if (typeof setter === 'string') {
+            var setName = setter;
+            setter = function (spot, values) {
+                return spot[setName] = values[spot.name][setName];
+            }
+        } else if (!(setter instanceof Function)) {
+            throw 'Scene property specifier must be function or string';
+        }
+
+        return {
+            get: function () {
+                var result = {};
+                var spots = this._currentScene ? this._currentScene.spots : this._spots;
+                if (!spots) {
+                    return result;
+                }
+                for (var i = 0; i < spots.length; ++i) {
+                    var spot = spots[i];
+                    result[spot.name] = getter(spot);
+                }
+                return result;
+            },
+            set: function (values) {
+                if (!this._spots) {
+                    return;
+                }
+                for (var i = 0; i < this._spots.length; ++i) {
+                    var spot = this._spots[i];
+                    if (spot.name in values) {
+                        setter(spot, values);
+                        if (this._currentScene) {
+                            setter(this._currentScene.spots[i], values);
+                        }
+                    }
+                }
+                if (postModificationCallback) {
+                    postModificationCallback.bind(this)();
+                } else if (this._currentScene) {
+                    this._currentScene.refreshSpots();
+                }
+            }
+        };
+    };
+
     Workspace.prototype = Object.create(EventSource.prototype, {
         /**
          * Switches the workspace to MODE_2D and starts image loading.
@@ -174,7 +250,7 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
                     this._scene3d.geometry = geometry;
                     if (this._spots) {
                         this._scene3d.spots = this._spots;
-                        this._mapMesh();
+                        this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                     }
                 }.bind(this));
             }
@@ -196,13 +272,19 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         loadIntensities: {
             value: function(blob) {
                 this._doTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
-                    then(function(result) {
-                        this._spots = result.spots;
+                    then(function (result) {
+                        // add default value of scale property
+                        this._spots = result.spots.map(function (spot) {
+                            spot.scale = 1.0;
+                            spot.color = new THREE.Color();
+                            spot.visibility = 1.0;
+                            return spot;
+                        });
                         this._measures = result.measures;
                         this._activeMeasure = null;
                         if (this._mode == Workspace.Mode.MODE_3D) {
                             this._scene3d.spots = this._spots;
-                            this._mapMesh();
+                            this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                         } else if (this._mode == Workspace.Mode.MODE_2D) {
                             this._scene2d.spots = this._spots;
                         }
@@ -261,23 +343,29 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
-        spotsVisibility: {
-            get: function() {
-                return this._scene3d.spotsVisibility;
-            },
-            set: function (visibility) {
-                this._scene3d.spotsVisibility = visibility;
-            }
-        },
+        spotVisibility: Workspace._createSpotsProperty('visibility', function (spot, visibility) {
+            var v = visibility[spot.name];
+            v = v < 0 ? 0 : v > 1 ? 1 : v;
+            spot.visibility = v;
+        }),
 
-        spotsColors: {
-            get: function() {
-                return this._scene3d.spotsColors;
-            },
-            set: function (colors) {
-                this._scene3d.spotsColors = colors;
-            }
-        },
+        spotColors: Workspace._createSpotsProperty(function (spot) {
+            return spot.color.getHexString();
+        }, function (spot, colors) {
+            spot.color = new THREE.Color(colors[spot.name]);
+        }),
+
+        spotScale: Workspace._createSpotsProperty('scale', function (spot, scale) {
+            var s = scale[spot.name];
+            s = s < 0 ? 0 : s;
+            spot.scale = s;
+        }, function () {
+            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
+        }),
+
+        globalSpotScale: Workspace._createCurrentSceneProperty('globalSpotScale', function () {
+            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
+        }),
 
         autoMinMax: {
             get: function() {
@@ -343,16 +431,18 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
          * Prepares this._mapping for fast recoloring the mesh.
          */
         _mapMesh: {
-            value: function() {
+            value: function(recoloringMode) {
                 if (!this._scene3d.geometry || !this._spots) return;
                 var args = {
-                    verteces: this._scene3d.geometry.getAttribute('position').array,
-                    spots: this._spots
+                    vertices: this._scene3d.geometry.getAttribute('position').array,
+                    spots: this._spots,
+                    scale: this._scene3d.globalSpotScale
                 };
                 this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
                     this._scene3d.mapping = {
                         closestSpotIndeces: results.closestSpotIndeces,
-                        closestSpotDistances: results.closestSpotDistances
+                        closestSpotDistances: results.closestSpotDistances,
+                        recoloringMode: recoloringMode
                     };
                 }.bind(this));
             }
@@ -502,21 +592,23 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             },
 
             set: function(value) {
-                if (this._mode == value) return;
+                if (this._mode == value) {
+                    return;
+                }
                 this._mode = value;
 
                 if (this._mode == Workspace.Mode.MODE_2D) {
                     this._scene2d.spots = this._spots;
-                }
-                if (this._mode != Workspace.Mode.MODE_2D) {
+                    this._currentScene = this._scene2d;
+                } else {
                     this._scene2d.resetImage();
                     this._scene2d.spots = null;
                     this._cancelTask(Workspace.TaskType.LOAD_IMAGE);
                 }
                 if (this._mode == Workspace.Mode.MODE_3D) {
                     this._scene3d.spots = this._spots;
-                }
-                if (this._mode != Workspace.Mode.MODE_3D) {
+                    this._currentScene = this._scene3d;
+                } else {
                     this._scene3d.geometry = null;
                     this._scene3d.spots = null;
                     this._cancelTask(Workspace.TaskType.LOAD_MESH);
@@ -568,15 +660,13 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
 
         spotBorder: {
             get: function() {
-                return this._spotBorder;
+                return this._currentScene ? this._currentScene.spotBorder : undefined;
             },
 
-            set: function(value) {
-                if (this._spotBorder == value) return;
-                if (value < 0.0) value = 0.0;
-                if (value > 1.0) value = 1.0;
-                this._spotBorder = value;
-                this._recolor();
+            set: function (value) {
+                if (this._currentScene) {
+                    this._currentScene.spotBorder = value;
+                }
             }
         },
 

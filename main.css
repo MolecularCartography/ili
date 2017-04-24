@@ -79,6 +79,7 @@ body {
     padding: 15px;
     text-align: center;
     display: block;
+    visibility: hidden;
     transition: 0.5s 0.1s;
 }
 
@@ -100,10 +101,10 @@ body {
 #status > span {
     margin: auto;
 }
-
+/*
 #status[hidden] {
     opacity: 0;
-}
+}*/
 
 #open-button {
     color: #F2A359;

@@ -26,6 +26,7 @@ function(EventSource, THREE) {
         this._meshMaterialName = null;
 
         this._spotBorder = 0.05;
+        this._globalSpotScale = 1.0;
         this._colorMap = null;
         this._adjustment = { x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0 };
 
@@ -40,6 +41,11 @@ function(EventSource, THREE) {
 
     Scene3D.Events = {
         CHANGE: 'change',
+    };
+
+    Scene3D.RecoloringMode = {
+        USE_COLORMAP: 'colormap',
+        NO_COLORMAP: 'no-colormap'
     };
 
     Scene3D._makeLightProperty = function(field) {
@@ -111,7 +117,7 @@ function(EventSource, THREE) {
                 if (color.equals(this._color)) return;
                 this._color.set(color);
                 if (this._mesh) {
-                    this._recolor();
+                    this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
                 }
             }
@@ -147,9 +153,18 @@ function(EventSource, THREE) {
                 if (value > 1.0) value = 1.0;
                 this._spotBorder = value;
                 if (this._mesh) {
-                    this._recolor();
+                    this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
                 }
+            }
+        },
+
+        globalSpotScale: {
+            get: function () {
+                return this._globalSpotScale;
+            },
+            set: function (value) {
+                this._globalSpotScale = value < 0 ? 0 : value;
             }
         },
 
@@ -185,14 +200,16 @@ function(EventSource, THREE) {
                 if (value) {
                     this._spots = new Array(value.length);
                     for (var i = 0; i < value.length; i++) {
+                        var spot = value[i];
                         this._spots[i] = {
-                            x: value[i].x,
-                            y: value[i].y,
-                            z: value[i].z,
-                            r: value[i].r,
-                            intensity: value[i].intensity,
+                            x: spot.x,
+                            y: spot.y,
+                            z: spot.z,
+                            r: spot.r,
+                            intensity: spot.intensity,
                             color: new THREE.Color(),
                             visibility: 1.0,
+                            scale: spot.scale,
                             name: value[i].name,
                         };
                     }
@@ -210,54 +227,9 @@ function(EventSource, THREE) {
             }
         },
 
-        spotsVisibility: {
-            get: function() {
-                var result = {};
-                for (var i = 0; i < this._spots.length; i++) {
-                    var spot = this._spots[i];
-                    result[spot.name] = spot.visibility;
-                }
-                return result;
-            },
-            set: function (visibility) {
-                if (!this._spots) {
-                    return;
-                }
-
-                for (var i = 0; i < this._spots.length; i++) {
-                    var spot = this._spots[i];
-                    if (spot.name in visibility) {
-                        var v = visibility[spot.name];
-                        v = v < 0 ? 0 : v > 1 ? 1 : v;
-                        spot.visibility = v;
-                    }
-                }
-                this._recolor(true);
-                this._notify(Scene3D.Events.CHANGE);
-            }
-        },
-
-        spotsColors: {
-            get: function () {
-                var result = {};
-                for (var i = 0; i < this._spots.length; i++) {
-                    var spot = this._spots[i];
-                    result[spot.name] = spot.color.getHexString();
-                }
-                return result;
-            },
-            set: function (colors) {
-                if (!this._spots) {
-                    return;
-                }
-
-                for (var i = 0; i < this._spots.length; i++) {
-                    var spot = this._spots[i];
-                    if (spot.name in colors) {
-                        spot.color = new THREE.Color(colors[spot.name]);
-                    }
-                }
-                this._recolor(true);
+        refreshSpots: {
+            value: function () {
+                this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
@@ -288,9 +260,12 @@ function(EventSource, THREE) {
                 if (!this._spots) {
                     throw "Mapping donesn't make sense without spots";
                 }
-                this._mapping = value;
+                this._mapping = {
+                    closestSpotIndeces: value.closestSpotIndeces,
+                    closestSpotDistances: value.closestSpotDistances,
+                };
                 if (this._mesh) {
-                    this._recolor();
+                    this._recolor(value.recoloringMode);
                     this._notify(Scene3D.Events.CHANGE);
                 }
             }
@@ -436,21 +411,24 @@ function(EventSource, THREE) {
             }
         },
 
+        /* Default value of @recoloringMode is Scene3D.RecoloringMode.USE_COLORMAP */
         _recolor: {
-            value: function(ignoreColormap) {
+            value: function(recoloringMode) {
                 var startTime = new Date();
                 var geometry = this.geometry;
                 var mapping = this.mapping;
                 var spots = this.spots;
-                var ignoreColormap = ignoreColormap || false;
+                recoloringMode = recoloringMode || Scene3D.RecoloringMode.USE_COLORMAP;
 
                 var position = geometry.getAttribute('position');
                 var positionCount = position.array.length / position.itemSize;
 
-                if (mapping && !ignoreColormap) {
+                if (mapping && recoloringMode === Scene3D.RecoloringMode.USE_COLORMAP) {
+                    var currentSpot = null;
                     for (var i = 0; i < spots.length; i++) {
-                        if (!isNaN(spots[i].intensity)) {
-                            this._colorMap.map(spots[i].color, spots[i].intensity);
+                        currentSpot = spots[i];
+                        if (!isNaN(currentSpot.intensity)) {
+                            this._colorMap.map(currentSpot.color, currentSpot.intensity);
                         }
                     }
                 }

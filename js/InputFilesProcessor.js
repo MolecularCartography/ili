@@ -100,9 +100,9 @@ function (Utils) {
     }
 
     FileCombination.RELATION = {
-        AND: 1,
-        OR: 2,
-        OPTIONAL: 3
+        AND: 'and',
+        OR: 'or',
+        OPTIONAL: 'optional'
     };
 
     FileCombination.prototype = Object.create(null, {
