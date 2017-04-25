@@ -13,7 +13,7 @@ function() {
     onmessage = function(e) {
         var positions = e.data.vertices;
         var spots = e.data.spots;
-        var spotScale = e.data.scale;
+        var globalSpotScale = e.data.scale;
 
         var pointCount = (positions.length / 3) | 0;
         var closestSpotIndeces = new Int32Array(pointCount);
@@ -47,7 +47,7 @@ function() {
                 var dz = spot.z - z;
                 var rsq = dx * dx + dy * dy + dz * dz;
 
-                if (rsq > spot.r * spot.r * spot.scale * spot.scale * spotScale * spotScale) {
+                if (rsq > spot.r * spot.r * spot.scale * spot.scale * globalSpotScale * globalSpotScale) {
                     continue;
                 }
 
@@ -60,7 +60,7 @@ function() {
             closestSpotIndeces[i] = closestSpotIndex;
             if (closestSpotIndex >= 0) {
                 var closestSpot = spots[closestSpotIndex];
-                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) / (closestSpot.r * closestSpot.scale * spotScale);
+                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) / (closestSpot.r * closestSpot.scale * globalSpotScale);
                 highlightedVerteces++;
             } else {
                 closestSpotDistances[i] = 1.0;

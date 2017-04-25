@@ -46,9 +46,9 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     step: 0.01,
                     value: object[key]
                 });
-                slider.on('slide', function (event) {
-                    object[key] = event.value;
-                    paramValue.innerText = event.value;
+                slider.on('change', function (event) {
+                    object[key] = event.value.newValue;
+                    paramValue.innerText = event.value.newValue;
                 });
 
                 return {
@@ -56,7 +56,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         return slider.bootstrapSlider('getValue');
                     },
                     set: function(val) {
-                        slider.bootstrapSlider('setValue', val, true);
+                        slider.bootstrapSlider('setValue', val, false, true);
                         paramValue.innerText = val;
                     },
                     enable: function() {

@@ -12,12 +12,14 @@ function(EventSource, THREE) {
         this._width = 0;
         this._height = 0;
         this._spots = null;
+        this._globalSpotScale = 1.0;
     };
 
     Scene2D.Events = {
         IMAGE_CHANGE: 'image_change',
         PARAM_CHANGE: 'param_change',
         SPOTS_CHANGE: 'spots-change',
+        SPOTS_ATTR_CHANGE: 'spots-attr-change'
     };
 
     Scene2D.prototype = Object.create(EventSource.prototype, {
@@ -107,7 +109,16 @@ function(EventSource, THREE) {
 
         refreshSpots: {
             value: function() {
-                this._notify(Scene2D.Events.SPOTS_CHANGE);
+                this._notify(Scene2D.Events.SPOTS_ATTR_CHANGE);
+            }
+        },
+
+        globalSpotScale: {
+            get: function () {
+                return this._globalSpotScale;
+            },
+            set: function (value) {
+                this._globalSpotScale = value < 0 ? 0 : value;
             }
         },
 
@@ -199,6 +210,7 @@ function(EventSource, THREE) {
         findSpot: {
             value: function(point) {
                 var spots = this._spots;
+                var globalScale = this._globalSpotScale;
                 return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();
@@ -207,12 +219,14 @@ function(EventSource, THREE) {
 
                     for (var i = 0; i < spots.length; i++) {
                         var s = spots[i];
+                        var scaleFactor = globalScale * s.scale;
                         if (!isNaN(s.intensity) &&
-                            point.x > s.x - s.r && point.x < s.x + s.r &&
-                            point.y > s.y - s.r && point.y < s.y + s.r) {
+                            point.x > s.x - s.r * scaleFactor && point.x < s.x + s.r * scaleFactor
+                            && point.y > s.y - s.r * scaleFactor && point.y < s.y + s.r * scaleFactor)
+                        {
                             var dx = point.x - s.x;
                             var dy = point.y - s.y;
-                            if (dx * dx + dy * dy < s.r * s.r) {
+                            if (dx * dx + dy * dy < s.r * s.r * scaleFactor * scaleFactor) {
                                 accept(s)
                                 return;
                             }

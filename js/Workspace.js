@@ -216,6 +216,14 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         };
     };
 
+    Workspace._onSpotScaleChange = function () {
+        if (this.mode == Workspace.Mode.MODE_3D) {
+            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
+        } else if (this.mode == Workspace.Mode.MODE_2D) {
+            this._scene2d.refreshSpots();
+        }
+    };
+
     Workspace.prototype = Object.create(EventSource.prototype, {
         /**
          * Switches the workspace to MODE_2D and starts image loading.
@@ -273,7 +281,6 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             value: function(blob) {
                 this._doTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
                     then(function (result) {
-                        // add default value of scale property
                         this._spots = result.spots.map(function (spot) {
                             spot.scale = 1.0;
                             spot.color = new THREE.Color();
@@ -359,13 +366,9 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             var s = scale[spot.name];
             s = s < 0 ? 0 : s;
             spot.scale = s;
-        }, function () {
-            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
-        }),
+        }, Workspace._onSpotScaleChange),
 
-        globalSpotScale: Workspace._createCurrentSceneProperty('globalSpotScale', function () {
-            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
-        }),
+        globalSpotScale: Workspace._createCurrentSceneProperty('globalSpotScale', Workspace._onSpotScaleChange),
 
         autoMinMax: {
             get: function() {

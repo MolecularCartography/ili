@@ -47,6 +47,8 @@ function(THREE, Scene2D, SpotLabel2D) {
                 this._renderSpots.bind(this));
         this._scene.addEventListener(Scene2D.Events.SPOTS_CHANGE,
                 this._onSpotsChange.bind(this));
+        this._scene.addEventListener(Scene2D.Events.SPOTS_ATTR_CHANGE,
+            this._onSpotsAttrChange.bind(this));
 
         this._div.addEventListener('wheel', this._onMouseWheel.bind(this));
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
@@ -55,6 +57,11 @@ function(THREE, Scene2D, SpotLabel2D) {
 
     View2D.SCALE_CHANGE = 1.1;
 
+    View2D.RecoloringMode = {
+        USE_COLORMAP: 'colormap',
+        NO_COLORMAP: 'no-colormap'
+    };
+
     View2D.VERTEX_SHADER =
             'uniform vec2 imageSize;' +
             'uniform vec2 canvasSize;' +
@@ -62,9 +69,13 @@ function(THREE, Scene2D, SpotLabel2D) {
             'uniform float scale;' +
             'varying vec2 vUv;' +
             'varying vec3 vColor;' +
+            'varying float vScale;' +
+            'varying float vVisibility;' +
             'void main() {' +
                 'vUv = uv;' +
                 'vColor = color;' +
+                'vScale = normal.x;' +
+                'vVisibility = normal.y;' +
                 'vec2 halfImageSize = imageSize * 0.5;' +
                 'vec2 halfCanvasSize = canvasSize * 0.5;' +
                 'vec2 normalizedPosition = (position.xy - halfImageSize);' +
@@ -76,11 +87,13 @@ function(THREE, Scene2D, SpotLabel2D) {
     View2D.FRAGMENT_SHADER =
             'varying vec2 vUv;' +
             'varying vec3 vColor;' +
+            'varying float vScale;' +
+            'varying float vVisibility;' +
             'uniform float opacityDecay;' +
             'void main() {' +
                 'float r = distance(vUv, vec2(0.0, 0.0));' +
                 'if (r > 1.0) discard;' +
-                'gl_FragColor = vec4(vColor, 1.0 - opacityDecay * r);' +
+                'gl_FragColor = vec4(vColor, (1.0 - opacityDecay * r / vScale) * vVisibility);' +
             '}';
 
     View2D.prototype = Object.create(null, {
@@ -118,6 +131,18 @@ function(THREE, Scene2D, SpotLabel2D) {
 
         _onSpotsChange: {
             value: function() {
+                this._recalculateSpots(View2D.RecoloringMode.USE_COLORMAP);
+            }
+        },
+
+        _onSpotsAttrChange: {
+            value: function () {
+                this._recalculateSpots(View2D.RecoloringMode.NO_COLORMAP);
+            }
+        },
+
+        _recalculateSpots: {
+            value: function(recoloringMode) {
                 var spots = this._scene.spots;
                 while (this._scene3js.children.length) {
                     this._scene3js.remove(this._scene3js.children[0]);
@@ -134,24 +159,36 @@ function(THREE, Scene2D, SpotLabel2D) {
                 var positions = new Float32Array(spotsCount * 6 * 3);
                 var uvs = new Float32Array(spotsCount * 6 * 2);
                 var colors = new Float32Array(spotsCount * 6 * 3);
-                var color = new THREE.Color();
+                var scales = new Float32Array(spotsCount * 6 * 3);
                 var colorMap = this._scene.colorMap;
+                var globalSpotsScale = this._scene.globalSpotScale;
 
                 function setPoint(index, dx, dy) {
                     var idx = i * 6 + index;
-                    positions[idx * 3 + 0] = s.x + s.r * dx;
-                    positions[idx * 3 + 1] = s.y + s.r * dy;
+                    positions[idx * 3 + 0] = s.x + s.r * s.scale * dx * globalSpotsScale;
+                    positions[idx * 3 + 1] = s.y + s.r * s.scale * dy * globalSpotsScale;
                     positions[idx * 3 + 2] = 0;
                     uvs[idx * 2 + 0] = dx;
                     uvs[idx * 2 + 1] = dy;
+                    scales[idx * 3 + 0] = s.scale * globalSpotsScale;
+                    scales[idx * 3 + 1] = s.visibility;
+                    scales[idx * 3 + 2] = 0;
                     colors[idx * 3 + 0] = color.r;
                     colors[idx * 3 + 1] = color.g;
                     colors[idx * 3 + 2] = color.b;
                 }
 
+                var useColorMap = recoloringMode == View2D.RecoloringMode.USE_COLORMAP;
                 for (var i = 0; i < spotsCount; i++) {
                     var s = spots[i];
-                    colorMap.map(color, s.intensity);
+                    var color = null;
+                    if (useColorMap) {
+                        var color = new THREE.Color();
+                        colorMap.map(color, s.intensity);
+                        s.color = color;
+                    } else {
+                        color = s.color;
+                    }
                     setPoint(0, 1, 1);
                     setPoint(1, 1, -1);
                     setPoint(2, -1, -1);
@@ -164,6 +201,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
                 geometry.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
                 geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.addAttribute('normal', new THREE.BufferAttribute(scales, 3));
 
                 this._scene3js.add(new THREE.Mesh(geometry, this._material));
                 this._renderSpots();

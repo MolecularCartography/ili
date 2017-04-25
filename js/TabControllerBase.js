@@ -10,8 +10,6 @@ function (EmperorViewControllerABC, ControlGrid, Workspace) {
         EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
 
         this._workspace = workspace;
-        workspace.addEventListener(Workspace.Events.NO_TASKS, this.refresh.bind(this));
-
         this._controlGrid = new ControlGrid(this.$body);
         return this;
     }

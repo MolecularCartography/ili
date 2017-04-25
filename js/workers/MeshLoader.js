@@ -92,6 +92,7 @@ function (Utils, THREE, STLLoader, OBJLoader) {
         for (var formatTag in FormatLoaders) {
             if (FormatLoaders[formatTag].extension === extension) {
                 matchedFileHandler = FormatLoaders[formatTag].handler;
+                break;
             }
         }
 
