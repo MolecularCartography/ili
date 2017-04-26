@@ -27,6 +27,7 @@ function(EventSource, THREE) {
 
         this._spotBorder = 0.05;
         this._globalSpotScale = 1.0;
+        this._globalSpotVisibility = 1.0;
         this._colorMap = null;
         this._adjustment = { x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0 };
 
@@ -165,6 +166,20 @@ function(EventSource, THREE) {
             },
             set: function (value) {
                 this._globalSpotScale = value < 0 ? 0 : value;
+                // this._recolor() is not called because mapping has to be recalculated as well
+            }
+        },
+
+        globalSpotVisibility: {
+            get: function () {
+                return this._globalSpotVisibility;
+            },
+            set: function (value) {
+                this._globalSpotVisibility = value < 0 ? 0 : value > 1 ? 1 : value;
+                if (this._mesh) {
+                    this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
+                    this._notify(Scene3D.Events.CHANGE);
+                }
             }
         },
 
@@ -466,7 +481,7 @@ function(EventSource, THREE) {
                         if (index >= 0) {
                             var spot = spots[index];
                             if (!isNaN(spot.intensity)) {
-                                var alpha = (1.0 - spotBorder * closestSpotDistances[i]) * spot.visibility;
+                                var alpha = (1.0 - spotBorder * closestSpotDistances[i]) * spot.visibility * this._globalSpotVisibility;
                                 var base = i * 3;
                                 color[base + 0] += (spot.color.r - color[base + 0]) * alpha;
                                 color[base + 1] += (spot.color.g - color[base + 1]) * alpha;

@@ -1,10 +1,10 @@
 ﻿'use strict';
 
 define([
-    'workspace', 'tabcontroller2d', 'tabcontroller3d', 'tabcontrollermapping',
+    'workspace', 'tabcontrollerspots', 'tabcontroller3d', 'tabcontrollermapping',
     'tabcontrollerexamples', 'tabcontrollerdocumentation'
 ],
-function (Workspace, TabController2D, TabController3D, TabControllerMapping, TabControllerExamples, TabControllerDocumentation) {
+function (Workspace, TabControllerSpots, TabController3D, TabControllerMapping, TabControllerExamples, TabControllerDocumentation) {
     function AppSettingsController(appContainer, workspace, views) {
         this._workspace = workspace;
         this._views = views;
@@ -12,11 +12,11 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
         this._tabHeadersList = $(appContainer.querySelector('#tabs-list'));
 
         this._tabs = {};
-        var tab2D = this._addTab(TabController2D, this._views);
-        this._tabs['2D'] = tab2D;
+        this._tabs['spots'] = this._addTab(TabControllerSpots, this._views);
+        var tabMapping = this._addTab(TabControllerMapping, this._views);
+        this._tabs['mapping'] = tabMapping;
         var tab3D = this._addTab(TabController3D, this._views);
         this._tabs['3D'] = tab3D;
-        this._tabs['mapping'] = this._addTab(TabControllerMapping, this._views);
         var tabExamples = this._addTab(TabControllerExamples, this._views);
         this._tabs['examples'] = tabExamples;
         this._tabs['doc'] = this._addTab(TabControllerDocumentation, this._views);
@@ -25,7 +25,7 @@ function (Workspace, TabController2D, TabController3D, TabControllerMapping, Tab
 
         this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
             if (this._workspace.mode === Workspace.Mode.MODE_2D) {
-                tab2D.activate();
+                tabMapping.activate();
             } else if (this._workspace.mode === Workspace.Mode.MODE_3D) {
                 tab3D.activate();
             }

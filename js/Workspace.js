@@ -140,23 +140,17 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         },
     };
 
-    Workspace._createCurrentSceneProperty = function(prop, postModificationCallback) {
+    Workspace._createSceneProperty = function(prop, postModificationCallback) {
         return {
             get: function () {
-                if (!this._currentScene) {
-                    console.log('Data is not loaded');
-                } else {
-                    return this._currentScene[prop];
-                }
+                // assuming the parameter value is the same in 2D & 3D scenes
+                return this._scene2d[prop];
             },
             set: function (value) {
-                if (!this._currentScene) {
-                    console.log('Data is not loaded');
-                } else {
-                    this._currentScene[prop] = value;
-                    if (postModificationCallback) {
-                        postModificationCallback.bind(this)();
-                    }
+                this._scene2d[prop] = value;
+                this._scene3d[prop] = value;
+                if (postModificationCallback) {
+                    postModificationCallback.bind(this)();
                 }
             }
         };
@@ -368,7 +362,9 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             spot.scale = s;
         }, Workspace._onSpotScaleChange),
 
-        globalSpotScale: Workspace._createCurrentSceneProperty('globalSpotScale', Workspace._onSpotScaleChange),
+        globalSpotScale: Workspace._createSceneProperty('globalSpotScale', Workspace._onSpotScaleChange),
+
+        globalSpotVisibility: Workspace._createSceneProperty('globalSpotVisibility'),
 
         autoMinMax: {
             get: function() {
@@ -454,6 +450,7 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         _cancelTask: {
             value: function(taskType) {
                 if (taskType.key in this._tasks) {
+                    this._tasks[taskType.key].worker.onerror = null;
                     this._tasks[taskType.key].worker.terminate();
                     delete this._tasks[taskType.key];
                 }
@@ -663,13 +660,12 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
 
         spotBorder: {
             get: function() {
-                return this._currentScene ? this._currentScene.spotBorder : undefined;
+                return this._scene2d.spotBorder;
             },
 
             set: function (value) {
-                if (this._currentScene) {
-                    this._currentScene.spotBorder = value;
-                }
+                this._scene2d.spotBorder = value;
+                this._scene3d.spotBorder = value;
             }
         },
 

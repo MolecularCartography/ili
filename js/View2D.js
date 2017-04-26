@@ -162,6 +162,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                 var scales = new Float32Array(spotsCount * 6 * 3);
                 var colorMap = this._scene.colorMap;
                 var globalSpotsScale = this._scene.globalSpotScale;
+                var globalSpotsVisibility = this._scene.globalSpotVisibility;
 
                 function setPoint(index, dx, dy) {
                     var idx = i * 6 + index;
@@ -171,7 +172,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                     uvs[idx * 2 + 0] = dx;
                     uvs[idx * 2 + 1] = dy;
                     scales[idx * 3 + 0] = s.scale * globalSpotsScale;
-                    scales[idx * 3 + 1] = s.visibility;
+                    scales[idx * 3 + 1] = s.visibility * globalSpotsVisibility;
                     scales[idx * 3 + 2] = 0;
                     colors[idx * 3 + 0] = color.r;
                     colors[idx * 3 + 1] = color.g;

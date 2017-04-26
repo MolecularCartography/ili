@@ -13,6 +13,7 @@ function(EventSource, THREE) {
         this._height = 0;
         this._spots = null;
         this._globalSpotScale = 1.0;
+        this._globalSpotVisibility = 1.0;
     };
 
     Scene2D.Events = {
@@ -119,6 +120,16 @@ function(EventSource, THREE) {
             },
             set: function (value) {
                 this._globalSpotScale = value < 0 ? 0 : value;
+            }
+        },
+
+        globalSpotVisibility: {
+            get: function () {
+                return this._globalSpotVisibility;
+            },
+            set: function (value) {
+                this._globalSpotVisibility = value < 0 ? 0 : value > 1 ? 1 : value;
+                this._notify(Scene2D.Events.SPOTS_ATTR_CHANGE);
             }
         },
 

@@ -10,29 +10,6 @@ define([
 function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils,
     DragAndDrop, appLayout, $, $ui, AppSettingsController)
 {
-    // Copied from https://github.com/miguelmota/webgl-detect
-    function webglEnabled() {
-        var canvas = document.createElement('canvas');
-        var contextNames = ['webgl', 'experimental-webgl', 'moz-webgl', 'webkit-3d'];
-        var context;
-
-        if (navigator.userAgent.indexOf('MSIE') > -1) {
-            try {
-                context = WebGLHelper.CreateGLContext(canvas, 'canvas');
-            } catch (e) { }
-        } else {
-            for (var i = 0; i < contextNames.length; i++) {
-                try {
-                    context = canvas.getContext(contextNames[i]);
-                    if (context) {
-                        break;
-                    }
-                } catch (e) { }
-            }
-        }
-        return !!context;
-    }
-
     function ili(appContainer) {
         if (!webglEnabled()) {
             alert('WebGL technology is not enabled in your browser. Turn it on to get `ili functioning properly.');
@@ -124,6 +101,17 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             },
             set: function (visibility) {
                 this._workspace.spotVisibility = visibility;
+            }
+        },
+
+        /* @visibility should be a number from the interval of [0; 1]
+         */
+        globalSpotVisibility: {
+            get: function () {
+                return this._workspace.globalSpotVisibility;
+            },
+            set: function (visibility) {
+                this._workspace.globalSpotVisibility = visibility;
             }
         },
 
@@ -257,6 +245,29 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             }
         },
     });
+
+    // Copied from https://github.com/miguelmota/webgl-detect
+    function webglEnabled() {
+        var canvas = document.createElement('canvas');
+        var contextNames = ['webgl', 'experimental-webgl', 'moz-webgl', 'webkit-3d'];
+        var context;
+
+        if (navigator.userAgent.indexOf('MSIE') > -1) {
+            try {
+                context = WebGLHelper.CreateGLContext(canvas, 'canvas');
+            } catch (e) { }
+        } else {
+            for (var i = 0; i < contextNames.length; i++) {
+                try {
+                    context = canvas.getContext(contextNames[i]);
+                    if (context) {
+                        break;
+                    }
+                } catch (e) { }
+            }
+        }
+        return !!context;
+    }
 
     return ili;
 });

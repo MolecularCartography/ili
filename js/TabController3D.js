@@ -21,7 +21,6 @@ function (TabControllerBase, ViewGroup3D) {
         this.addColor(workspace.scene3d, 'backgroundColor', 'Background');
         this.addFlag(workspace.scene3d, 'axisHelper', 'Show the origin');
         this.addNumeric(workspace.scene3d.frontLight, 'intensity', 'Light', 0, 3);
-        this.addNumeric(workspace.scene3d, 'spotBorder', 'Spot border', 0, 1);
         this.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0, 4.0]);
         var adjustment = this.addGroupBox('Coordinates adjustment');
         adjustment.addNumeric(workspace.scene3d.adjustment, 'alpha', '0X rotation', - 180.0, 180.0);
