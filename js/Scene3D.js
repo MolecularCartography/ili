@@ -102,6 +102,9 @@ function(EventSource, THREE) {
                 result.geometry = this.geometry.clone();
                 result.spots = this.spots;
                 result.mapping = this.mapping;
+                result.axisHelper = this.axisHelper;
+                result.globalSpotScale = this.globalSpotScale;
+                result.globalSpotVisibility = this.globalSpotVisibility;
                 return result;
             }
         },
@@ -222,10 +225,10 @@ function(EventSource, THREE) {
                             z: spot.z,
                             r: spot.r,
                             intensity: spot.intensity,
-                            color: new THREE.Color(),
-                            visibility: 1.0,
+                            color: spot.color,
+                            visibility: spot.visibility,
                             scale: spot.scale,
-                            name: value[i].name,
+                            name: spot.name,
                         };
                     }
                 } else {

@@ -187,8 +187,9 @@ function(EventSource, THREE) {
             value: function(canvas) {
                 var spots = this._spots;
                 var color = new THREE.Color();
-                var colorMap = this._colorMap;
-                var borderGradientSuffix = this._spotBorder + ')';
+                var borderVisibility = this._spotBorder;
+                var globalScale = this._globalSpotScale;
+                var globalVisibility = this._globalSpotVisibility;
                 return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();
@@ -199,16 +200,17 @@ function(EventSource, THREE) {
                     for (var i = 0; i < spots.length; i++) {
                         var s = spots[i];
                         if (isNaN(s.intensity)) continue;
-                        colorMap.map(color, s.intensity);
+                        var color = s.color;
+                        var scale = s.scale * globalScale;
 
                         ctx.beginPath();
-                        ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI, false);
-                        var gdx = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
-                        var rgba = 'rgba(' + Math.round(color.r * 255) + ',' + // was: var rgba = 'rgba(' + Math.round(color.r * 155) + ',' +
-                            Math.round(color.g * 255) + ',' + Math.round(color.b * 255) + ',';
+                        ctx.arc(s.x, s.y, s.r * scale, 0, 2 * Math.PI, false);
+                        var gdx = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * scale);
+                        var rgba = 'rgba(' + Math.round(color.r * 255) + ',' + Math.round(color.g * 255) + ',' + Math.round(color.b * 255) + ',';
 
-                        gdx.addColorStop(0, rgba + '1)');
-                        gdx.addColorStop(1, rgba + borderGradientSuffix);
+                        var visibility = globalVisibility * s.visibility;
+                        gdx.addColorStop(0, rgba + visibility + ')');
+                        gdx.addColorStop(1, rgba + borderVisibility * visibility + ')');
                         ctx.fillStyle = gdx;
                         ctx.fill();
                     }

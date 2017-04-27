@@ -92,7 +92,7 @@ function(THREE, Scene2D, SpotLabel2D) {
             'uniform float opacityDecay;' +
             'void main() {' +
                 'float r = distance(vUv, vec2(0.0, 0.0));' +
-                'if (r > 1.0) discard;' +
+                'if (r > vScale) discard;' +
                 'gl_FragColor = vec4(vColor, (1.0 - opacityDecay * r / vScale) * vVisibility);' +
             '}';
 
@@ -169,8 +169,8 @@ function(THREE, Scene2D, SpotLabel2D) {
                     positions[idx * 3 + 0] = s.x + s.r * s.scale * dx * globalSpotsScale;
                     positions[idx * 3 + 1] = s.y + s.r * s.scale * dy * globalSpotsScale;
                     positions[idx * 3 + 2] = 0;
-                    uvs[idx * 2 + 0] = dx;
-                    uvs[idx * 2 + 1] = dy;
+                    uvs[idx * 2 + 0] = dx * s.scale * globalSpotsScale;
+                    uvs[idx * 2 + 1] = dy * s.scale * globalSpotsScale;
                     scales[idx * 3 + 0] = s.scale * globalSpotsScale;
                     scales[idx * 3 + 1] = s.visibility * globalSpotsVisibility;
                     scales[idx * 3 + 2] = 0;
