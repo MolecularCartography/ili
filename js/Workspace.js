@@ -36,6 +36,7 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         this._autoMinMax = true;
         this._minValue = 0.0;
         this._maxValue = 0.0;
+        this._dataDependentVisibility = false;
         this._scene3d = new Scene3D();
         this._scene2d = new Scene2D();
         this._currentScene = null;
@@ -88,6 +89,11 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             },
             legend: '',
         }
+    };
+
+    Workspace.DataDependentVisibility = {
+        MIN: 0.1,
+        MAX: 1
     };
 
     Workspace.getScaleById = function(id) {
@@ -366,6 +372,17 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
 
         globalSpotVisibility: Workspace._createSceneProperty('globalSpotVisibility'),
 
+        dataDependentVisibility: {
+            get: function() {
+                return this._dataDependentVisibility;
+            },
+            set: function(value) {
+                this._dataDependentVisibility = !!value;
+                this._updateDataDependentVisibility();
+                this._currentScene.refreshSpots();
+            }
+        },
+
         autoMinMax: {
             get: function() {
                 return this._autoMinMax;
@@ -423,6 +440,23 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             value: function(message) {
                 this._errors.push(message);
                 this._notify(Workspace.Events.ERRORS_CHANGE);
+            }
+        },
+
+        _updateDataDependentVisibility: {
+            value: function () {
+                var enabled = this._dataDependentVisibility;
+                var minVisibility = Workspace.DataDependentVisibility.MIN;
+                var visibilityRange = Workspace.DataDependentVisibility.MAX - Workspace.DataDependentVisibility.MIN;
+
+                for (var i = 0; i < this._spots.length; ++i) {
+                    var spot = this._spots[i];
+                    var visibility = enabled ? minVisibility + visibilityRange * spot.intensity : 1;
+                    spot.visibility = visibility;
+                    if (this._currentScene) {
+                        this._currentScene.spots[i].visibility = visibility;
+                    }
+                }
             }
         },
 
@@ -574,6 +608,7 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
                     }
                     this._spots[i].intensity = intensity;
                 }
+                this._updateDataDependentVisibility();
                 this._scene3d.updateIntensities(this._spots);
                 this._scene2d.updateIntensities(this._spots);
             }
