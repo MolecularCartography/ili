@@ -1,26 +1,20 @@
 'use strict';
 
 define([
-    'eventsource', 'three'
+    'eventsource', 'spotscontroller', 'three'
 ],
-function(EventSource, THREE) {
-    function Scene2D() {
+function(EventSource, SpotsController, THREE) {
+    function Scene2D(spotsController) {
         EventSource.call(this, Scene2D.Events);
 
-        this._spotBorder = 0.05;
+        this._spotsController = spotsController;
         this._imageURL = null;
         this._width = 0;
         this._height = 0;
-        this._spots = null;
-        this._globalSpotScale = 1.0;
-        this._globalSpotVisibility = 1.0;
     };
 
     Scene2D.Events = {
-        IMAGE_CHANGE: 'image_change',
-        PARAM_CHANGE: 'param_change',
-        SPOTS_CHANGE: 'spots-change',
-        SPOTS_ATTR_CHANGE: 'spots-attr-change'
+        IMAGE_CHANGE: 'image_change'
     };
 
     Scene2D.prototype = Object.create(EventSource.prototype, {
@@ -66,99 +60,6 @@ function(EventSource, THREE) {
             }
         },
 
-        spotBorder: {
-            get: function() {
-                return this._spotBorder;
-            },
-
-            set: function(value) {
-                if (this._spotBorder == value) return;
-                if (value < 0.0) value = 0.0;
-                if (value > 1.0) value = 1.0;
-                this._spotBorder = value;
-                this._notify(Scene2D.Events.PARAM_CHANGE);
-            }
-        },
-
-        spots: {
-            get: function() {
-                return this._spots;
-            },
-
-            set: function(value) {
-                if (value){
-                    this._spots = value.map(function(s) {
-                        return {
-                            x: s.x,
-                            y: s.y,
-                            r: s.r,
-                            name: s.name,
-                            intensity: s.intensity,
-                            visibility: s.visibility,
-                            color: s.color,
-                            scale: s.scale
-                        };
-                    });
-                } else {
-                    this._spots = null;
-                    return;
-                }
-
-                this._notify(Scene2D.Events.SPOTS_CHANGE);
-            }
-        },
-
-        refreshSpots: {
-            value: function() {
-                this._notify(Scene2D.Events.SPOTS_ATTR_CHANGE);
-            }
-        },
-
-        globalSpotScale: {
-            get: function () {
-                return this._globalSpotScale;
-            },
-            set: function (value) {
-                this._globalSpotScale = value < 0 ? 0 : value;
-            }
-        },
-
-        globalSpotVisibility: {
-            get: function () {
-                return this._globalSpotVisibility;
-            },
-            set: function (value) {
-                this._globalSpotVisibility = value < 0 ? 0 : value > 1 ? 1 : value;
-                this._notify(Scene2D.Events.SPOTS_ATTR_CHANGE);
-            }
-        },
-
-        updateIntensities: {
-            value: function(spots) {
-                if (!this._spots) return;
-                var startTime = new Date();
-
-                for (var i = 0; i < this._spots.length; i++) {
-                    this._spots[i].intensity = spots[i] && spots[i].intensity;
-                }
-                this._notify(Scene2D.Events.SPOTS_CHANGE);
-                var endTime = new Date();
-                console.log('Spots updating time: ' +
-                    (endTime.valueOf() - startTime.valueOf()) / 1000);
-            }
-        },
-
-        colorMap: {
-            get: function() {
-                return this._colorMap;
-            },
-
-            set: function(value) {
-                this._colorMap = value;
-                this._notify(Scene2D.Events.SPOTS_CHANGE);
-            }
-        },
-
         exportImage: {
             value: function(canvas) {
                 return new Promise(function(accept, reject) {
@@ -185,11 +86,11 @@ function(EventSource, THREE) {
 
         exportSpots: {
             value: function(canvas) {
-                var spots = this._spots;
+                var spots = this._spotsController.spots;
                 var color = new THREE.Color();
-                var borderVisibility = this._spotBorder;
-                var globalScale = this._globalSpotScale;
-                var globalVisibility = this._globalSpotVisibility;
+                var borderOpacity = this._spotsController.spotBorder;
+                var globalScale = this._spotsController.globalSpotScale;
+                var globalOpacity = this._spotsController.globalSpotOpacity;
                 return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();
@@ -208,9 +109,9 @@ function(EventSource, THREE) {
                         var gdx = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r * scale);
                         var rgba = 'rgba(' + Math.round(color.r * 255) + ',' + Math.round(color.g * 255) + ',' + Math.round(color.b * 255) + ',';
 
-                        var visibility = globalVisibility * s.visibility;
-                        gdx.addColorStop(0, rgba + visibility + ')');
-                        gdx.addColorStop(1, rgba + borderVisibility * visibility + ')');
+                        var opacity = globalOpacity * s.opacity;
+                        gdx.addColorStop(0, rgba + opacity + ')');
+                        gdx.addColorStop(1, rgba + borderOpacity * opacity + ')');
                         ctx.fillStyle = gdx;
                         ctx.fill();
                     }
@@ -222,8 +123,8 @@ function(EventSource, THREE) {
 
         findSpot: {
             value: function(point) {
-                var spots = this._spots;
-                var globalScale = this._globalSpotScale;
+                var spots = this._spotsController.spots;
+                var globalScale = this._spotsController.globalSpotScale;
                 return new Promise(function(accept, reject) {
                     if (!spots) {
                         reject();

@@ -27,6 +27,10 @@ function() {
         getFileExtension: function (url) {
             var extensionStartPos = url.lastIndexOf(FILE_EXT_SEPARATOR);
             return (-1 == extensionStartPos || extensionStartPos == url.length - 1) ? '' : url.substring(extensionStartPos + 1);
+        },
+
+        boundNumber: function (min, value, max) {
+            return (value < min) ? min : (value > max) ? max : value;
         }
     };
 

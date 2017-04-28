@@ -1,9 +1,12 @@
 'use strict';
 
 define([
-    'colormaps', 'eventsource', 'imageloader', 'inputfilesprocessor', 'materialloader', 'scene2d', 'scene3d', 'three'
+    'colormaps', 'eventsource', 'imageloader', 'inputfilesprocessor', 'materialloader',
+    'scene2d', 'scene3d', 'spotscontroller', 'three'
 ],
-function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader, Scene2D, Scene3D, THREE) {
+function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader,
+    Scene2D, Scene3D, SpotsController, THREE)
+{
     /**
      * Main application workspace. It works in 3 modes:
      * 1. UNDEFINED. In may have measures but with no visual representation.
@@ -19,29 +22,15 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
      * 'status'/'status-change' intended to inform
      * the user on progress in long-running tasks.
      *
-     * 'measures'/'intensities-change' lets to update the map-list.
      */
-    function Workspace() {
+    function Workspace(spotsController) {
         EventSource.call(this, Workspace.Events);
 
         this._mode = Workspace.Mode.UNDEFINED;
         this._errors = [];
-        this._spots = null;
-        this._mapping = null;
-        this._measures = null;
-        this._activeMeasure = null;
-        this._colorMap = ColorMap.Maps.VIRIDIS;
-        this._scale = Workspace.Scale.LINEAR;
-        this._hotspotQuantile = 1.0;
-        this._autoMinMax = true;
-        this._minValue = 0.0;
-        this._maxValue = 0.0;
-        this._dataDependentVisibility = false;
-        this._scene3d = new Scene3D();
-        this._scene2d = new Scene2D();
-        this._currentScene = null;
-        this._scene3d.colorMap = this._colorMap;
-        this._scene2d.colorMap = this._colorMap;
+        this._spotsController = spotsController;
+        this._scene3d = new Scene3D(spotsController);
+        this._scene2d = new Scene2D(spotsController);
         this._loadedSettings = null;
         this._inputFilesProcessor = new InputFilesProcessor(this);
 
@@ -49,58 +38,20 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         this._tasks = {};
         this._settingsToLoad = null;
 
-        this.addEventListener(Workspace.Events.NO_TASKS, this._loadPendingSettings.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
     }
 
     Workspace.Events = {
         STATUS_CHANGE: 'status-change',
         MODE_CHANGE: 'mode-change',
-        MAPPING_CHANGE: 'mapping-change',
-        INTENSITIES_CHANGE: 'intensities-change',
         ERRORS_CHANGE: 'errors-change',
-        AUTO_MAPPING_CHANGE: 'auto-mapping-change',
-        SETTINGS_CHANGE: 'settings-change',
-        NO_TASKS: 'no-tasks'
-    }
+        SETTINGS_CHANGE: 'settings-change'
+    };
 
     Workspace.Mode = {
         UNDEFINED: 1,
         MODE_2D: 2,
         MODE_3D: 3,
-    };
-
-    Workspace.Scale = {
-        LOG: {
-            id: 'log',
-            function: Math.log10,
-            filter: function(x) {
-                return x > 0.0 && x < Infinity;
-            },
-            legend: 'log',
-        },
-
-        LINEAR: {
-            id: 'linear',
-            function: function(x) {
-                return x;
-            },
-            filter: function(x) {
-                return x > -Infinity && x < Infinity;
-            },
-            legend: '',
-        }
-    };
-
-    Workspace.DataDependentVisibility = {
-        MIN: 0.1,
-        MAX: 1
-    };
-
-    Workspace.getScaleById = function(id) {
-        for (var i in Workspace.Scale) {
-            if (Workspace.Scale[i].id == id) return Workspace.Scale[i];
-        }
-        throw 'Invalid scale id: ' + id;
     };
 
     /**
@@ -146,84 +97,6 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         },
     };
 
-    Workspace._createSceneProperty = function(prop, postModificationCallback) {
-        return {
-            get: function () {
-                // assuming the parameter value is the same in 2D & 3D scenes
-                return this._scene2d[prop];
-            },
-            set: function (value) {
-                this._scene2d[prop] = value;
-                this._scene3d[prop] = value;
-                if (postModificationCallback) {
-                    postModificationCallback.bind(this)();
-                }
-            }
-        };
-    };
-
-    Workspace._createSpotsProperty = function (getter, setter, postModificationCallback) {
-        if (typeof getter === 'string') {
-            var getName = getter;
-            getter = function (spot) {
-                return spot[getName];
-            }
-        } else if (!(getter instanceof Function)) {
-            throw 'Scene property specifier must be function or string';
-        }
-
-        if (typeof setter === 'string') {
-            var setName = setter;
-            setter = function (spot, values) {
-                return spot[setName] = values[spot.name][setName];
-            }
-        } else if (!(setter instanceof Function)) {
-            throw 'Scene property specifier must be function or string';
-        }
-
-        return {
-            get: function () {
-                var result = {};
-                var spots = this._currentScene ? this._currentScene.spots : this._spots;
-                if (!spots) {
-                    return result;
-                }
-                for (var i = 0; i < spots.length; ++i) {
-                    var spot = spots[i];
-                    result[spot.name] = getter(spot);
-                }
-                return result;
-            },
-            set: function (values) {
-                if (!this._spots) {
-                    return;
-                }
-                for (var i = 0; i < this._spots.length; ++i) {
-                    var spot = this._spots[i];
-                    if (spot.name in values) {
-                        setter(spot, values);
-                        if (this._currentScene) {
-                            setter(this._currentScene.spots[i], values);
-                        }
-                    }
-                }
-                if (postModificationCallback) {
-                    postModificationCallback.bind(this)();
-                } else if (this._currentScene) {
-                    this._currentScene.refreshSpots();
-                }
-            }
-        };
-    };
-
-    Workspace._onSpotScaleChange = function () {
-        if (this.mode == Workspace.Mode.MODE_3D) {
-            this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
-        } else if (this.mode == Workspace.Mode.MODE_2D) {
-            this._scene2d.refreshSpots();
-        }
-    };
-
     Workspace.prototype = Object.create(EventSource.prototype, {
         /**
          * Switches the workspace to MODE_2D and starts image loading.
@@ -251,13 +124,11 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
                     var geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes.geometry) {
                         var attribute = result.attributes.geometry[name];
-                        geometry.addAttribute(name, new THREE.BufferAttribute(
-                            attribute.array, attribute.itemSize));
+                        geometry.addAttribute(name, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
                     }
                     this._scene3d.materialName = result.attributes.materialName;
                     this._scene3d.geometry = geometry;
-                    if (this._spots) {
-                        this._scene3d.spots = this._spots;
+                    if (this._spotsController.spots) {
                         this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                     }
                 }.bind(this));
@@ -281,21 +152,12 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             value: function(blob) {
                 this._doTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
                     then(function (result) {
-                        this._spots = result.spots.map(function (spot) {
-                            spot.scale = 1.0;
-                            spot.color = new THREE.Color();
-                            spot.visibility = 1.0;
-                            return spot;
-                        });
-                        this._measures = result.measures;
-                        this._activeMeasure = null;
+                        this._spotsController.spots = result.spots;
+                        this._spotsController.measures = result.measures;
+
                         if (this._mode == Workspace.Mode.MODE_3D) {
-                            this._scene3d.spots = this._spots;
                             this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
-                        } else if (this._mode == Workspace.Mode.MODE_2D) {
-                            this._scene2d.spots = this._spots;
                         }
-                        this._notify(Workspace.Events.INTENSITIES_CHANGE);
                     }.bind(this));
             }
         },
@@ -331,98 +193,6 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
-        /*
-         * @param {index} Index in the this.measures list.
-         */
-        selectMapByIndex: {
-            value: function(index) {
-                if (!this._measures) return;
-
-                this._activeMeasure = this._measures[index];
-                if (this._autoMinMax) this._updateMinMaxValues();
-                this._updateIntensities();
-            }
-        },
-
-        mapName: {
-            get: function() {
-                return this._activeMeasure ? this._activeMeasure.name : '';
-            }
-        },
-
-        spotVisibility: Workspace._createSpotsProperty('visibility', function (spot, visibility) {
-            var v = visibility[spot.name];
-            v = v < 0 ? 0 : v > 1 ? 1 : v;
-            spot.visibility = v;
-        }),
-
-        spotColors: Workspace._createSpotsProperty(function (spot) {
-            return spot.color.getHexString();
-        }, function (spot, colors) {
-            spot.color = new THREE.Color(colors[spot.name]);
-        }),
-
-        spotScale: Workspace._createSpotsProperty('scale', function (spot, scale) {
-            var s = scale[spot.name];
-            s = s < 0 ? 0 : s;
-            spot.scale = s;
-        }, Workspace._onSpotScaleChange),
-
-        globalSpotScale: Workspace._createSceneProperty('globalSpotScale', Workspace._onSpotScaleChange),
-
-        globalSpotVisibility: Workspace._createSceneProperty('globalSpotVisibility'),
-
-        dataDependentVisibility: {
-            get: function() {
-                return this._dataDependentVisibility;
-            },
-            set: function(value) {
-                this._dataDependentVisibility = !!value;
-                this._updateDataDependentVisibility();
-                this._currentScene.refreshSpots();
-            }
-        },
-
-        autoMinMax: {
-            get: function() {
-                return this._autoMinMax;
-            },
-
-            set: function(value) {
-                this._autoMinMax = !!value;
-                if (this._autoMinMax) {
-                    this._updateMinMaxValues() && this._updateIntensities();
-                }
-                this._notify(Workspace.Events.AUTO_MAPPING_CHANGE);
-            }
-        },
-
-        minValue: {
-            get: function() {
-                return this._minValue;
-            },
-
-            set: function(value) {
-                if (this._autoMinMax) return;
-                this._minValue = Number(value);
-                this._updateIntensities();
-                this._notify(Workspace.Events.MAPPING_CHANGE);
-            }
-        },
-
-        maxValue: {
-            get: function() {
-                return this._maxValue;
-            },
-
-            set: function(value) {
-                if (this._autoMinMax) return;
-                this._maxValue = Number(value);
-                this._updateIntensities();
-                this._notify(Workspace.Events.MAPPING_CHANGE);
-            }
-        },
-
         errors: {
             get: function() {
                 return this._errors;
@@ -443,33 +213,18 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
-        _updateDataDependentVisibility: {
-            value: function () {
-                var enabled = this._dataDependentVisibility;
-                var minVisibility = Workspace.DataDependentVisibility.MIN;
-                var visibilityRange = Workspace.DataDependentVisibility.MAX - Workspace.DataDependentVisibility.MIN;
-
-                for (var i = 0; i < this._spots.length; ++i) {
-                    var spot = this._spots[i];
-                    var visibility = enabled ? minVisibility + visibilityRange * spot.intensity : 1;
-                    spot.visibility = visibility;
-                    if (this._currentScene) {
-                        this._currentScene.spots[i].visibility = visibility;
-                    }
-                }
-            }
-        },
-
         /**
          * Prepares this._mapping for fast recoloring the mesh.
          */
         _mapMesh: {
             value: function(recoloringMode) {
-                if (!this._scene3d.geometry || !this._spots) return;
+                if (!this._scene3d.geometry || !this._spotsController.spots) {
+                    return;
+                }
                 var args = {
                     vertices: this._scene3d.geometry.getAttribute('position').array,
-                    spots: this._spots,
-                    scale: this._scene3d.globalSpotScale
+                    spots: this._spotsController.spots,
+                    scale: this._spotsController.globalSpotScale
                 };
                 this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
                     this._scene3d.mapping = {
@@ -489,7 +244,7 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
                     delete this._tasks[taskType.key];
                 }
                 if (Object.keys(this._tasks).length < 1) {
-                    this._notify(Workspace.Events.NO_TASKS);
+                    this._loadPendingSettings();
                 }
             }
         },
@@ -566,58 +321,18 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
             }
         },
 
-        _updateMinMaxValues: {
-            value: function() {
-                var values = this._activeMeasure ? this._activeMeasure.values : [];
-
-                var values = Array.prototype.filter.call(values, this._scale.filter).sort(function(a, b) {
-                    return a - b;
-                });
-
-                var minValue = values.length > 0 ? this._scale.function(values[0]) : 0.0;
-                var maxValue = values.length > 0 ?
-                    this._scale.function(values[Math.ceil((values.length - 1) *
-                        this._hotspotQuantile)]) :
-                    0.0;
-
-                if (this._minValue != minValue || this._maxValue != maxValue) {
-                    this._minValue = minValue;
-                    this._maxValue = maxValue;
-                    this._notify(Workspace.Events.AUTO_MAPPING_CHANGE);
-                    this._notify(Workspace.Events.MAPPING_CHANGE);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        },
-
-        _updateIntensities: {
-            value: function() {
-                if (!this._spots) return;
-
-                for (var i = 0; i < this._spots.length; i++) {
-                    var scaledValue = this._activeMeasure &&
-                        this._scale.function(this._activeMeasure.values[i]);
-                    var intensity = NaN;
-
-                    if (scaledValue >= this._maxValue) {
-                        intensity = 1.0;
-                    } else if (scaledValue >= this._minValue) {
-                        intensity = (scaledValue - this._minValue) / (this._maxValue - this._minValue);
-                    }
-                    this._spots[i].intensity = intensity;
-                }
-                this._updateDataDependentVisibility();
-                this._scene3d.updateIntensities(this._spots);
-                this._scene2d.updateIntensities(this._spots);
-            }
-        },
-
         _setStatus: {
             value: function(status) {
                 this._status = status;
                 this._notify(Workspace.Events.STATUS_CHANGE);
+            }
+        },
+
+        _onSpotScaleChange: {
+            value: function () {
+                if (this.mode == Workspace.Mode.MODE_3D) {
+                    this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
+                }
             }
         },
 
@@ -632,24 +347,22 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
                 }
                 this._mode = value;
 
-                if (this._mode == Workspace.Mode.MODE_2D) {
-                    this._scene2d.spots = this._spots;
-                    this._currentScene = this._scene2d;
-                } else {
+                if (this._mode == Workspace.Mode.MODE_3D) {
                     this._scene2d.resetImage();
-                    this._scene2d.spots = null;
                     this._cancelTask(Workspace.TaskType.LOAD_IMAGE);
                 }
-                if (this._mode == Workspace.Mode.MODE_3D) {
-                    this._scene3d.spots = this._spots;
-                    this._currentScene = this._scene3d;
-                } else {
+                if (this._mode == Workspace.Mode.MODE_2D) {
                     this._scene3d.geometry = null;
-                    this._scene3d.spots = null;
                     this._cancelTask(Workspace.TaskType.LOAD_MESH);
                 }
 
                 this._notify(Workspace.Events.MODE_CHANGE);
+            }
+        },
+
+        spotsController: {
+            get: function () {
+                return this._spotsController;
             }
         },
 
@@ -668,83 +381,6 @@ function(ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader
         status: {
             get: function() {
                 return this._status;
-            }
-        },
-
-        measures: {
-            get: function() {
-                return this._measures || [];
-            }
-        },
-
-        hotspotQuantile: {
-            get: function() {
-                return this._hotspotQuantile;
-            },
-
-            set: function(value) {
-                if (this._hotspotQuantile == value) return;
-                if (value < 0.0) value = 0.0;
-                if (value > 1.0) value = 1.0;
-                this._hotspotQuantile = value;
-                if (this._autoMinMax) {
-                    this._updateMinMaxValues() && this._updateIntensities();
-                }
-            }
-        },
-
-        spotBorder: {
-            get: function() {
-                return this._scene2d.spotBorder;
-            },
-
-            set: function (value) {
-                this._scene2d.spotBorder = value;
-                this._scene3d.spotBorder = value;
-            }
-        },
-
-        scale: {
-            get: function() {
-                return this._scale;
-            }
-        },
-
-        scaleId: {
-            get: function() {
-                return this._scale.id;
-            },
-
-            set: function(value) {
-                if (this._scale.id == value) return;
-                this._scale = Workspace.getScaleById(value);
-                if (this._autoMinMax) this._updateMinMaxValues();
-                this._updateIntensities();
-                this._notify(Workspace.Events.MAPPING_CHANGE);
-            }
-        },
-
-        colorMap: {
-            get: function() {
-                return this._colorMap;
-            }
-        },
-
-        colorMapId: {
-            get: function() {
-                for (var i in ColorMap.Maps) {
-                    if (this._colorMap === ColorMap.Maps[i]) return i;
-                }
-
-            },
-
-            set: function(value) {
-                if (value in ColorMap.Maps) {
-                    this._colorMap = ColorMap.Maps[value];
-                    this._scene2d.colorMap = this._colorMap;
-                    this._scene3d.colorMap = this._colorMap;
-                    this._notify(Workspace.Events.MAPPING_CHANGE);
-                }
             }
         },
 

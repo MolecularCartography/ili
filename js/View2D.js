@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'scene2d', 'spotlabel2d'
+    'three', 'scene2d', 'spotlabel2d', 'spotscontroller'
 ],
-function(THREE, Scene2D, SpotLabel2D) {
+function(THREE, Scene2D, SpotLabel2D, SpotsController) {
     function View2D(workspace, div) {
         this._div = div;
         this._img = this._div.querySelector('img');
@@ -20,6 +20,7 @@ function(THREE, Scene2D, SpotLabel2D) {
         this._mouseAction = null;
         this._offset = {x: 0, y: 0};
         this._pixelRatio = 1;
+        this._spotsController = workspace.spotsController;
         this._scene = workspace.scene2d;
         this._spotLabel = new SpotLabel2D(this);
 
@@ -41,14 +42,12 @@ function(THREE, Scene2D, SpotLabel2D) {
         this._scene3js = new THREE.Scene();
         this._dummyCamera = new THREE.OrthographicCamera();
 
-        this._scene.addEventListener(Scene2D.Events.IMAGE_CHANGE,
-                this._onImageChange.bind(this));
-        this._scene.addEventListener(Scene2D.Events.PARAM_CHANGE,
-                this._renderSpots.bind(this));
-        this._scene.addEventListener(Scene2D.Events.SPOTS_CHANGE,
-                this._onSpotsChange.bind(this));
-        this._scene.addEventListener(Scene2D.Events.SPOTS_ATTR_CHANGE,
-            this._onSpotsAttrChange.bind(this));
+        this._scene.addEventListener(Scene2D.Events.IMAGE_CHANGE, this._onImageChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onSpotsAttrChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotsAttrChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.SPOTS_CHANGE, this._onSpotsUpdate.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._onSpotsUpdate.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onSpotsUpdate.bind(this));
 
         this._div.addEventListener('wheel', this._onMouseWheel.bind(this));
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
@@ -70,12 +69,12 @@ function(THREE, Scene2D, SpotLabel2D) {
             'varying vec2 vUv;' +
             'varying vec3 vColor;' +
             'varying float vScale;' +
-            'varying float vVisibility;' +
+            'varying float vOpacity;' +
             'void main() {' +
                 'vUv = uv;' +
                 'vColor = color;' +
                 'vScale = normal.x;' +
-                'vVisibility = normal.y;' +
+                'vOpacity = normal.y;' +
                 'vec2 halfImageSize = imageSize * 0.5;' +
                 'vec2 halfCanvasSize = canvasSize * 0.5;' +
                 'vec2 normalizedPosition = (position.xy - halfImageSize);' +
@@ -88,12 +87,12 @@ function(THREE, Scene2D, SpotLabel2D) {
             'varying vec2 vUv;' +
             'varying vec3 vColor;' +
             'varying float vScale;' +
-            'varying float vVisibility;' +
+            'varying float vOpacity;' +
             'uniform float opacityDecay;' +
             'void main() {' +
                 'float r = distance(vUv, vec2(0.0, 0.0));' +
                 'if (r > vScale) discard;' +
-                'gl_FragColor = vec4(vColor, (1.0 - opacityDecay * r / vScale) * vVisibility);' +
+                'gl_FragColor = vec4(vColor, (1.0 - opacityDecay * r / vScale) * vOpacity);' +
             '}';
 
     View2D.prototype = Object.create(null, {
@@ -129,7 +128,7 @@ function(THREE, Scene2D, SpotLabel2D) {
             }
         },
 
-        _onSpotsChange: {
+        _onSpotsUpdate: {
             value: function() {
                 this._recalculateSpots(View2D.RecoloringMode.USE_COLORMAP);
             }
@@ -143,7 +142,7 @@ function(THREE, Scene2D, SpotLabel2D) {
 
         _recalculateSpots: {
             value: function(recoloringMode) {
-                var spots = this._scene.spots;
+                var spots = this._spotsController.spots;
                 while (this._scene3js.children.length) {
                     this._scene3js.remove(this._scene3js.children[0]);
                 }
@@ -160,9 +159,9 @@ function(THREE, Scene2D, SpotLabel2D) {
                 var uvs = new Float32Array(spotsCount * 6 * 2);
                 var colors = new Float32Array(spotsCount * 6 * 3);
                 var scales = new Float32Array(spotsCount * 6 * 3);
-                var colorMap = this._scene.colorMap;
-                var globalSpotsScale = this._scene.globalSpotScale;
-                var globalSpotsVisibility = this._scene.globalSpotVisibility;
+                var colorMap = this._spotsController.colorMap;
+                var globalSpotsScale = this._spotsController.globalSpotScale;
+                var globalSpotsOpacity = this._spotsController.globalSpotOpacity;
 
                 function setPoint(index, dx, dy) {
                     var idx = i * 6 + index;
@@ -172,7 +171,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                     uvs[idx * 2 + 0] = dx * s.scale * globalSpotsScale;
                     uvs[idx * 2 + 1] = dy * s.scale * globalSpotsScale;
                     scales[idx * 3 + 0] = s.scale * globalSpotsScale;
-                    scales[idx * 3 + 1] = s.visibility * globalSpotsVisibility;
+                    scales[idx * 3 + 1] = s.opacity * globalSpotsOpacity;
                     scales[idx * 3 + 2] = 0;
                     colors[idx * 3 + 0] = color.r;
                     colors[idx * 3 + 1] = color.g;
@@ -346,7 +345,7 @@ function(THREE, Scene2D, SpotLabel2D) {
                 u.imageSize.value.set(this._scene.width, this._scene.height);
                 u.offset.value.copy(this._offset);
                 u.scale.value = this._scale;
-                u.opacityDecay.value = 1 - this._scene.spotBorder;
+                u.opacityDecay.value = 1 - this._spotsController.spotBorder;
                 this._renderer.render(this._scene3js, this._dummyCamera);
             }
         },

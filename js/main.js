@@ -5,10 +5,10 @@
 
 define([
     'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
-    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'appsettingscontroller'
+    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'appsettingscontroller', 'spotscontroller'
 ],
 function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils,
-    DragAndDrop, appLayout, $, $ui, AppSettingsController)
+    DragAndDrop, appLayout, $, $ui, AppSettingsController, SpotsController)
 {
     function ili(appContainer) {
         if (!webglEnabled()) {
@@ -18,7 +18,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         this._appContainer = appContainer;
         this._appContainer.innerHTML = appLayout;
 
-        this._workspace = new Workspace();
+        this._spotsController = new SpotsController();
+        this._workspace = new Workspace(this._spotsController);
         this._views = new ViewContainer(this._workspace, this._appContainer.querySelector('#view-container'));
         this._mapSelector = new MapSelector(this._workspace, this._appContainer.querySelector('#map-selector'),
             this._appContainer.querySelector('#current-map-label'));
@@ -27,18 +28,19 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         this._workspace.addEventListener(Workspace.Events.STATUS_CHANGE, this._onWorkspaceStatusChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.ERRORS_CHANGE, this._onWorkspaceErrorsChange.bind(this));
 
-        this._initKeyboardShortcuts(this._workspace, this._views, this._mapSelector);
+        this._initKeyboardShortcuts();
 
         this._appContainer.querySelector('#controls-switcher').onclick = this._toggleControlsPanel.bind(this);
         this._appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
         this._appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
         this._appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
         this._appContainer.querySelector('div#errors #close').onclick = this._workspace.clearErrors.bind(this._workspace);
-        window.addEventListener('resize', function() {
+
+        window.addEventListener('resize', function () {
             this.resize.call(this, window.innerWidth, window.innerHeight);
         }.bind(this));
 
-        this._dnd = new DragAndDrop(this._workspace, this._appContainer, this._workspace.loadFiles.bind(this._workspace));
+        this._dnd = new DragAndDrop(this._appContainer, this._workspace.loadFiles.bind(this._workspace));
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
@@ -61,7 +63,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
 
         takeSnapshot: {
             value: function() {
-                var name = this._workspace.mapName || 'image';
+                var name = this._spotsController.mapName || 'image';
                 this._views.export().then(function(blob) {
                     saveAs(blob, name + '.png', 'image/png');
                 });
@@ -86,32 +88,32 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
 
         saveSettings: {
             value: function () {
-                var name = this._workspace.mapName || 'ili_settings';
+                var name = this._spotsController.mapName || 'ili_settings';
                 saveAs(this._settingsController.serialize(), name + '.json');
             }
         },
 
-        /* @visibility should be an object { spot_name: visibility_value }
+        /* @opacity should be an object { spot_name: opacity_value }
          *
-         * visibility_value should be a number from the interval of [0; 1]
+         * opacity_value should be a number from the interval of [0; 1]
          */
-        spotVisibility: {
+        spotOpacity: {
             get: function() {
-                return this._workspace.spotVisibility;
+                return this._spotsController.spotOpacity;
             },
-            set: function (visibility) {
-                this._workspace.spotVisibility = visibility;
+            set: function (opacity) {
+                this._spotsController.spotOpacity = opacity;
             }
         },
 
-        /* @visibility should be a number from the interval of [0; 1]
+        /* @opacity should be a number from the interval of [0; 1]
          */
-        globalSpotVisibility: {
+        globalSpotOpacity: {
             get: function () {
-                return this._workspace.globalSpotVisibility;
+                return this._spotsController.globalSpotOpacity;
             },
-            set: function (visibility) {
-                this._workspace.globalSpotVisibility = visibility;
+            set: function (opacity) {
+                this._spotsController.globalSpotOpacity = opacity;
             }
         },
 
@@ -125,10 +127,10 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
          */
         spotColors: {
             get: function () {
-                return this._workspace.spotColors;
+                return this._spotsController.spotColors;
             },
             set: function (colors) {
-                this._workspace.spotColors = colors;
+                this._spotsController.spotColors = colors;
             }
         },
 
@@ -138,10 +140,10 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
          */
         spotScale: {
             get: function() {
-                return this._workspace.spotScale;
+                return this._spotsController.spotScale;
             },
             set: function (scale) {
-                this._workspace.spotScale = scale;
+                this._spotsController.spotScale = scale;
             }
         },
 
@@ -149,10 +151,10 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
          */
         globalSpotScale: {
             get: function () {
-                return this._workspace.globalSpotScale;
+                return this._spotsController.globalSpotScale;
             },
             set: function (scale) {
-                this._workspace.globalSpotScale = scale;
+                this._spotsController.globalSpotScale = scale;
             }
         },
 

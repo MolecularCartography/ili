@@ -1,11 +1,11 @@
 'use strict';
 
-define(['workspace'],
-function(Workspace) {
+define(['spotscontroller'],
+function(SpotsController) {
     function ViewLegend(workspace, svg) {
-        this._workspace = workspace;
+        this._spotsController = workspace.spotsController;
         this._svg = svg;
-        this._workspace.addEventListener(Workspace.Events.MAPPING_CHANGE, this.update.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this.update.bind(this));
         this.update();
     }
 
@@ -20,7 +20,7 @@ function(Workspace) {
 
         update: {
             value: function () {
-                var description = this._workspace.colorMap.gradient;
+                var description = this._spotsController.colorMap.gradient;
 
                 var colorBar = this._svg.getElementById('colorMapGradient');
                 while (colorBar.firstChild) {
@@ -32,10 +32,10 @@ function(Workspace) {
                     stopNode.setAttribute('stop-color', description[i]);
                     colorBar.appendChild(stopNode);
                 }
-                var workspace = this._workspace;
-                this._svg.getElementById('minLabel').textContent = format(workspace.minValue);
-                this._svg.getElementById('maxLabel').textContent = format(workspace.maxValue);
-                this._svg.getElementById('scaleLabel').textContent = workspace.scale.legend;
+                var spotsController = this._spotsController;
+                this._svg.getElementById('minLabel').textContent = format(spotsController.minValue);
+                this._svg.getElementById('maxLabel').textContent = format(spotsController.maxValue);
+                this._svg.getElementById('scaleLabel').textContent = spotsController.scale.legend;
 
                 function format(x) {
                     return Number(x).toFixed(3);
@@ -46,8 +46,6 @@ function(Workspace) {
         export: {
             value: function(canvas, scale) {
                 return new Promise(function(accept, reject) {
-
-
                     var OFFSET = 10;
                     var legendStyle = window.getComputedStyle(this._svg);
                     var width = parseInt(legendStyle.getPropertyValue('width'), 10);

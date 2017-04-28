@@ -1,12 +1,13 @@
 'use strict';
 
 define([
-    'eventsource', 'three'
+    'eventsource', 'spotscontroller', 'three'
 ],
-function(EventSource, THREE) {
-    function Scene3D() {
+function(EventSource, SpotsController, THREE) {
+    function Scene3D(spotsController) {
         EventSource.call(this, Scene3D.Events);
 
+        this._spotsController = spotsController;
         this._scene = new THREE.Scene();
         this._frontLight = new THREE.PointLight(0xffffff, 1.5, 0);
         this._mesh = null;
@@ -25,19 +26,19 @@ function(EventSource, THREE) {
         // this property should be used to select correct material if mesh contains multiple ones
         this._meshMaterialName = null;
 
-        this._spotBorder = 0.05;
-        this._globalSpotScale = 1.0;
-        this._globalSpotVisibility = 1.0;
-        this._colorMap = null;
         this._adjustment = { x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0 };
 
-        this._spots = null;
         this._mapping = null;
 
         this._axisHelper = new THREE.AxisHelper(20);
         this._scene.add(this._axisHelper);
         this._scene.add(this._meshContainer);
         this._scene.add(this._frontLight);
+
+        this._spotsController.addEventListener(SpotsController.Events.SPOTS_CHANGE, this._onSpotsChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onGeometryColorChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._onIntensitiesChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onIntensitiesChange.bind(this));
     };
 
     Scene3D.Events = {
@@ -90,21 +91,16 @@ function(EventSource, THREE) {
     Scene3D.prototype = Object.create(EventSource.prototype, {
         clone: {
             value: function(eventName, listener) {
-                var result = new Scene3D();
+                var result = new Scene3D(this._spotsController);
                 result.frontLight = this.frontLight;
                 result.color = this.color;
                 result.backgroundColor = this.backgroundColor;
-                result.spotBorder = this.spotBorder;
-                result.colorMap = this.colorMap;
                 result.adjustment = this.adjustment;
                 result._meshMaterialName = this._meshMaterialName;
                 result._meshMaterials = this._meshMaterials.map(function (m) { return m.clone(); });
                 result.geometry = this.geometry.clone();
-                result.spots = this.spots;
                 result.mapping = this.mapping;
                 result.axisHelper = this.axisHelper;
-                result.globalSpotScale = this.globalSpotScale;
-                result.globalSpotVisibility = this.globalSpotVisibility;
                 return result;
             }
         },
@@ -118,11 +114,9 @@ function(EventSource, THREE) {
 
             set: function(value) {
                 var color = new THREE.Color(value);
-                if (color.equals(this._color)) return;
-                this._color.set(color);
-                if (this._mesh) {
-                    this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
-                    this._notify(Scene3D.Events.CHANGE);
+                if (!color.equals(this._color)) {
+                    this._color.set(color);
+                    this._onGeometryColorChange();
                 }
             }
         },
@@ -134,9 +128,10 @@ function(EventSource, THREE) {
 
             set: function(value) {
                 var color = new THREE.Color(value);
-                if (color.equals(this._backgroundColor)) return;
-                this._backgroundColor.set(color);
-                this._notify(Scene3D.Events.CHANGE);
+                if (!color.equals(this._backgroundColor)) {
+                    this._backgroundColor.set(color);
+                    this._notify(Scene3D.Events.CHANGE);
+                }
             }
         },
 
@@ -146,16 +141,8 @@ function(EventSource, THREE) {
             }
         },
 
-        spotBorder: {
-            get: function() {
-                return this._spotBorder;
-            },
-
-            set: function(value) {
-                if (this._spotBorder == value) return;
-                if (value < 0.0) value = 0.0;
-                if (value > 1.0) value = 1.0;
-                this._spotBorder = value;
+        _onGeometryColorChange: {
+            value: function () {
                 if (this._mesh) {
                     this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
@@ -163,24 +150,13 @@ function(EventSource, THREE) {
             }
         },
 
-        globalSpotScale: {
-            get: function () {
-                return this._globalSpotScale;
-            },
-            set: function (value) {
-                this._globalSpotScale = value < 0 ? 0 : value;
-                // this._recolor() is not called because mapping has to be recalculated as well
-            }
-        },
-
-        globalSpotVisibility: {
-            get: function () {
-                return this._globalSpotVisibility;
-            },
-            set: function (value) {
-                this._globalSpotVisibility = value < 0 ? 0 : value > 1 ? 1 : value;
+        _onSpotsChange: {
+            value: function () {
+                if (this._mapping) {
+                    this._mapping = null; // Mapping is obsolete.
+                }
                 if (this._mesh) {
-                    this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
+                    this._recolor(Scene3D.RecoloringMode.USE_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
                 }
             }
@@ -209,42 +185,6 @@ function(EventSource, THREE) {
                 }
             }),
 
-        spots: {
-            get: function() {
-                return this._spots;
-            },
-
-            set: function(value) {
-                if (value) {
-                    this._spots = new Array(value.length);
-                    for (var i = 0; i < value.length; i++) {
-                        var spot = value[i];
-                        this._spots[i] = {
-                            x: spot.x,
-                            y: spot.y,
-                            z: spot.z,
-                            r: spot.r,
-                            intensity: spot.intensity,
-                            color: spot.color,
-                            visibility: spot.visibility,
-                            scale: spot.scale,
-                            name: spot.name,
-                        };
-                    }
-                } else {
-                    this._spots = null;
-                }
-                if (this._mapping) {
-                    this._mapping = null; // Mapping is obsolete.
-
-                    if (this._mesh) {
-                        this._recolor();
-                        this._notify(Scene3D.Events.CHANGE);
-                    }
-                }
-            }
-        },
-
         refreshSpots: {
             value: function () {
                 this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
@@ -252,15 +192,10 @@ function(EventSource, THREE) {
             }
         },
 
-        updateIntensities: {
+        _onIntensitiesChange: {
             value: function(spots) {
-                if (!this._spots) return;
-
-                for (var i = 0; i < this._spots.length; i++) {
-                    this._spots[i].intensity = spots[i].intensity;
-                }
                 if (this._mesh && this._mapping) {
-                    this._recolor();
+                    this._recolor(Scene3D.RecoloringMode.USE_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
                 }
             }
@@ -275,8 +210,9 @@ function(EventSource, THREE) {
                 if (this._mapping === null && value === null) {
                     return;
                 }
-                if (!this._spots) {
-                    throw "Mapping donesn't make sense without spots";
+                if (!this._spotsController.spots) {
+                    console.log('Potential programming error: setting mapping with invalid spots data');
+                    return;
                 }
                 this._mapping = {
                     closestSpotIndeces: value.closestSpotIndeces,
@@ -342,20 +278,6 @@ function(EventSource, THREE) {
             }
         },
 
-        colorMap: {
-            get: function() {
-                return this._colorMap;
-            },
-
-            set: function(value) {
-                this._colorMap = value;
-                if (this._mesh && this._spots && this._mapping) {
-                    this._recolor();
-                    this._notify(Scene3D.Events.CHANGE);
-                }
-            }
-        },
-
         position: {
             get: function() {
                 return this._scene.position.clone();
@@ -371,7 +293,9 @@ function(EventSource, THREE) {
 
         raycast: {
             value: function(raycaster) {
-                if (!this._mesh || !this._spots || !this._mapping) return null;
+                if (!this._mesh || !this._spotsController.spots || !this._mapping) {
+                    return null;
+                }
                 var message = {
                     positions: this._mesh.geometry.attributes.position.array,
                     origin: new THREE.Vector3().copy(raycaster.ray.origin),
@@ -379,7 +303,7 @@ function(EventSource, THREE) {
                     matrixWorld: new THREE.Matrix4().copy(this._mesh.matrixWorld),
                 };
                 var closestSpotIndeces = this._mapping.closestSpotIndeces;
-                var spots = this._spots;
+                var spots = this._spotsController.spots;
                 var worker = new Worker('js/workers/Raycaster.js');
 
                 var promise = new Promise(function(accept, reject) {
@@ -421,32 +345,33 @@ function(EventSource, THREE) {
 
         spotToWorld: {
             value: function(spot) {
-                if (!this._mesh) return null;
-
+                if (!this._mesh) {
+                    return null;
+                }
                 var position = new THREE.Vector3(spot.x, spot.y, spot.z);
                 position.applyMatrix4(this._mesh.matrixWorld);
                 return position;
             }
         },
 
-        /* Default value of @recoloringMode is Scene3D.RecoloringMode.USE_COLORMAP */
         _recolor: {
             value: function(recoloringMode) {
                 var startTime = new Date();
                 var geometry = this.geometry;
                 var mapping = this.mapping;
-                var spots = this.spots;
-                recoloringMode = recoloringMode || Scene3D.RecoloringMode.USE_COLORMAP;
+                var spots = this._spotsController.spots;
+                var globalSpotsOpacity = this._spotsController.globalSpotOpacity;
 
                 var position = geometry.getAttribute('position');
                 var positionCount = position.array.length / position.itemSize;
 
                 if (mapping && recoloringMode === Scene3D.RecoloringMode.USE_COLORMAP) {
+                    var colorMap = this._spotsController.colorMap;
                     var currentSpot = null;
                     for (var i = 0; i < spots.length; i++) {
                         currentSpot = spots[i];
                         if (!isNaN(currentSpot.intensity)) {
-                            this._colorMap.map(currentSpot.color, currentSpot.intensity);
+                            colorMap.map(currentSpot.color, currentSpot.intensity);
                         }
                     }
                 }
@@ -476,7 +401,7 @@ function(EventSource, THREE) {
                 }
 
                 if (mapping) {
-                    var spotBorder = 1.0 - this._spotBorder;
+                    var spotBorder = 1.0 - this._spotsController.spotBorder;
                     var closestSpotIndeces = mapping.closestSpotIndeces;
                     var closestSpotDistances = mapping.closestSpotDistances;
                     for (var i = 0; i < positionCount; i++) {
@@ -484,7 +409,7 @@ function(EventSource, THREE) {
                         if (index >= 0) {
                             var spot = spots[index];
                             if (!isNaN(spot.intensity)) {
-                                var alpha = (1.0 - spotBorder * closestSpotDistances[i]) * spot.visibility * this._globalSpotVisibility;
+                                var alpha = (1.0 - spotBorder * closestSpotDistances[i]) * spot.opacity * globalSpotsOpacity;
                                 var base = i * 3;
                                 color[base + 0] += (spot.color.r - color[base + 0]) * alpha;
                                 color[base + 1] += (spot.color.g - color[base + 1]) * alpha;

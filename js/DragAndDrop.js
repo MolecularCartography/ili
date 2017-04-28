@@ -2,9 +2,8 @@
 
 define([],
 function() {
-    function DragAndDrop(workspace, container, fileHandler) {
+    function DragAndDrop(container, fileHandler) {
         this._counter = 0;
-        this._workspace = workspace;
         this._appContainer = container;
         this._fileHandler = fileHandler;
 

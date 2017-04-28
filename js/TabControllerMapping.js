@@ -4,44 +4,47 @@ define([
     'colormaps',
     'tabcontrollerbase',
     'workspace',
-    'scene3d'
+    'scene3d',
+    'spotscontroller'
 ],
-function (ColorMap, TabControllerBase, Workspace, Scene3D) {
+function (ColorMap, TabControllerBase, Workspace, Scene3D, SpotsController) {
     function TabControllerMapping(container, workspace, views) {
         var description = 'Settings of feature mapping visualization';
         var title = 'Mapping';
         TabControllerBase.call(this, container, title, description, workspace);
 
         var scaleOptions = [
-            ['Linear', Workspace.Scale.LINEAR.id],
-            ['Logarithmic', Workspace.Scale.LOG.id]
+            ['Linear', SpotsController.Scale.LINEAR.id],
+            ['Logarithmic', SpotsController.Scale.LOG.id]
         ];
-        this.addChoice(workspace, 'scaleId', 'Scale', scaleOptions);
+
+        var spotsController = workspace.spotsController;
+        this.addChoice(spotsController, 'scaleId', 'Scale', scaleOptions);
 
         var colorMapOptions = Object.keys(ColorMap.Maps).reduce(function (prev, cur) {
             prev.push([ColorMap.Maps[cur].name, cur]);
             return prev;
         }, []);
-        this.addChoice(workspace, 'colorMapId', 'Color map', colorMapOptions);
+        this.addChoice(spotsController, 'colorMapId', 'Color map', colorMapOptions);
 
-        var autoMinMax = this.addFlag(workspace, 'autoMinMax', 'Auto Min/Max');
+        var autoMinMax = this.addFlag(spotsController, 'autoMinMax', 'Auto Min/Max');
         autoMinMax.restoreFirst = true;
 
-        this._hotspotQuantile = this.addNumeric(workspace, 'hotspotQuantile', 'Hotspot quantile', 0, 1);
+        this._hotspotQuantile = this.addNumeric(spotsController, 'hotspotQuantile', 'Hotspot quantile', 0, 1);
 
-        this._minIntensity = this.addNumeric(workspace, 'minValue', 'Min intensity');
-        this._maxIntensity = this.addNumeric(workspace, 'maxValue', 'Max intensity');
+        this._minIntensity = this.addNumeric(spotsController, 'minValue', 'Min intensity');
+        this._maxIntensity = this.addNumeric(spotsController, 'maxValue', 'Max intensity');
 
-        workspace.addEventListener(Workspace.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, workspace));
-        workspace.addEventListener(Workspace.Events.MAPPING_CHANGE, this._onSceneChange.bind(this));
+        spotsController.addEventListener(SpotsController.Events.AUTO_MAPPING_CHANGE, this._onAutoMappingChange.bind(this, spotsController));
+        spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onSceneChange.bind(this));
 
         return this;
     }
 
     TabControllerMapping.prototype = Object.create(TabControllerBase.prototype, {
         _onAutoMappingChange: {
-            value: function (workspace) {
-                var disabled = workspace.autoMinMax;
+            value: function (spotsController) {
+                var disabled = spotsController.autoMinMax;
 
                 if (disabled) {
                     this._minIntensity.disable();

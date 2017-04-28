@@ -52,7 +52,7 @@ function (Workspace, TabControllerSpots, TabController3D, TabControllerMapping, 
             value: function () {
                 var data = {};
                 data[AppSettingsController.SETTINGS_KEYS.VERSION] = AppSettingsController.VERSION;
-                data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.mapName;
+                data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.spotsController.mapName;
                 data[AppSettingsController.SETTINGS_KEYS.VIEWS] = this._views.toJSON();
 
                 var tabs = {};

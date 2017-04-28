@@ -14,7 +14,7 @@ function(View2D, ViewGroup3D, ViewLegend, Workspace) {
 
         this._exportPixelRatio3d = 1.0;
 
-        this._workspace.addEventListener('mode-change', this._onWorkspaceModeChange.bind(this));
+        this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, this._onWorkspaceModeChange.bind(this));
         this._onWorkspaceModeChange();
     }
 
@@ -37,8 +37,7 @@ function(View2D, ViewGroup3D, ViewLegend, Workspace) {
 
         _createView: {
             value: function(constructor, selector) {
-                var view = new constructor(
-                        this._workspace, this._div.querySelector(selector));
+                var view = new constructor(this._workspace, this._div.querySelector(selector));
                 this.all.push(view);
                 return view;
             }
@@ -139,7 +138,6 @@ function(View2D, ViewGroup3D, ViewLegend, Workspace) {
                 for (var i = 0; i < json.length; i++) {
                     this.all[i].fromJSON(json[i]);
                 }
-                //this.legend.update();
             }
         }
     });

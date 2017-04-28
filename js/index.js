@@ -39,6 +39,7 @@ require.config({
     'spotlabel2d': './js/SpotLabel2D',
     'spotlabel3d': './js/SpotLabel3D',
     'spotlabelbase': './js/SpotLabelBase',
+    'spotscontroller': './js/SpotsController',
     'tabcontroller3d': './js/TabController3D',
     'tabcontrollerbase': './js/TabControllerBase',
     'tabcontrollerdocumentation': './js/TabControllerDocumentation',

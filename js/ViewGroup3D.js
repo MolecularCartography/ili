@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'scene3d', 'view3d', 'spotlabel3d'
+    'three', 'scene3d', 'view3d', 'spotlabel3d', 'spotscontroller'
 ],
-function(THREE, Scene3D, View3D, SpotLabel3D) {
+function(THREE, Scene3D, View3D, SpotLabel3D, SpotsController) {
     /**
      * Group of View3D's. Manages shared objects: workspace, renderer, canvas.
      *
@@ -28,6 +28,7 @@ function(THREE, Scene3D, View3D, SpotLabel3D) {
 
         this._scene = workspace.scene3d;
         this._scene.addEventListener(Scene3D.Events.CHANGE, this.requestAnimationFrame.bind(this));
+        workspace.spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this.requestAnimationFrame.bind(this));
 
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 

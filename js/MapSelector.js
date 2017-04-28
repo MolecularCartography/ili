@@ -11,11 +11,12 @@
 'use strict';
 
 define([
-    'appsettingscontroller', 'utils', 'workspace'
+    'appsettingscontroller', 'spotscontroller', 'utils', 'workspace'
 ],
-function(AppSettingsController, Utils, Workspace) {
+function(AppSettingsController, SpotsController, Utils, Workspace) {
     function MapSelector(workspace, div, mapName) {
         this._workspace = workspace;
+        this._spotsController = workspace.spotsController;
         this._div = div;
         this._mapName = mapName;
         this._input = this._div.querySelector('input');
@@ -26,7 +27,7 @@ function(AppSettingsController, Utils, Workspace) {
         this._selectedIndex = -1;
         this._div.style.opacity = 0;
         this._active = false;
-        this._workspace.addEventListener(Workspace.Events.INTENSITIES_CHANGE, this._onWorkspaceIntencitiesChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_LOADED, this._onIntencitiesLoaded.bind(this));
         this._workspace.addEventListener(Workspace.Events.SETTINGS_CHANGE, this._onWorkspaceSettingsChange.bind(this));
         this._input.addEventListener('input', this._onInput.bind(this));
         this._input.addEventListener('blur', this._onBlur.bind(this));
@@ -34,19 +35,19 @@ function(AppSettingsController, Utils, Workspace) {
         this._input.addEventListener(Utils.keyPressEvent(), this._onKeyPress.bind(this), false);
         this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
         this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
-        this._onWorkspaceIntencitiesChange();
+        this._onIntencitiesLoaded();
     }
 
     MapSelector.prototype = Object.create(null, {
-        _onWorkspaceIntencitiesChange: {
+        _onIntencitiesLoaded: {
             value: function() {
-                if (!this._workspace.measures) {
+                if (!this._spotsController.measures) {
                     this._measures = [];
                     return;
                 }
                 var escape = this._escapeHTML.bind(this);
 
-                this._measures = this._workspace.measures.map(function(x) {
+                this._measures = this._spotsController.measures.map(function (x) {
                     var e = escape(x.name);
                     return {
                         name: x.name,
@@ -55,9 +56,7 @@ function(AppSettingsController, Utils, Workspace) {
                         index: x.index
                     };
                 });
-
                 this._selectIndex(this._measures.length ? 0 : -1);
-
                 this._applyFilter();
             }
         },
@@ -211,7 +210,7 @@ function(AppSettingsController, Utils, Workspace) {
                 this._selectedIndex = value;
                 if (value >= 0) {
                     this._mapName.textContent = this._measures[value].name;
-                    this._workspace.selectMapByIndex(value);
+                    this._spotsController.selectMapByIndex(value);
                 } else {
                     this._mapName.textContent = '';
                 }
