@@ -18,7 +18,6 @@ function(EventSource, SpotsController, THREE) {
         this._backgroundColor = new THREE.Color('black');
         this._meshMaterials = [];
         this._defaultMeshMaterial = new THREE.MeshLambertMaterial({
-            vertexColors: THREE.VertexColors,
             transparent: true,
             opacity: 0.9,
             shading: THREE.SmoothShading
@@ -236,7 +235,9 @@ function(EventSource, SpotsController, THREE) {
                 this._mapping = null;
                 if (geometry) {
                     geometry.computeBoundingBox();
-                    this._mesh = new THREE.Mesh(geometry, this._getMeshMaterial(this._meshMaterialName));
+                    var material = this._getMeshMaterial(this._meshMaterialName);
+                    material.vertexColors = THREE.VertexColors;
+                    this._mesh = new THREE.Mesh(geometry, material);
                     this._meshScaleFactor = this._MAX_MESH_SIZE / geometry.boundingBox.getSize().length();
                     // bounding box is invalid after the scaling below. Needs to be recomputed for further use
                     this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
