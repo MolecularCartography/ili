@@ -274,7 +274,9 @@ function(EventSource, SpotsController, THREE) {
             set: function (materials) {
                 this._meshMaterials = materials;
                 if (this._mesh && this._meshMaterialName) {
-                    this._mesh.material = this._getMeshMaterial(this._meshMaterialName);
+                    var material = this._getMeshMaterial(this._meshMaterialName);
+                    material.vertexColors = THREE.VertexColors;
+                    this._mesh.material = material;
                 }
             }
         },
