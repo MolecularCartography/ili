@@ -14,28 +14,28 @@
 ## Hello bee
 
 For a demonstration, open
-* [3D human skin metabolome example](http://ili-toolbox.github.io/?human/man.stl;human/man_LCMS_small.csv) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
+* [3D human skin metabolome example](http://ili.embl.de/?NP_man/model.stl;NP_man/intensities.csv;NP_man/kaurenoic_acid.json) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
 
-* [3D bee example](http://ili-toolbox.github.io/?bee/model.stl;bee/intensities.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#how-to-use-it)
+* [3D bee example](http://ili.embl.de/?bee/model.stl;bee/intensities.csv) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_bee.png" alt="Screenshot of the bee example" width="500"/>
 
-* [2D 3dmassomics visualisation example](http://ili-toolbox.github.io/?3dmassomics/bg.png;3dmassomics/intensities.csv) (a photo made during the 3D-MASSOMICS project meeting with simulated spots overlaid); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
+* [2D cyanobacteria distribution example](http://ili.embl.de/?cyano/bg.png;3dmassomics/intensities.csv) (data provided by Tal Luzzatto from the Dorrestein Lab, UCSD); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_3dmassomics.png" alt="Screenshot of the 3dmassomics example" width="500"/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_cyano.png" alt="Screenshot of the 3dmassomics example" width="500"/>
 
 
 ## Installation
 
-The best ways of running `ili are either [from this website](http://ili-toolbox.github.io/) or as a [Chrome extension](https://goo.gl/3KAA8U).
+The best ways of running `ili are either [from this website](http://ili.embl.de/) or as a [Chrome extension](https://goo.gl/3KAA8U).
 
 ## Input
 
 `ili takes two files:
-* for 2D mapping: a PNG to be used as the background image ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/bg.png)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/3dmassomics/intensities.csv))
-* for 3D mapping: a binary STL of the 3D model ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/model.stl)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/ili-toolbox/ili/master/data/bee/intensities.csv))
+* for 2D mapping: a PNG or JPG file to be used as the background image ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/cyano/bg.png)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/cyano/intensities.csv))
+* for 3D mapping: a 3D model in STL format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/bee/model.stl)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/bee/intensities.csv))
 
 To create a mapping file suitable for input, you need two pieces of information: coordinates of your samples on your picture/model and intensities of features you're going to visualize in \`ili. Please find the instruction on how to create a CSV table with coordinates [here](https://github.com/alexandrovteam/Optimus/blob/master/Obtaining coordinates of sampling spots.md). Rows of the result table correspond to samples. Once you have it, you can add your features as new columns. Finally, you need to save it as a CSV file, and it is ready to be viewed in \`ili. Refer to the examples above to have an idea of the final look of the table.
 
