@@ -30,7 +30,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
 
         this._initKeyboardShortcuts();
 
-        this._appContainer.querySelector('#controls-switcher').onclick = this._toggleControlsPanel.bind(this);
+        this._appContainer.querySelector('#controls-switcher').onclick = this._toggleControls.bind(this);
         this._appContainer.querySelector('#open-button').onclick = this.chooseFilesToOpen.bind(this);
         this._appContainer.querySelector('#current-map-label').onclick = this._mapSelector.activate.bind(this._mapSelector);
         this._appContainer.querySelector('#view-container').onmousedown = this._mapSelector.deactivate.bind(this._mapSelector);
@@ -41,6 +41,8 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         }.bind(this));
 
         this._dnd = new DragAndDrop(this._appContainer, this._workspace.loadFiles.bind(this._workspace));
+
+        this._controlsVisible = true;
 
         if (window.location.search) {
             var fileNames = window.location.search.substr(1).split(';');
@@ -90,6 +92,22 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             value: function () {
                 var name = this._spotsController.mapName || 'ili_settings';
                 saveAs(this._settingsController.serialize(), name + '.json');
+            }
+        },
+
+
+        /* Property used to show/hide the sidebar
+         */
+        controlsVisible: {
+            get: function() {
+                return this._controlsVisible;
+            },
+            set: function (visible) {
+                visible = !!visible;
+                if (visible !== this._controlsVisible) {
+                    this._appContainer.querySelector('#controls-switcher').click();
+                    this._controlsVisible = visible;
+                }
             }
         },
 
@@ -228,7 +246,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             }
         },
 
-        _toggleControlsPanel: {
+        _toggleControls: {
             value: function () {
                 // timeout is used because a blank vertical stripe remains from a scrollbar of the sidebar,
                 // which gets updated asynchronously, it seems

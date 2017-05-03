@@ -20,7 +20,8 @@ function(EventSource, SpotsController, THREE) {
         this._defaultMeshMaterial = new THREE.MeshLambertMaterial({
             transparent: true,
             opacity: 0.9,
-            shading: THREE.SmoothShading
+            shading: THREE.SmoothShading,
+            vertexColors: THREE.VertexColors
         });
         // this property should be used to select correct material if mesh contains multiple ones
         this._meshMaterialName = null;
@@ -235,9 +236,7 @@ function(EventSource, SpotsController, THREE) {
                 this._mapping = null;
                 if (geometry) {
                     geometry.computeBoundingBox();
-                    var material = this._getMeshMaterial(this._meshMaterialName);
-                    material.vertexColors = THREE.VertexColors;
-                    this._mesh = new THREE.Mesh(geometry, material);
+                    this._mesh = new THREE.Mesh(geometry, this._getMeshMaterial(this._meshMaterialName));
                     this._meshScaleFactor = this._MAX_MESH_SIZE / geometry.boundingBox.getSize().length();
                     // bounding box is invalid after the scaling below. Needs to be recomputed for further use
                     this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
@@ -265,6 +264,9 @@ function(EventSource, SpotsController, THREE) {
                     result = this._meshMaterials.find(function (material) {
                         return material.name === materialName;
                     });
+                    if (result) {
+                        result.vertexColors = THREE.VertexColors;
+                    }
                 }
                 return result || this._defaultMeshMaterial;
             }
@@ -274,9 +276,7 @@ function(EventSource, SpotsController, THREE) {
             set: function (materials) {
                 this._meshMaterials = materials;
                 if (this._mesh && this._meshMaterialName) {
-                    var material = this._getMeshMaterial(this._meshMaterialName);
-                    material.vertexColors = THREE.VertexColors;
-                    this._mesh.material = material;
+                    this._mesh.material = this._getMeshMaterial(this._meshMaterialName);
                 }
             }
         },
