@@ -105,7 +105,9 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             set: function (visible) {
                 visible = !!visible;
                 if (visible !== this._controlsVisible) {
-                    this._appContainer.querySelector('#controls-switcher').click();
+                    var controlsSwitcher = this._appContainer.querySelector('#controls-switcher');
+                    controlsSwitcher.click();
+                    controlsSwitcher.style.visibility = visible ? 'visible' : 'hidden';
                     this._controlsVisible = visible;
                 }
             }
