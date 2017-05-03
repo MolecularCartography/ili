@@ -14,18 +14,21 @@
 ## Hello bee
 
 For a demonstration, open
-* [3D human skin metabolome example](http://ili.embl.de/?NP_man/model.stl;NP_man/intensities.csv;NP_man/kaurenoic_acid.json) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
+* [3D human skin metabolome example](https://goo.gl/aMBzq8) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
 
-* [3D bee example](http://ili.embl.de/?bee/model.stl;bee/intensities.csv;bee/example.json) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#how-to-use-it)
+* [3D bee example](https://goo.gl/YyB3Te) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_bee.png" alt="Screenshot of the bee example" width="500"/>
 
-* [2D cyanobacteria distribution example](http://ili.embl.de/?cyano/bg.png;cyano/intensities.csv;cyano/example.json) (data provided by Tal Luzzatto from the Dorrestein Lab, UCSD); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
+* [2D cyanobacteria distribution example](https://goo.gl/6CGCCK) (data provided by Tal Luzzatto from the Dorrestein Lab, UCSD); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_cyano.png" alt="Screenshot of the 3dmassomics example" width="500"/>
 
+## Examples from real-life studies
+
+On [this page](./Studies.md) you can find examples of \`ili being applied in research.
 
 ## Installation
 
