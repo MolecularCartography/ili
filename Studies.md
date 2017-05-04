@@ -75,7 +75,7 @@
 
 <tr>
     <td rowspan="11">Cash dispenser keypad</td>
-    <td><a href="https://goo.gl/s6QXLN">Urocanate in 3D</a></td>
+    <td><a href="https://goo.gl/p919lK">Urocanate in 3D</a></td>
     <td rowspan="11">TBU</td>
     <td rowspan="11">Luca Rappez</td>
     <td rowspan="11">Theodore Alexandrov</td>
@@ -83,41 +83,41 @@
     <td rowspan="11"><a href="https://goo.gl/73SzFP">MSV000080560</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/nFFtIo">Urocanate in 2D</a></td>
+    <td><a href="https://goo.gl/7A2mkH">Urocanate in 2D</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/QjZBR8">Aspartic acid</a></td>
+    <td><a href="https://goo.gl/voyuAk">Aspartic acid</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/Y8ddpq">Glutamic acid</a></td>
+    <td><a href="https://goo.gl/zt4hcW">Glutamic acid</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/DmsBau">Histidine</a></td>
+    <td><a href="https://goo.gl/qOLoIM">Histidine</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/w9en2h">m/z 371.326</a></td>
+    <td><a href="https://goo.gl/snoijq">m/z 371.326</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/oMdPQc">m/z 630.478</a></td>
+    <td><a href="https://goo.gl/PNpks1">m/z 630.478</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/gDBrfr">m/z 266.151</a></td>
+    <td><a href="https://goo.gl/GvxVOj">m/z 266.151</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/2hVvYd">m/z 294.182D</a></td>
+    <td><a href="https://goo.gl/rKCx3C">m/z 294.182D</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/yaECLH">m/z 454.020</a></td>
+    <td><a href="https://goo.gl/MHebdn">m/z 454.020</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/52GdqM">m/z 486.282</a></td>
+    <td><a href="https://goo.gl/Pwurfi">m/z 486.282</a></td>
 </tr>
 
 <!-- Human skin by A. Bouslimani -->
 
 <tr>
     <td rowspan="4">Human skin</td>
-    <td><a href="https://goo.gl/s6QXLN">Sodium laureth sulfate</a></td>
+    <td><a href="https://goo.gl/IeiD01">Sodium laureth sulfate</a></td>
     <td rowspan="4"><a href="https://dx.doi.org/10.1073/pnas.1424409112">PNAS, 2015</a></td>
     <td rowspan="4">Amina Bouslimani</td>
     <td rowspan="4">Pieter Dorrestein</td>
@@ -125,20 +125,20 @@
     <td rowspan="4"><a href="https://goo.gl/Mcf7di">MSV000078556</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/enkZAI">Kaurenoic acid</a></td>
+    <td><a href="https://goo.gl/k8F5X3">Kaurenoic acid</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/U4zrhh">Sinapic acid</a></td>
+    <td><a href="https://goo.gl/EL8Cdz">Sinapic acid</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/BrrHTK">C18-sphingosine</a></td>
+    <td><a href="https://goo.gl/12dJyC">C18-sphingosine</a></td>
 </tr>
 
 <!-- Human built environment by D. Petras -->
 
 <tr>
     <td rowspan="4">Human built environment</td>
-    <td><a href="https://goo.gl/zb0dTr">Dihydrocapsaicin</a></td>
+    <td><a href="https://goo.gl/7LFSeO">Dihydrocapsaicin</a></td>
     <td rowspan="4"><a href="https://dx.doi.org/10.1021/acs.analchem.6b03456">Anal. Chem., 2016</a></td>
     <td rowspan="4">Daniel Petras</td>
     <td rowspan="4">Pieter Dorrestein</td>
@@ -146,20 +146,20 @@
     <td rowspan="4"><a href="https://goo.gl/AiKNb4">MSV000079717</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/p9OmZR">Cyclopentaxyloxane</a></td>
+    <td><a href="https://goo.gl/tpNOAg">Cyclopentaxyloxane</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/4m6xkk">Dexpanthenol</a></td>
+    <td><a href="https://goo.gl/Yx0tMu">Dexpanthenol</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/HLsgbz">Nobiletin</a></td>
+    <td><a href="https://goo.gl/EDdRS2">Nobiletin</a></td>
 </tr>
 
 <!-- Cell phones by A. Bouslimani -->
 
 <tr>
     <td rowspan="6">Lifestyle chemistries from phones</td>
-    <td><a href="https://goo.gl/tsa8gh">Minoxidil</a></td>
+    <td><a href="https://goo.gl/dMss5Y">Minoxidil</a></td>
     <td rowspan="6"><a href="https://dx.doi.org/10.1073/pnas.1610019113">PNAS, 2016</a></td>
     <td rowspan="6">Amina Bouslimani</td>
     <td rowspan="6">Pieter Dorrestein</td>
@@ -167,19 +167,19 @@
     <td rowspan="6"><a href="https://goo.gl/RRKJTZ">MSV000079825</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/cu88tL">Trehalose-6-palmitate</a></td>
+    <td><a href="https://goo.gl/0tq7FX">Trehalose-6-palmitate</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/TEP07P">Nystatin</a></td>
+    <td><a href="https://goo.gl/ULf57C">Nystatin</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/6BGKUs">m/z 381.197</a></td>
+    <td><a href="https://goo.gl/snSpc7">m/z 381.197</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/AtwFfE">m/z 397.238</a></td>
+    <td><a href="https://goo.gl/cfEhlT">m/z 397.238</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/HPSKXp">m/z 421.256</a></td>
+    <td><a href="https://goo.gl/Hl14g3">m/z 421.256</a></td>
 </tr>
 
 </table>
