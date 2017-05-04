@@ -14,11 +14,11 @@
 ## Hello bee
 
 For a demonstration, open
-* [3D human skin metabolome example](https://goo.gl/aMBzq8) from [the PNAS paper](#miscellaneous); zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
+* [3D human skin metabolome example](https://goo.gl/aMBzq8) from *[Bouslimani et al., PNAS, 2015](#miscellaneous)*; zoom out by using the mouse wheel to see the full image and follow [instructions](#how-to-use-it)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_human.png" alt="Screenshot of the human example" width="500"/>
 
-* [3D bee example](https://goo.gl/YyB3Te) (data provided by Yi Zeng from the Dorrestein Lab, UCSD); follow [instructions](#how-to-use-it)
+* [3D bee example](https://goo.gl/YyB3Te) (data provided by Yi Zeng from the Dorrestein Lab, UCSD)
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="img/screenshot_bee.png" alt="Screenshot of the bee example" width="500"/>
 
