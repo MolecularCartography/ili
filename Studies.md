@@ -44,31 +44,31 @@
     <td><a href="https://goo.gl/BZ9q6z">Rosmarinic acid</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/PmFgaX">mz 833.299</a></td>
+    <td><a href="https://goo.gl/PmFgaX">m/z 833.299</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/z70g2V">mz 637.224</a></td>
+    <td><a href="https://goo.gl/z70g2V">m/z 637.224</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/64GV1p">mz 632.395</a></td>
+    <td><a href="https://goo.gl/64GV1p">m/z 632.395</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/ORHunA">mz 507.316</a></td>
+    <td><a href="https://goo.gl/ORHunA">m/z 507.316</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/l16ZGe">mz 457.366</a></td>
+    <td><a href="https://goo.gl/l16ZGe">m/z 457.366</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/gZISAQ">mz 315.086</a></td>
+    <td><a href="https://goo.gl/gZISAQ">m/z 315.086</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/g5WVbQ">mz 313.140</a></td>
+    <td><a href="https://goo.gl/g5WVbQ">m/z 313.140</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/H30tnc">mz 293.099</a></td>
+    <td><a href="https://goo.gl/H30tnc">m/z 293.099</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/XKebje">mz 247.130</a></td>
+    <td><a href="https://goo.gl/XKebje">m/z 247.130</a></td>
 </tr>
 
 <!-- ATM keypad by L. Rappez -->
@@ -104,7 +104,7 @@
     <td><a href="https://goo.gl/GvxVOj">m/z 266.151</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/rKCx3C">m/z 294.182D</a></td>
+    <td><a href="https://goo.gl/rKCx3C">m/z 294.182</a></td>
 </tr>
 <tr>
     <td><a href="https://goo.gl/MHebdn">m/z 454.020</a></td>
@@ -146,7 +146,7 @@
     <td rowspan="4"><a href="https://goo.gl/AiKNb4">MSV000079717</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/tpNOAg">Cyclopentaxyloxane</a></td>
+    <td><a href="https://goo.gl/zoiIqU">Cyclopentaxyloxane</a></td>
 </tr>
 <tr>
     <td><a href="https://goo.gl/Yx0tMu">Dexpanthenol</a></td>
