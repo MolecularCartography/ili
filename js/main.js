@@ -5,7 +5,7 @@
 
 define([
     'workspace', 'viewcontainer', 'viewgroup3d', 'mapselector', 'colormaps', 'filesaver', 'utils',
-    'dragndrop', 'text!../template.html', 'jquery', 'jqueryui', 'appsettingscontroller', 'spotscontroller'
+    'dragndrop', 'text!template.html', 'jquery', 'jqueryui', 'appsettingscontroller', 'spotscontroller'
 ],
 function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, Utils,
     DragAndDrop, appLayout, $, $ui, AppSettingsController, SpotsController)

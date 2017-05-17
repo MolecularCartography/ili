@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 define([
-    'tabcontrollerbase', 'text!../documentation.html'
+    'tabcontrollerbase', 'text!documentation.html'
 ],
 function (TabControllerBase, layout) {
     function TabControllerDocumentation(container, workspace, views) {

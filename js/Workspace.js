@@ -276,7 +276,7 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
                 var task = {
                     worker: typeof taskType.worker == 'function' ?
                         new taskType.worker() :
-                        new Worker('js/workers/' + taskType.worker),
+                        new Worker(require.toUrl('js/workers/' + taskType.worker)),
                     status: '',
                     cancel: this._cancelTask.bind(this, taskType),
                     startTime: new Date().valueOf(),

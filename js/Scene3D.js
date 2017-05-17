@@ -307,7 +307,7 @@ function(EventSource, SpotsController, THREE) {
                 };
                 var closestSpotIndeces = this._mapping.closestSpotIndeces;
                 var spots = this._spotsController.spots;
-                var worker = new Worker('js/workers/Raycaster.js');
+                var worker = new Worker(require.toUrl('js/workers/Raycaster.js'));
 
                 var promise = new Promise(function(accept, reject) {
                     worker.onmessage = function(event) {
