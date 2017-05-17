@@ -89,5 +89,5 @@ require.config({
 });
 
 require(['main'], function (ili) {
-    var app = new ili(document.getElementById('ili-container'));
+    var app = new ili(document.getElementsByTagName('body')[0]);
 });

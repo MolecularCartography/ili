@@ -32,7 +32,7 @@ function(THREE, Scene3D, View3D, SpotLabel3D, SpotsController) {
 
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 
-        var divs = this._div.querySelectorAll('.View3d');
+        var divs = this._div.querySelectorAll('.View3D');
         for (var i = 0; i < divs.length; i++) {
             this._views.push(new View3D(this, divs[i]));
         }

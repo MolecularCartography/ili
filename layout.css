@@ -3,10 +3,12 @@
 #ili-container > .row {
     margin-left: 0;
     margin-right: 0;
+    height: 100%;
 }
 
 #ili-container > .row > * {
     padding: 0;
+    height: 100%;
 }
 
 .tab-pane:not(.active) {

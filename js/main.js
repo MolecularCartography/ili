@@ -15,8 +15,10 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
             alert('WebGL technology is not enabled in your browser. Turn it on to get `ili functioning properly.');
         }
 
-        this._appContainer = appContainer;
+        this._appContainer = document.createElement('div');
+        this._appContainer.id = 'ili-container';
         this._appContainer.innerHTML = appLayout;
+        appContainer.appendChild(this._appContainer);
 
         this._spotsController = new SpotsController();
         this._workspace = new Workspace(this._spotsController);
