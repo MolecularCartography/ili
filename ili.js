@@ -1,4 +1,5 @@
-function ili(container, baseUrl) {
+define('ili', [], function () {
+return function (container, baseUrl) {
 
     baseUrl = baseUrl || '/';
 
@@ -116,3 +117,5 @@ function ili(container, baseUrl) {
         document.getElementsByTagName("head")[0].appendChild(link);
     }
 }
+});
+
