@@ -1,7 +1,7 @@
 License
 =======
 
-Copyright 2015-2016, Theodore Alexandrov, Sergey Ryazanov, and Ivan Protsyuk
+Copyright 2015-2017, Theodore Alexandrov, Sergey Ryazanov, and Ivan Protsyuk
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
