@@ -17,7 +17,6 @@ return function (container, baseUrl) {
         // the left side is the module name, and the right side is the path
         // do NOT include the .js extension
         'paths': {
-            'text': './js/lib/text.min',
             'filesaver': './js/lib/FileSaver.min',
             'jquery': './js/lib/jquery-2.1.4.min',
             'jqueryui': './js/lib/jquery-ui.min',
@@ -68,6 +67,10 @@ return function (container, baseUrl) {
             'viewlegend': './js/ViewLegend',
             'workspace': './js/Workspace',
             'utils': './js/utils',
+
+            /* HTML templates */
+            'mainlayout': './template.html',
+            'documentationlayout': './documentation.html',
 
             /* emperor */
             'abcviewcontroller': 'js/emperor/abc-view-controller',
