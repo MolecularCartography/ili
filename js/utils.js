@@ -34,5 +34,28 @@ function() {
         }
     };
 
+    /* File is not supported natively in all browsers, so we have to use this */
+    Utils.File = function (data, name) {
+        this.data = (typeof File !== 'undefined' && data instanceof File) ? data : new Blob(data);
+        this.name = name;
+    };
+    Utils.File.prototype = Object.create(Blob.prototype, {
+        size: {
+            get: function () {
+                return this.data.size;
+            }
+        },
+        type: {
+            get: function () {
+                return this.data.type;
+            }
+        },
+        slice: {
+            value: function () {
+                return this.data.slice(arguments);
+            }
+        }
+    });
+
     return Utils;
 });

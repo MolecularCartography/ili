@@ -38,7 +38,7 @@ function () {
             value: function (blob) {
                 this._fileType = blob.type;
                 this._fileName = 'name' in blob ? blob.name : null;
-                this._reader.readAsArrayBuffer(blob);
+                this._reader.readAsArrayBuffer(blob.data);
             }
         },
 

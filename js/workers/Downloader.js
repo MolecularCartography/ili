@@ -2,8 +2,13 @@
 
 importScripts('../lib/require.min.js');
 
-require([],
-function() {
+require({
+    'paths': {
+        'utils': '../utils'
+    }
+}, [
+    'utils'
+], function(Utils) {
     onmessage = function(e) {
         var fileNames = e.data;
         var downloader = new Downloader();
@@ -94,7 +99,7 @@ function() {
             postMessage({
                 status: 'completed',
                 items: this.items.map(function(item) {
-                    return new File([item.request.response], item.fileName);
+                    return new Utils.File([item.request.response], item.fileName);
                 }),
             });
         },

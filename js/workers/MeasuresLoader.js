@@ -33,7 +33,7 @@ require({
 ],
 function(Papa) {
     onmessage = function(e) {
-        var blob = e.data;
+        var blob = e.data.data;
         Papa.parse(blob, new Handler());
     };
 

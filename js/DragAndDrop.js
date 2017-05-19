@@ -1,7 +1,7 @@
 'use strict';
 
-define([],
-function() {
+define(['utils'],
+function(Utils) {
     function DragAndDrop(container, fileHandler) {
         this._counter = 0;
         this._appContainer = container;
@@ -48,7 +48,7 @@ function() {
                 e.preventDefault();
                 e.stopPropagation();
 
-                this._fileHandler(Array.from(e.dataTransfer.files));
+                this._fileHandler(Array.from(e.dataTransfer.files).map(function (file) { return new Utils.File(file, file.name); }));
             }
         }
     });

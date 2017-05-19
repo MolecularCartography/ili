@@ -22,7 +22,7 @@ importScripts('../lib/require.min.js');
 require([],
 function () {
     onmessage = function (e) {
-        var blob = e.data;
+        var blob = e.data.data;
         var reader = new FileReaderSync();
         try {
             var settings = JSON.parse(reader.readAsText(blob));

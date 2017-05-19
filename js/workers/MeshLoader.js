@@ -58,7 +58,7 @@ function (Utils, THREE, STLLoader, OBJLoader) {
             extension: 'stl',
             handler: function (file) {
                 var reader = new FileReaderSync();
-                var contents = reader.readAsArrayBuffer(file);
+                var contents = reader.readAsArrayBuffer(file.data);
                 return {
                     geometry: new STLLoader().parse(contents),
                     materialName: null
@@ -69,7 +69,7 @@ function (Utils, THREE, STLLoader, OBJLoader) {
             extension: 'obj',
             handler: function (file) {
                 var reader = new FileReaderSync();
-                var contents = reader.readAsText(file);
+                var contents = reader.readAsText(file.data);
                 var meshes = new OBJLoader().parse(contents);
                 if (meshes.children.length == 0) {
                     throw 'File "' + file.name + '" contains no meshes.';
