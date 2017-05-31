@@ -97,8 +97,10 @@ function(AppSettingsController, SpotsController, Utils, Workspace) {
                 this._active = true;
                 var div = this._div;
                 div.hidden = false;
-                this._input.focus();
-                this._input.select();
+                if (!Utils.isMobile) {
+                    this._input.focus();
+                    this._input.select();
+                }
                 this._effect(0).then(function() {
                     div.style.opacity = 1;
                 });
