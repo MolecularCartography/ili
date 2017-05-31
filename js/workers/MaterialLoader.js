@@ -87,7 +87,7 @@ function (ImageLoader, MTLLoader, THREE, Utils) {
                     this._pendingImages -= 1;
                 }
                 if (this._pendingImages === 0) {
-                    var mtlContent = this._fileReader.readAsText(this._materialFile);
+                    var mtlContent = this._fileReader.readAsText(this._materialFile.data);
                 }
             }
         },
