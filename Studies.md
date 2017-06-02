@@ -15,7 +15,7 @@
 
 <tr>
     <td rowspan="2">Lungs of individual with cystic fibrosis</td>
-    <td><a href="https://goo.gl/GO98vt">metabolites</a></td>
+    <td><a href="https://goo.gl/GO98vt">metabolite features</a></td>
     <td rowspan="2">TBU</td>
     <td rowspan="2">Neha Garg</td>
     <td rowspan="2">Pieter Dorrestein</td>
@@ -180,6 +180,39 @@
 </tr>
 <tr>
     <td><a href="https://goo.gl/Hl14g3">m/z 421.256</a></td>
+</tr>
+
+<!-- Human skulls by F. Vargas -->
+
+<tr>
+    <td>Human head</td>
+    <td><a href="https://goo.gl/7vEylP">metabolite features</a> (caution: make sure to have good Internet connection due to large files being loaded here)</td>
+    <td>TBU</td>
+    <td>Fernando Vargas</td>
+    <td>Pieter Dorrestein</td>
+    <td>UCSD, La Jolla, CA, USA</td>
+    <td><a href="https://goo.gl/iVOczU">MSV000080167</a></td>
+</tr>
+
+<!-- Spurge plants by M. Ernst -->
+
+<tr>
+    <td rowspan="4">Spurge plants</td>
+    <td><a href="https://goo.gl/owkrx6">Ingenane diterpenoid on <i>Euphorbia horrida</i></a></td>
+    <td rowspan="4">TBU</td>
+    <td rowspan="4">Madeleine Ernst</td>
+    <td rowspan="4">Pieter Dorrestein</td>
+    <td rowspan="4">UCSD, La Jolla, CA, USA</td>
+    <td rowspan="4"><a href="https://goo.gl/5jncBX">MSV000081081</a></td>
+</tr>
+<tr>
+    <td><a href="https://goo.gl/iKCiIF">Phorbol ester on <i>Euphorbia hirta</i></a></td>
+</tr>
+<tr>
+    <td><a href="https://goo.gl/AnhU7k">Phorbol ester on <i>Euphorbia lathyris</i></a></td>
+</tr>
+<tr>
+    <td><a href="https://goo.gl/O8uYKR">Ingenol diester on <i>Euphorbia milii</i></a></td>
 </tr>
 
 </table>
