@@ -215,4 +215,22 @@
     <td><a href="https://goo.gl/O8uYKR">Ingenol diester on <i>Euphorbia milii</i></a></td>
 </tr>
 
+<!-- Skin with psoriasis by L. Nothias -->
+
+<tr>
+    <td rowspan="3">Human arm affected by <i>psoriasis</i></td>
+    <td><a href="https://goo.gl/3QQbvE">C17 Sphingosine</a></td>
+    <td rowspan="3">TBU</td>
+    <td rowspan="3">Louis-Felix Nothias</td>
+    <td rowspan="3">Pieter Dorrestein</td>
+    <td rowspan="3">UCSD, La Jolla, CA, USA</td>
+    <td rowspan="3"><a href="https://goo.gl/Xpm34I">MSV000080031</a></td>
+</tr>
+<tr>
+    <td><a href="https://goo.gl/PNZE6o">C18 Sphingosine</a></td>
+</tr>
+<tr>
+    <td><a href="https://goo.gl/AGAiai">m/z 505.390</a></td>
+</tr>
+
 </table>
