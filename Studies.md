@@ -227,7 +227,7 @@
     <td rowspan="3"><a href="https://goo.gl/Xpm34I">MSV000080031</a></td>
 </tr>
 <tr>
-    <td><a href="https://goo.gl/PNZE6o">C18 Sphingosine</a></td>
+    <td><a href="https://goo.gl/fhIZUb">C18 Sphingosine</a></td>
 </tr>
 <tr>
     <td><a href="https://goo.gl/AGAiai">m/z 505.390</a></td>
