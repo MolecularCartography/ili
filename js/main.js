@@ -45,11 +45,7 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
         this._dnd = new DragAndDrop(this._appContainer, this._workspace.loadFiles.bind(this._workspace));
 
         this._controlsVisible = true;
-
-        if (window.location.search) {
-            var fileNames = window.location.search.substr(1).split(';');
-            this._workspace.download(fileNames);
-        }
+        this._processAddressLine();
     }
 
     ili.prototype = Object.create(null, {
@@ -215,6 +211,23 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                     var handler = this._keyboardShortcuts[key];
                     handler.call(this);
                     return false;
+                }
+            }
+        },
+
+        _clickControlSwitch: {
+            value: function() {
+                var controlsSwitcher = this._appContainer.querySelector('#controls-switcher');
+                controlsSwitcher.click();
+            }
+        },
+
+        _processAddressLine: {
+            value: function() {
+                if (window.location.search) {
+                    this._clickControlSwitch();
+                    var fileNames = window.location.search.substr(1).split(';');
+                    this._workspace.download(fileNames);
                 }
             }
         },
