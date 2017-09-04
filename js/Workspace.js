@@ -37,6 +37,8 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
         this._status = '';
         this._tasks = {};
         this._settingsToLoad = null;
+        this._currentSettings = null;
+        this._settingsPatch = {};
 
         this._spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
     }
@@ -45,13 +47,28 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
         STATUS_CHANGE: 'status-change',
         MODE_CHANGE: 'mode-change',
         ERRORS_CHANGE: 'errors-change',
-        SETTINGS_CHANGE: 'settings-change'
+        SETTINGS_CHANGE: 'settings-change',
+        REQUEST_SETTINGS: 'request-settings'
     };
 
     Workspace.Mode = {
         UNDEFINED: 1,
         MODE_2D: 2,
         MODE_3D: 3,
+    };
+
+    Workspace.SettingsPatch = {
+        KEY: 'params',
+        SEP: '=',
+        extractPatch: function (patch) {
+            var expectedPatchStart = Workspace.SettingsPatch.KEY + Workspace.SettingsPatch.SEP;
+            var trimmedPatch = patch.trim();
+            if (trimmedPatch.startsWith(expectedPatchStart) && trimmedPatch.length > expectedPatchStart.length) {
+                return unescape(trimmedPatch.substring(expectedPatchStart.length));
+            } else {
+                return '';
+            }
+        }
     };
 
     /**
@@ -177,7 +194,7 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
 
         download: {
             value: function(fileNames) {
-                if (!fileNames) return;
+                fileNames = this._savePatchedSettings(fileNames);
 
                 fileNames = fileNames.filter(function(name) {
                     return name != '';
@@ -186,10 +203,48 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
                     return;
                 }
 
+                var curPatch = this._settingsPatch;
                 this._doTask(Workspace.TaskType.DOWNLOAD, fileNames).
                     then(function (result) {
                         this.loadFiles(result.items);
+                    }.bind(this)).
+                    then(function (result) {
+                        this._settingsPatch = curPatch;
                     }.bind(this));
+            }
+        },
+
+        currentSettings: {
+            get: function () {
+                if (this._currentSettings === null) {
+                    this._notify(Workspace.Events.REQUEST_SETTINGS);
+                }
+                return this._currentSettings;
+            },
+            set: function (settings) {
+                this._currentSettings = settings;
+            }
+        },
+
+        _savePatchedSettings: {
+            value: function (fileNames) {
+                var patches = [];
+                var nonPatches = [];
+                fileNames.forEach(function (fileName) {
+                    var patchCandidate = Workspace.SettingsPatch.extractPatch(fileName);
+                    if (patchCandidate) {
+                        patches.push(patchCandidate);
+                    } else {
+                        nonPatches.push(fileName);
+                    }
+                });
+
+                this._settingsPatch = {};
+                patches.forEach(function (patch) {
+                    Object.assign(this._settingsPatch, JSON.parse(patch));
+                }.bind(this));
+
+                return nonPatches;
             }
         },
 
@@ -243,7 +298,7 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
                     this._tasks[taskType.key].worker.terminate();
                     delete this._tasks[taskType.key];
                 }
-                if (Object.keys(this._tasks).length < 1) {
+                if (Object.keys(this._tasks).length == 0) {
                     this._loadPendingSettings();
                 }
             }
@@ -251,13 +306,22 @@ function (ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoade
 
         _loadPendingSettings: {
             value: function () {
-                if (Object.keys(this._tasks).length < 1 && this._settingsToLoad !== null) {
-                    this._doTask(Workspace.TaskType.LOAD_SETTINGS, this._settingsToLoad).
+                if (Object.keys(this._tasks).length == 0) {
+                    if (this._settingsToLoad !== null) {
+                        this._doTask(Workspace.TaskType.LOAD_SETTINGS, this._settingsToLoad).
                         then(function (result) {
-                            this._loadedSettings = result.settings;
+                            this._loadedSettings = Object.assign(result.settings, this._settingsPatch);
+                            this._settingsPatch = {};
                             this._notify(Workspace.Events.SETTINGS_CHANGE);
                         }.bind(this));
-                    this._settingsToLoad = null;
+                        this._settingsToLoad = null;
+                    } else if (Object.keys(this._settingsPatch).length != 0) {
+                        this._loadedSettings = this.currentSettings;
+                        Object.assign(this._loadedSettings, this._settingsPatch);
+                        this.currentSettings = null;
+                        this._settingsPatch = {};
+                        this._notify(Workspace.Events.SETTINGS_CHANGE);
+                    }
                 }
             }
         },

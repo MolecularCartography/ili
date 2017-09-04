@@ -31,6 +31,7 @@ function (Workspace, TabControllerSpots, TabController3D, TabControllerMapping, 
             }
         }.bind(this));
         this._workspace.addEventListener(Workspace.Events.SETTINGS_CHANGE, this.restore.bind(this));
+        this._workspace.addEventListener(Workspace.Events.REQUEST_SETTINGS, this._onSettingsRequest.bind(this));
 
         return this;
     }
@@ -50,17 +51,7 @@ function (Workspace, TabControllerSpots, TabController3D, TabControllerMapping, 
     AppSettingsController.prototype = Object.create(null, {
         serialize: {
             value: function () {
-                var data = {};
-                data[AppSettingsController.SETTINGS_KEYS.VERSION] = AppSettingsController.VERSION;
-                data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.spotsController.mapName;
-                data[AppSettingsController.SETTINGS_KEYS.VIEWS] = this._views.toJSON();
-
-                var tabs = {};
-                data[AppSettingsController.SETTINGS_KEYS.PARAMS] = tabs;
-                for (var key in this._tabs) {
-                    tabs[key] = this._tabs[key];
-                }
-                return new Blob([JSON.stringify(data)], { type: 'application/json' })
+                return new Blob([JSON.stringify(this._getCurrentSettings())], { type: 'application/json' })
             }
         },
 
@@ -120,6 +111,28 @@ function (Workspace, TabControllerSpots, TabController3D, TabControllerMapping, 
                     + obj.identifier + '">' + obj.title + '</a></li>');
 
                 return obj;
+            }
+        },
+
+        _getCurrentSettings: {
+            value: function() {
+                var data = {};
+                data[AppSettingsController.SETTINGS_KEYS.VERSION] = AppSettingsController.VERSION;
+                data[AppSettingsController.SETTINGS_KEYS.SELECTED_MAP] = this._workspace.spotsController.mapName;
+                data[AppSettingsController.SETTINGS_KEYS.VIEWS] = this._views.toJSON();
+
+                var tabs = {};
+                data[AppSettingsController.SETTINGS_KEYS.PARAMS] = tabs;
+                for (var key in this._tabs) {
+                    tabs[key] = this._tabs[key];
+                }
+                return data;
+            }
+        },
+
+        _onSettingsRequest: {
+            value: function() {
+                this._workspace.currentSettings = this._getCurrentSettings();
             }
         }
     });
