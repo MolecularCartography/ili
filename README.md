@@ -32,15 +32,19 @@ On [this page](./Studies.md) you can find examples of \`ili being applied in res
 
 ## Installation
 
-The best ways of running `ili are either [from this website](http://ili.embl.de/) or as a [Chrome extension](https://goo.gl/3KAA8U).
+The best ways of running \`ili are either [from this website](http://ili.embl.de/) or as a [Chrome extension](https://goo.gl/3KAA8U).
 
 ## Input
 
-`ili takes two files:
+\`ili takes two files:
 * for 2D mapping: a PNG or JPG file to be used as the background image ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/cyano/bg.png)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/cyano/intensities.csv))
 * for 3D mapping: a 3D model in STL format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/bee/model.stl)), and a mapping file with intensities and coordinates in CSV format ([example](https://raw.githubusercontent.com/MolecularCartography/ili_file_server/master/data/bee/intensities.csv))
 
 To create a mapping file suitable for input, you need two pieces of information: coordinates of your samples on your picture/model and intensities of features you're going to visualize in \`ili. Please find the instruction on how to create a CSV table with coordinates [here](https://github.com/alexandrovteam/Optimus/blob/master/Obtaining%20coordinates%20of%20sampling%20spots.md). Rows of the result table correspond to samples. Once you have it, you can add your features as new columns. Finally, you need to save it as a CSV file, and it is ready to be viewed in \`ili. Refer to the examples above to have an idea of the final look of the table.
+
+## 3D models with texture
+
+In addition to plain models in STL format, \`ili also supports 3D models in [OBJ format](https://en.wikipedia.org/wiki/Wavefront_.obj_file), which can be visualized with textures on top of them. As a prerequisite for that, textures must be saved as images in PNG or JPG format associated with a material definition file in [MTL format](https://en.wikipedia.org/wiki/Wavefront_.obj_file#Material_template_library). Thus, at least three files are needed to visualize a 3D model with texture in \`ili: model in OBJ format, material definition file and a texture image. All these file types are compatible with other input files, e.g. mapping files or cartographical snapshots, and can be opened in \`ili using regular actions, like drag&drop.
 
 ## Cartographical snapshots
 
@@ -54,7 +58,7 @@ You can find a list of ready-made examples in the "Examples" tab in the \`ili si
 
 ## How to use it?
 
-One of the fundamental ideas behind the `ili interface is the simplicity of usage. Therefore, most operations can be performed with keyboard shortcuts.
+One of the fundamental ideas behind the \`ili interface is the simplicity of usage. Therefore, most operations can be performed with keyboard shortcuts.
 
 |Action|Shortcut on Windows, Linux|Shortcut on OS X|Alternative|
 |------|--------------------------|----------------|-----------|
@@ -64,7 +68,7 @@ One of the fundamental ideas behind the `ili interface is the simplicity of usag
 |Save view as image|<kbd>Ctrl</kbd>+<kbd>S</kbd>|<kbd>⌘</kbd>+<kbd>S</kbd>|NA
 |Save cartographical snapshot|<kbd>Ctrl</kbd>+<kbd>E</kbd>|<kbd>⌘</kbd>+<kbd>E</kbd>|NA
 
-Many other controls for adjusting visualization are available in the `ili sidebar. Three main sections there "2D", "3D" and "Mapping" correspond to settings affecting 2D/3D views and colormaps.
+Many other controls for adjusting visualization are available in the \`ili sidebar. Three main sections there "2D", "3D" and "Mapping" correspond to settings affecting 2D/3D views and colormaps.
 
 Mouse buttons can be used to adjust point of view on a model/picture.
 
@@ -79,7 +83,7 @@ Mouse buttons can be used to adjust point of view on a model/picture.
 
 ## Any questions?
 
-Feel free to leave your questions and suggestions as issues in this repository or at the ["Support" section](https://goo.gl/D8DH53) on the `ili page at Google web store.
+Feel free to leave your questions and suggestions as issues in this repository or at the ["Support" section](https://goo.gl/D8DH53) on the \`ili page at Google web store.
 
 ## How to stay updated
 
@@ -88,8 +92,8 @@ Please sign up to the mailing list by sending an email to ili-toolbox+subscribe@
 ## Miscellaneous
 
 * **Why is it called \`ili?** \`ili in Hawaiian means skin and, among others, surface, area, or cover.
-* **How to record videos or screencasts in `ili?** Please use a third-party software, for example ScreenCastify plugin to Chrome
-* **How can I cite \`ili in my scientific publication?** We haven't published a paper devoted to \`ili yet, so please cite [*Bouslimani et al. (2015) PNAS*](http://www.pnas.org/content/112/17/E2120.abstract?sid=3ff11025-6bea-4b97-808e-0b4d49b7f837), our publication which motivated us the create and release \`ili.
+* **How to record videos or screencasts in \`ili?** Please use a third-party software, for example ScreenCastify plugin to Chrome
+* **How can I cite \`ili in my scientific publication?** Please cite [*Protsyuk et al. (2017) Nature Protocols*](https://www.nature.com/articles/nprot.2017.122).
 
 ## License
 
