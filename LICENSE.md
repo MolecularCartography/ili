@@ -15,7 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-#####\`ili makes usage of copyrighted packages listed below.
+#### \`ili makes usage of copyrighted packages listed below.
 
 --------------------------------------------------------------------------------
 ### Bootstrap ([3.3.7](https://github.com/twbs/bootstrap/tree/v3.3.7)) is released under the MIT License
