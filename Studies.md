@@ -11,12 +11,24 @@
     <th>Data</th>
 </tr>
 
+<!-- Coral by J. Burns -->
+
+<tr>
+    <td>Coral health and disease at Waiopae, Hawaii</td>
+    <td><a href="https://goo.gl/1exLYa">coral features</a> (caution: make sure to have good Internet connection due to large files being loaded here)</td>
+    <td>TBU</td>
+    <td>John Burns</td>
+    <td>John Burns</td>
+    <td>University of Hawaii, USA</td>
+    <td>TBU</td>
+</tr>
+
 <!-- Human lungs by N. Garg -->
 
 <tr>
     <td rowspan="2">Lungs of individual with cystic fibrosis</td>
     <td><a href="https://goo.gl/GO98vt">metabolite features</a></td>
-    <td rowspan="2">TBU</td>
+    <td rowspan="2"><a href="https://doi.org/10.1016/j.chom.2017.10.001">Cell Host Microbe, 2017</a></td>
     <td rowspan="2">Neha Garg</td>
     <td rowspan="2">Pieter Dorrestein</td>
     <td rowspan="2">UCSD, La Jolla, CA, USA</td>
@@ -31,7 +43,7 @@
 <tr>
     <td rowspan="12">Rosemary plant</td>
     <td><a href="https://goo.gl/a94gxZ">Cirsimaretin</a></td>
-    <td rowspan="12">TBU</td>
+    <td rowspan="12"><a href="https://doi.org/10.1038/nprot.2017.122">Nat. Protoc, 2018</a></td>
     <td rowspan="12">Louis-Felix Nothias</td>
     <td rowspan="12">Pieter Dorrestein</td>
     <td rowspan="12">UCSD, La Jolla, CA, USA</td>
@@ -76,7 +88,7 @@
 <tr>
     <td rowspan="11">Cash dispenser keypad</td>
     <td><a href="https://goo.gl/p919lK">Urocanate in 3D</a></td>
-    <td rowspan="11">TBU</td>
+    <td rowspan="11"><a href="https://doi.org/10.1038/nprot.2017.122">Nat. Protoc, 2018</a></td>
     <td rowspan="11">Luca Rappez</td>
     <td rowspan="11">Theodore Alexandrov</td>
     <td rowspan="11">EMBL, Heidelberg, Germany</td>
@@ -139,7 +151,7 @@
 <tr>
     <td rowspan="4">Human built environment</td>
     <td><a href="https://goo.gl/7LFSeO">Dihydrocapsaicin</a></td>
-    <td rowspan="4"><a href="https://dx.doi.org/10.1021/acs.analchem.6b03456">Anal. Chem., 2016</a></td>
+    <td rowspan="4"><a href="https://dx.doi.org/10.1021/acs.analchem.6b03456">Anal. Chem, 2016</a></td>
     <td rowspan="4">Daniel Petras</td>
     <td rowspan="4">Pieter Dorrestein</td>
     <td rowspan="4">UCSD, La Jolla, CA, USA</td>
