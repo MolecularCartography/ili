@@ -46,6 +46,8 @@ To create a mapping file suitable for input, you need two pieces of information:
 
 In addition to plain models in STL format, \`ili also supports 3D models in [OBJ format](https://en.wikipedia.org/wiki/Wavefront_.obj_file), which can be visualized with textures on top of them. As a prerequisite for that, textures must be saved as images in PNG or JPG format associated with a material definition file in [MTL format](https://en.wikipedia.org/wiki/Wavefront_.obj_file#Material_template_library). Thus, at least three files are needed to visualize a 3D model with texture in \`ili: model in OBJ format, material definition file and a texture image. All these file types are compatible with other input files, e.g. mapping files or cartographical snapshots, and can be opened in \`ili using regular actions, like drag&drop.
 
+One can find a 3D model of a coral and texture for it [here](https://github.com/MolecularCartography/ili_file_server/tree/master/data/coral_textured) (courtesy of John Burns, University of Hawaii) as an example of appropriate input files for \`ili.
+
 ## Cartographical snapshots
 
 \`ili facilitates reproducible data analysis by providing the feature of cartographical snapshots: a complete copy of all visualization settings saved to a file. The file can be reused later or shared with other users, who, afterwards, will be able not only to recover the same view, but also use it as a starting point for further analysis.
