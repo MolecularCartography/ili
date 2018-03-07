@@ -1,7 +1,7 @@
 
 ## <img src="img/marquee.png" alt="`ili" width="1400"/>
 
-`ili is a toolbox for 2D and 3D molecular mapping.
+`ili is a visualization app for 3D molecular cartography. For more information about the molecular cartography, please see our recent protocol paper [*Protsyuk et al. (2017) Nature Protocols*](https://www.nature.com/articles/nprot.2017.122).
 
 `ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)) in collaboration with the [Dorrestein Lab](http://dorresteinlab.ucsd.edu/Dorrestein_Lab/Welcome.html) and the [Knight Lab](https://knightlab.ucsd.edu/) at UCSD.
 
