@@ -119,7 +119,7 @@ Please sign up to the mailing list by sending an email to ili-toolbox+subscribe@
 
 ## License
 
-The content of this project is licensed under the Apache 2.0 licence, see LICENSE.md.
+The content of this project is licensed under the Apache 2.0 licence, see the [license file](https://github.com/MolecularCartography/ili/blob/master/LICENSE.md).
 
 ## Funding
 
