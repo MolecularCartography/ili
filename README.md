@@ -123,4 +123,4 @@ The content of this project is licensed under the Apache 2.0 licence, see the [l
 
 ## Funding
 
-This project is funded from the European projects [3D-MASSOMICS](http://3d-massomics.eu/) (FP7 HEALTH program, grant agreement no. 305259), [METASPACE](http://metaspace2020.eu/) (Horizon2020 program, grant agreement no. 634402) and from the internal funds of European Molecular Biology Laboratory.
+This project is funded from the European projects [3D-MASSOMICS](http://3d-massomics.eu/) (FP7 HEALTH program, grant agreement no. 305259), [METASPACE](http://metaspace2020.eu/) (Horizon2020 program, grant agreement no. 634402) and from the internal funds of the European Molecular Biology Laboratory.
