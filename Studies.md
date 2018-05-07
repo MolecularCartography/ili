@@ -15,7 +15,7 @@
 
 <tr>
     <td>Coral health and disease at Waiopae, Hawaii</td>
-    <td><a href="https://goo.gl/1exLYa">coral features</a> (caution: make sure to have good Internet connection due to large files being loaded here)</td>
+    <td><a href="https://goo.gl/NNVr7c">coral features</a> (caution: make sure to have good Internet connection due to large files being loaded here)</td>
     <td>TBU</td>
     <td>John Burns</td>
     <td>John Burns</td>
