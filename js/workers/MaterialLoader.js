@@ -76,7 +76,17 @@ function (ImageLoader, MTLLoader, THREE, Utils) {
 
         _onImageLoad: {
             value: function (message) {
-                this._imageData[message.data.name] = {
+                // Take only filename from a potential URL
+                var filenameStart = message.data.name.lastIndexOf('/');
+                var filename = filenameStart == -1 ? message.data.name
+                                                   : message.data.name.substring(filenameStart + 1);
+
+                if (filename in this._imageData) {
+                    console.warn('Two or more image texture files with same names are found: ' + filename
+                                + '\nUsing the latter one.');
+                }
+
+                this._imageData[filename] = {
                     url: message.data.url,
                     width: message.data.width,
                     height: message.data.height
