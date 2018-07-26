@@ -117,6 +117,17 @@ function(THREE) {
                 '#fdb863',
                 '#e08214',
                 '#b35806']),
+        
+        PUOR: new ColorMap('White-Blue', [
+                '#ffffff',
+                '#e6e6ff',
+                '#ccccff',
+                '#b3b3ff',
+                '#9999ff',
+                '#8080ff',
+                '#6666ff',
+                '#4d4dff',
+                '#3333ff']),
 
     };
 
