@@ -55,7 +55,12 @@ function (Workspace, ViewContainer, ViewGroup3D, MapSelector, ColorMap, saveAs, 
                 fileInput.type = 'file';
                 fileInput.multiple = true;
                 fileInput.addEventListener('change', function () {
-                    this._workspace.loadFiles(Array.from(fileInput.files));
+                    this._workspace.loadFiles(
+                        // handle files in the same way as drag and drop
+                        Array.from(fileInput.files).map(function (file) {
+                            return new Utils.File(file, file.name);
+                        })
+                    );
                 }.bind(this));
                 fileInput.click();
             }
