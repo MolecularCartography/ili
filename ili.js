@@ -1,19 +1,16 @@
 define('ili', [], function () {
-return function (container, baseUrl) {
+return function (container) {
 
-    baseUrl = baseUrl || '/';
-
-    loadCss(baseUrl + 'js/lib/css/bootstrap.min.css');
-    loadCss(baseUrl + 'js/lib/css/bootstrap-colorpicker.min.css');
-    loadCss(baseUrl + 'js/lib/css/bootstrap-select.min.css');
-    loadCss(baseUrl + 'js/lib/css/bootstrap-slider.min.css');
-    loadCss(baseUrl + 'js/lib/css/jquery-ui.min.css');
-    loadCss(baseUrl + 'js/lib/css/jquery.bootstrap-touchspin.min.css');
-    loadCss(baseUrl + 'main.css');
-    loadCss(baseUrl + 'layout.css');
+    loadCss('js/lib/css/bootstrap.min.css');
+    loadCss('js/lib/css/bootstrap-colorpicker.min.css');
+    loadCss('js/lib/css/bootstrap-select.min.css');
+    loadCss('js/lib/css/bootstrap-slider.min.css');
+    loadCss('js/lib/css/jquery-ui.min.css');
+    loadCss('js/lib/css/jquery.bootstrap-touchspin.min.css');
+    loadCss('main.css');
+    loadCss('layout.css');
 
     require.config({
-        'baseUrl': baseUrl,
         // the left side is the module name, and the right side is the path
         // do NOT include the .js extension
         'paths': {
