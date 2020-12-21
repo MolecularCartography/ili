@@ -54,7 +54,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
         },
         LOAD_MESH: {
             key: 'load-mesh',
-            worker: 'js/common/workers/Downloader.js'
+            worker: 'js/surface/workers/MeshLoader.js'
         },
         LOAD_MATERIAL: {
             key: 'load-material',
@@ -92,7 +92,6 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
         loadMesh: {
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
-
                 this._doTask(Workspace.TaskType.LOAD_MESH, blob[0]).then(function(result) {
                     var geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes.geometry) {

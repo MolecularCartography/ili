@@ -30,10 +30,11 @@ function(Scene3DBase, THREE, Utils) {
 
         this._axisHelper = new THREE.AxisHelper(20);
         this._scene.add(this._axisHelper);
+        this._scene.add(this._meshContainer);
         this._scene.add(this._frontLight);
     };
 
-    Scene3D.Events = Scene3DBase.Events;
+    Object.assign(Scene3D, Scene3DBase);
 
     Scene3D._makeLightProperty = function(field) {
         return Utils.makeProxyProperty(field, ['intensity'], function() {
@@ -174,6 +175,7 @@ function(Scene3DBase, THREE, Utils) {
                     // bounding box is invalid after the scaling below. Needs to be recomputed for further use
                     this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
                     this._mesh.position.copy(geometry.boundingBox.getCenter().negate().multiplyScalar(this._meshScaleFactor));
+                   
                     this._meshContainer.add(this._mesh);
                     this._applyAdjustment();
                     this._recolor();
@@ -227,7 +229,7 @@ function(Scene3DBase, THREE, Utils) {
                 };
                 var closestSpotIndeces = this._mapping.closestSpotIndeces;
                 var spots = this._spotsController.spots;
-                var worker = new Worker(require.toUrl('js/workers/Raycaster.js'));
+                var worker = new Worker(require.toUrl('js/surface/workers/Raycaster.js'));
 
                 var promise = new Promise(function(accept, reject) {
                     worker.onmessage = function(event) {

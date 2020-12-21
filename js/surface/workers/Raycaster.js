@@ -4,7 +4,7 @@ importScripts('../../lib/require.min.js');
 
 require({
     'paths': {
-        'three': '../lib/three.min'
+        'three': '../../lib/three.min'
     }
 }, [
     'three'
