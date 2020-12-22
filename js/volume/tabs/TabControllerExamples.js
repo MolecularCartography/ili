@@ -13,7 +13,7 @@ define([
             var items = [
                 {
                     name: 'Demo NRRD Data',
-                    files: [ 'data/ili.csv', 'data/seed.nrrd'],
+                    files: ['data/stent.nrrd', 'data/ili.csv'],
                     prefix: wwwUrl
                 }
             ];

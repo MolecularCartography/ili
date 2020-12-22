@@ -1,97 +1,96 @@
 define(
-    ['lib', 'bounds'],
-    function(lib, Bounds) {
+    ['bounds', 'rawvolumedata', 'indexer1d'],
+    function(Bounds, RawVolumeData, Indexer1D) {
       function VolumeRemappingProcessor(
-          xLength, yLength,  zLength, xSize, ySize, zSize, cuboids, callback) {
-        this._count = xLength * yLength * zLength;
+          lengthX, lengthY,  lengthZ, sizeX, sizeY, sizeZ, cuboids, callback) {
+        this._count = lengthX * lengthY * lengthZ;
         const result = new Float32Array(this._count);
         result.fill(Number.NaN); // Fake value that indicates that voxel should not be colored.
-        this._volume = new SizedVolume(
+        this._volume = new RawVolumeData.SizedRawVolumeData(
             result,
-            xLength, yLength, zLength,
-            xSize, ySize, zSize);
+            lengthX, lengthY, lengthZ,
+            sizeX, sizeY, sizeZ);
 
         this._callback = callback;
         this._cuboids = cuboids;
         this._calculated = false;
+        return this;
       }
 
-      VolumeRemappingProcessor.prototype = Object.create(null, {
+      VolumeRemappingProcessor.prototype = {
         calculate: function() {
           if (this._calculated) {
-            return;
+            return null;
           }
   
           const callback = this._callback;
           const cuboids = this._cuboids;
-          const xLength = source.volume.xLength;
-          const yLength = source.volume.yLength;
-          const zLength = source.volume.zLength;
+          const volume = this._volume;
 
-          callback.setup(_count);
+          const lengthX = volume.lengthX;
+          const lengthY = volume.lengthY;
+          const lengthZ = volume.lengthZ;
+
+          callback.setup(this._count);
   
-          const xSize = source.volume.xSize;
-          const ySize = source.volume.ySize;
-          const zSize = source.volume.zSize;
+          const sizeX = volume.sizeX;
+          const sizeY = volume.sizeY;
+          const sizeZ = volume.sizeZ;
   
-          const xStep = getStep(xLength, xSize);
-          const yStep = getStep(yLength, ySize);
-          const zStep = getStep(zLength, zSize);
+          const xStep = this._getStep(lengthX, sizeX);
+          const yStep = this._getStep(lengthY, sizeY);
+          const zStep = this._getStep(lengthZ, sizeZ);
+
+          const resultIndexer = new Indexer1D(lengthX, lengthY, lengthZ);
+          const result = this._volume.data;
   
-          const resultIndexer = new Indexer1D(xLength, yLength, zLength);
-          const result = source.volume.data;
-  
-          const intensities = cuboids
-              .map((cuboid) => cuboid.molecules)
-              .reduce((left, right) => left.concat(right))
-              .map((molecule) => molecule.intensity);
-          const cuboidBounds = Bounds.fromArray(intensities);
-  
-          source.cuboids.forEach((cuboid, index) => {
+          cuboids.forEach((cuboid, index) => {
             const xPivot = this._getXPivot(cuboid);
             const yPivot = this._getYPivot(cuboid);
             const zPivot = this._getZPivot(cuboid);
   
-            const xStartIndex = Math.floor(this._getIndex(xPivot, xStep, xLength));
-            const yStartIndex = Math.floor(this._getIndex(yPivot, yStep, yLength));
-            const zStartIndex = Math.floor(this._getIndex(zPivot, zStep, zLength));
+            const xStartIndex = Math.floor(this._getIndex(xPivot, xStep, lengthX));
+            const yStartIndex = Math.floor(this._getIndex(yPivot, yStep, lengthY));
+            const zStartIndex = Math.floor(this._getIndex(zPivot, zStep, lengthZ));
   
             const xEndIndex = Math.floor(this._getIndex(
-              this._getEndPosition(xPivot, cuboid.xSize, xSize),
+              this._getEndPosition(xPivot, cuboid.sizeX, sizeX),
                 xStep,
-                xLength));
+                lengthX));
             const yEndIndex = Math.floor(this._getIndex(
-              this._getEndPosition(yPivot, cuboid.ySize, ySize),
+              this._getEndPosition(yPivot, cuboid.sizeY, sizeY),
                 yStep,
-                yLength));
+                lengthY));
             const zEndIndex = Math.floor(this._getIndex(
-              this._getEndPosition(zPivot, cuboid.zSize, zSize),
+              this._getEndPosition(zPivot, cuboid.sizeZ, sizeZ),
                 zStep,
-                zLength));
+                lengthZ));
   
             for (let xIndex = xStartIndex; xIndex <= xEndIndex; ++xIndex) {
               for (let yIndex = yStartIndex; yIndex <= yEndIndex; ++yIndex) {
                 for (let zIndex = zStartIndex; zIndex <= zEndIndex; ++zIndex) {
-                  result[resultIndexer.get(xIndex, yIndex, zIndex)] = cuboidBounds.normalize(cuboid.intensity);
+                  result[resultIndexer.get(xIndex, yIndex, zIndex)] = cuboid.intensity;           
                 }
               }
             }
-            callback.notify(index);
+            callback.notify(index, this._count);
           });
-          source._calculated = true;
+          this._calculated = true;
+          this.volume = this._volume;
           callback.finished();
+          return result;
         },
 
         _getXPivot: function(cuboid) {
-          return cuboid.xCenter - cuboid.xSize / 2;
+          return cuboid.xCenter - cuboid.sizeX / 2;
         },
 
         _getYPivot: function(cuboid) {
-          return cuboid.yCenter - cuboid.ySize / 2;
+          return cuboid.yCenter - cuboid.sizeY / 2;
         },
 
         _getZPivot: function(cuboid) {
-          return cuboid.zCenter - cuboid.zSize / 2;
+          return cuboid.zCenter - cuboid.sizeZ / 2;
         },
 
         _getStep: function(length, size) {
@@ -119,7 +118,7 @@ define(
         _map(value, minFrom, maxFrom, minTo, maxTo) {
           return minTo + (maxTo - minTo) * ((value - minFrom) / (maxFrom - minFrom));
         }
-      });
+      };
 
       return VolumeRemappingProcessor;
     },

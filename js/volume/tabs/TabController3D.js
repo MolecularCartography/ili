@@ -22,6 +22,12 @@ define([
             generalGroup.addColor(workspace.scene3d, 'backgroundColor', 'Background');
             generalGroup.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
 
+            const visualizationGroup = this.addGroupBox('Visualization');
+            visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
+            visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
+            visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 1);
+            visualizationGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);
+
             const lightGroup = this.addGroupBox('Light');
             lightGroup.addNumeric(workspace.scene3d.light, 'ambient', 'Ambient', 0, 1);
             lightGroup.addNumeric(workspace.scene3d.light, 'diffuse', 'Diffuse', 0, 1);
@@ -34,12 +40,6 @@ define([
             slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxY', 'Y max', 0, 1);
             slicingGroup.addNumeric(workspace.scene3d.slicing, 'minZ', 'Z min', 0, 1);
             slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxZ', 'Z max', 0, 1);
-
-            const visualizationGroup = this.addGroupBox('Visualization');
-            visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
-            visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
-            visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 1);
-            visualizationGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);
             return this;
         }
 

@@ -15,6 +15,12 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         this._mapping = null;
 
+        this.opacity = 1;
+        this.filling = 0.5;
+        this.spacing = 0.5;
+        this.proportionalOpacityEnabled = false;
+        this.shadingEnabled = false;
+
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
 
@@ -52,7 +58,17 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         _onIntensitiesChange: {
             value: function() {
+                this._tryRemapVolume();
+            }
+        },
 
+        intensityData: {
+            get: function() {
+                return this._volumeRenderMesh.intensityData;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.intensityData = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -66,7 +82,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             }
         },
 
-        slicing: Utils.makeProxyProperty(this, '_slicing', ['minX', 'maxX', 'minY', 'maxY', 'minZ', 'maxZ'],
+        slicing: Utils.makeProxyProperty('_slicing', ['minX', 'maxX', 'minY', 'maxY', 'minZ', 'maxZ'],
             function() {
                 // TODO:
                 if (this._mesh) {
@@ -75,7 +91,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
                 }
             }),
 
-        light: Utils.makeProxyProperty(this, '_light', ['ambient', 'diffuse', 'specular'],
+        light: Utils.makeProxyProperty('_light', ['ambient', 'diffuse', 'specular'],
             function() {
                 // TODO:
                 if (this._mesh) {

@@ -144,18 +144,17 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
             set: function(value) {
                 this._shapeData = value;
                 
-                const shapeSize = new THREE.Vector3(value.xLength, value.yLength, value.zLength);
+                const shapeSize = new THREE.Vector3(value.lengthX, value.lengthY, value.lengthZ);
                 this._setUniform('u_shape_size', shapeSize);
-                this._setUniform('u_shape_bounds', new THREE.Vector2(value.valueBounds.min, value.valueBounds.max));
+                this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max));
 
-                const shapeTexture = ThreeUtils.createFloatTexture3D(
-                    new RawVolumeData.RawVolumeData(value.data, value.xLength, value.yLength, value.zLength));
+                const shapeTexture = ThreeUtils.createFloatTexture3D(value);
                 this._setUniform('u_shape_data', shapeTexture);
 
-                this._geometry.scale(value.xLength, value.yLength, value.zLength);
-                this._mesh.position.x = -shapeSize.x / 2;
-                this._mesh.position.y = -shapeSize.y / 2;
-                this._mesh.position.z = -shapeSize.z / 2;
+                this._geometry.scale(value.sizeX, value.sizeY, value.sizeZ);
+                this._mesh.position.x = -value.sizeX / 2;
+                this._mesh.position.y = -value.sizeY / 2;
+                this._mesh.position.z = -value.sizeZ / 2;
             }
         },
 

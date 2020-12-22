@@ -1,78 +1,60 @@
 /**
- * Web worker what builds association between points on the mesh (only used for
- * MODE_3D) and spots. Having this accosiation prebuilt recoloring the mesh for
- * any specific map related to the same spots could be done much faster.
+ * Web Worker. Loads a mesh from STL file.
  */
 
 'use strict';
 
 importScripts('../../lib/require.min.js');
 
-require([],
-function() {
+require({
+    'paths': {
+        'utils': '../../common/utility/utils',
+        'three': '../../lib/three.min',
+        'bounds': '../../common/utility/Bounds',
+        'rawvolumedata': '../utility/RawVolumeData',
+        'indexer1d': '../../common/utility/Indexer1D',
+        'remappingprocessor': '../utility/VolumeRemappingProcessor'
+    }
+}, [
+    'utils', 'three', 'bounds', 'rawvolumedata', 'indexer1d', 'remappingprocessor'
+],
+function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, RemappingProcessor) {
     onmessage = function(e) {
-        var positions = e.data.vertices;
-        var spots = e.data.spots;
-        var globalSpotScale = e.data.scale;
+        const data = e.data;
 
-        var pointCount = (positions.length / 3) | 0;
-        var closestSpotIndeces = new Int32Array(pointCount);
-        var closestSpotDistances = new Float32Array(pointCount);
-        var progress = -1;
-        var nextChunk = 0;
-        var highlightedVerteces = 0;
+        const cuboids = data.cuboids;
+        const sizedVolume = data.volume;
 
-        for (var i = 0; i < pointCount; i++) {
-            while (i >= nextChunk) {
-                progress++;
-                nextChunk = Math.ceil((progress + 1) * pointCount / 100);
-                postMessage({
-                    status: 'working',
-                    message: 'Mapping: ' + progress + '%',
-                });
-            }
-            var positionOffset = i * 3;
-            var x = positions[positionOffset + 0];
-            var y = positions[positionOffset + 1];
-            var z = positions[positionOffset + 2];
+        const processor = new RemappingProcessor(
+            sizedVolume.lengthX, sizedVolume.lengthY, sizedVolume.lengthZ,
+            sizedVolume.sizeX, sizedVolume.sizeY, sizedVolume.sizeZ,
+            cuboids, {
+                setup: function(count) {
+                    postMessage({
+                        status: 'working',
+                        message: `Count of operations: ${count}`
+                    });
+                },
 
-            var closestSpotIndex = -1;
-            var closesSpotSquareDistance;
+                notify: function(progress, total) {
+                    postMessage({
+                        status: 'working',
+                        message: `Performing cuboid remapping - ${progress} operation of ${total}`
+                    });
+                },
 
-            for (var j = 0; j < spots.length; j++) {
-                var spot = spots[j];
-
-                var dx = spot.x - x;
-                var dy = spot.y - y;
-                var dz = spot.z - z;
-                var rsq = dx * dx + dy * dy + dz * dz;
-
-                if (rsq > spot.r * spot.r * spot.scale * spot.scale * globalSpotScale * globalSpotScale) {
-                    continue;
-                }
-
-                if (closestSpotIndex < 0 || rsq < closesSpotSquareDistance) {
-                    closesSpotSquareDistance = rsq;
-                    closestSpotIndex = j;
+                finished: function() { 
+                    postMessage({
+                        data: processor.result,
+                        status: 'completed'
+                    });
                 }
             }
+        );
+        console.log(processor);
+        processor.calculate();
+    }
 
-            closestSpotIndeces[i] = closestSpotIndex;
-            if (closestSpotIndex >= 0) {
-                var closestSpot = spots[closestSpotIndex];
-                closestSpotDistances[i] = Math.sqrt(closesSpotSquareDistance) / (closestSpot.r * closestSpot.scale * globalSpotScale);
-                highlightedVerteces++;
-            } else {
-                closestSpotDistances[i] = 1.0;
-            }
-        }
-
-        postMessage({
-            status: 'completed',
-            closestSpotIndeces: closestSpotIndeces,
-            closestSpotDistances: closestSpotDistances,
-        });
-    };
     postMessage({
         status: 'ready'
     });

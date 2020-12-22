@@ -10,7 +10,6 @@ require({
     'utils'
 ], function(Utils) {
     onmessage = function(e) {
-        console.log(e.data);
         var fileNames = e.data.fileNames;
         var prefix = e.data.prefix ? e.data.prefix : '';
         var downloader = new Downloader(prefix);

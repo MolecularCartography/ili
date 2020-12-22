@@ -68,7 +68,6 @@ function(Papa) {
                 return;
             }
 
-            console.log(row);
             var spot = {
                 name: row[0],
                 centerX: Number(row[1]),
@@ -100,7 +99,6 @@ function(Papa) {
 
         _handleHeader: function(header) {
             this.measures = header.slice(7).map(function(name, index) {
-                console.log(name);
                 return {
                     name: name,
                     index: index,
@@ -117,10 +115,6 @@ function(Papa) {
                 values.set(m.values);
                 m.values = values;
             }
-
-            console.log(this.spots);
-            console.log(this.measures);
-
             postMessage({
                 status: 'completed',
                 spots: this.spots,

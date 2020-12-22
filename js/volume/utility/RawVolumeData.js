@@ -1,11 +1,11 @@
 define([],
     function() {
-      function RawVolumeData(data, lengthX, lengthY, lengthZ) {
+      function RawVolumeData(data, lengthX, lengthY, lengthZ, bounds) {
         this.data = data;
         this.lengthX = lengthX;
         this.lengthY = lengthY;
         this.lengthZ = lengthZ;
-
+        this.bounds = bounds;
         return this;
       }
 
@@ -14,14 +14,14 @@ define([],
           lengthX,
           lengthY,
           lengthZ,
-          xSize,
-          ySize,
-          zSize) {
-        Volume.call(this, data, lengthX, lengthY, lengthZ);
-        this.xSize = xSize;
-        this.ySize = ySize;
-        this.zSize = zSize;
-
+          sizeX,
+          sizeY,
+          sizeZ,
+          bounds) {
+        RawVolumeData.call(this, data, lengthX, lengthY, lengthZ, bounds);
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.sizeZ = sizeZ;
         return this;
       }
 

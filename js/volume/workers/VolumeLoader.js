@@ -1,5 +1,5 @@
 /**
- * Web Worker. Loads a mesh from STL file.
+ * Web Worker. Loads a volume from a set of formats.
  */
 
 'use strict';
@@ -13,12 +13,13 @@ require({
         'nrrdloader': '../../lib/NRRDLoader',
         'gunzip': '../../lib/gunzip.min',
         'volume': '../../lib/volume',
+        'rawvolume': '../utility/RawVolumeData',
         'bounds': '../../common/utility/bounds'
     }
 }, [
-    'utils', 'three', 'nrrdloader', 'bounds'
+    'utils', 'three', 'nrrdloader', 'rawvolume', 'bounds'
 ],
-function (Utils, THREE, NRRDLoader, Bounds) {
+function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
     onmessage = function(e) {
         var file = e.data;
         try {
@@ -33,12 +34,12 @@ function (Utils, THREE, NRRDLoader, Bounds) {
             return;
         }
 
-        var resultMesh = {};
-        resultMesh.xLength = mesh.xLength;
-        resultMesh.yLength = mesh.yLength;
-        resultMesh.zLength = mesh.zLength;
-        resultMesh.valueBounds = new Bounds(mesh.min, mesh.max);
-        resultMesh.data = Float32Array.from(mesh.data); // TODO:
+        var resultMesh = new RawVolume.SizedRawVolumeData(
+            Float32Array.from(mesh.data),
+            mesh.xLength, mesh.yLength, mesh.zLength,
+            mesh.xLength, mesh.yLength, mesh.zLength,
+            new Bounds(mesh.min, mesh.max)
+        );
 
         postMessage({
             shape: resultMesh,
@@ -70,7 +71,7 @@ function (Utils, THREE, NRRDLoader, Bounds) {
         }
 
         if (!matchedFileHandler) {
-            throw 'Input files have unexpected extensions.'
+            throw 'Input files have unexpected extensions.';
         } else {
             return matchedFileHandler;
         }

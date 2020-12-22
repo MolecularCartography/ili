@@ -31,9 +31,9 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
         },
 
         /* @opacity should be an object { spot_name: opacity_value }
-            *
-            * opacity_value should be a number from the interval of [0; 1]
-            */
+        *
+        * opacity_value should be a number from the interval of [0; 1]
+        */
         spotOpacity: {
             get: function() {
                 return this._spotsController.spotOpacity;

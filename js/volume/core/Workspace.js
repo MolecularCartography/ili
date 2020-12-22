@@ -72,7 +72,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
                     console.log(result);
                     this._scene3d.shapeData = result.shape;
-                    this._tryMapVolume();
+                    this._mapVolume();
                 }.bind(this));
             }
         },
@@ -86,16 +86,8 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     then(function (result) {
                         this.spotsController.spots = result.spots;
                         this.spotsController.measures = result.measures;
-                        this._tryMapVolume();
+                        this._mapVolume();
                     }.bind(this));
-            }
-        },
-
-        _tryMapVolume: {
-            value: function() {
-                if (this._mode == Workspace.Mode.MODE_3D && this.spotsController.spots) {
-                    this._mapVolume(Scene3D.RecoloringMode.USE_COLORMAP);
-                }
             }
         },
 
@@ -108,10 +100,26 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         },
 
         _mapVolume: {
-            value: function (mode) {
-                console.log('VolumeRemappingRequired');
+            value: function() {
+                const spots = this._spotsController.spots;
+                const measures = this._spotsController.measures;
+                const volume = this._scene3d.shapeData;
+
+                if (!spots || !measures || !volume) {
+                    return;
+                }
+
+                const data = {
+                    cuboids: spots,
+                    volume: volume
+                };
+                this._doTask(Workspace.TaskType.MAP, data).
+                    then(function (result) {
+                        console.log(result.data);
+                        this._scene3d.intensityData = result.data;
+                    }.bind(this));
             }
-        },
+        }, 
 
         mode: {
             get: function() {

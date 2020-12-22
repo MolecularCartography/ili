@@ -1,6 +1,5 @@
-define(
-    ['lib'],
-    function(lib) {
+define([],
+    function() {
       function Indexer1D(xLength, yLength, zLength) {
         this.xLength = xLength;
         this.yLength = yLength;
@@ -16,7 +15,7 @@ define(
         return this;
       }
 
-      Indexer1D.prototype = Object.create(null, {
+      Indexer1D.prototype = {
         get: function(xIndex, yIndex, zIndex) {
             const index = zIndex * this.pitch + yIndex * this.stride + xIndex;
             return index;
@@ -37,7 +36,7 @@ define(
         getZClipped: function(xIndex, yIndex, zIndex) {
             return this.getClipped(xIndex, yIndex, zIndex, this.zTopBound);
         }
-      });
+      };
 
       return Indexer1D;
     }
