@@ -96,7 +96,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                     var geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes.geometry) {
                         var attribute = result.attributes.geometry[name];
-                        geometry.addAttribute(name, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
+                        geometry.setAttribute(name, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
                     }
                     this._scene3d.materialName = result.attributes.materialName;
                     this._scene3d.geometry = geometry;

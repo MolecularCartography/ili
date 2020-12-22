@@ -1,17 +1,22 @@
-define(['three'], function(three) {
+define(['three'], function(THREE) {
     function Bounds(min, max) {
       this.min = min;
       this.max = max;
+      this.size = max - min;
       return this;
     }
   
     Bounds.prototype = Object.create(null, {
-        asVector: function() {
-            return new three.Vector2(this.min, this.max);
+        asVector: {
+            value: function() {
+                return new THREE.Vector2(this.min, this.max);
+            },
         },
 
-        normalize: function(value) {
-            return (value - this.min) / (this.max - this.min);
+        normalize: {
+            value: function(value) {
+                return (value - this.min) / (this.max - this.min);
+            }
         }
     });
 

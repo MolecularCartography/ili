@@ -192,12 +192,12 @@ function (THREE) {
 
             }
 
-            geometry.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-            geometry.addAttribute('normal', new THREE.BufferAttribute(normals, 3));
+            geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
 
             if (hasColors) {
 
-                geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
                 geometry.hasColors = true;
                 geometry.alpha = alpha;
 

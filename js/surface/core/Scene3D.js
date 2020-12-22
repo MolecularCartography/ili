@@ -9,7 +9,6 @@ function(Scene3DBase, THREE, Utils) {
 
         this._frontLight = new THREE.PointLight(0xffffff, 1.5, 0);
         this._mesh = null;
-        this._meshContainer = new THREE.Object3D();
         this._meshScaleFactor = 1.0;
         this._MAX_MESH_SIZE = 80;
         this._color = new THREE.Color('#575757');
@@ -18,7 +17,7 @@ function(Scene3DBase, THREE, Utils) {
         this._defaultMeshMaterial = new THREE.MeshLambertMaterial({
             transparent: true,
             opacity: 0.9,
-            shading: THREE.SmoothShading,
+            flatShading: true,
             vertexColors: THREE.VertexColors
         });
         // this property should be used to select correct material if mesh contains multiple ones
@@ -28,9 +27,8 @@ function(Scene3DBase, THREE, Utils) {
 
         this._mapping = null;
 
-        this._axisHelper = new THREE.AxisHelper(20);
+        this._axisHelper = new THREE.AxesHelper(20);
         this._scene.add(this._axisHelper);
-        this._scene.add(this._meshContainer);
         this._scene.add(this._frontLight);
     };
 
@@ -75,8 +73,14 @@ function(Scene3DBase, THREE, Utils) {
             }
         },
 
-        _onGeometryColorChange: {
-            value: function () {
+        _onMappingChange: {
+            value: function() {
+                this._onIntensitiesChange();
+            }
+        },
+
+        _onAttrChange: {
+            value: function() {
                 if (this._mesh) {
                     this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                     this._notify(Scene3D.Events.CHANGE);
@@ -302,7 +306,7 @@ function(Scene3DBase, THREE, Utils) {
                 }
 
                 if (!geometry.getAttribute('color')) {
-                    geometry.addAttribute('color', new THREE.BufferAttribute(
+                    geometry.setAttribute('color', new THREE.BufferAttribute(
                         new Float32Array(positionCount * 3), 3));
                 }
                 var color = geometry.getAttribute('color').array;

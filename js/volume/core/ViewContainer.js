@@ -17,7 +17,7 @@ function(ViewContainerBase, ViewGroup3D, ViewLegend, Workspace) {
         layoutName: {
             get: function() {
                 switch (this._workspace.mode) {
-                    case Workspace.Mode.UNDEFINED:
+                    case null:
                         return 'welcome';
                     case Workspace.Mode.MODE_3D:
                         return 'mode-3d';

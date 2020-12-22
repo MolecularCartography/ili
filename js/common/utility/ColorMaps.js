@@ -128,6 +128,9 @@ function(THREE) {
                 '#6666ff',
                 '#4d4dff',
                 '#3333ff']),
+        GC: new ColorMap('Gray-Scale', [
+            '#000000',
+            '#ffffff']),
 
     };
 

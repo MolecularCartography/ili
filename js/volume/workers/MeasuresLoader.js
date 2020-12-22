@@ -67,6 +67,8 @@ function(Papa) {
                 this._reportError('Too few elements');
                 return;
             }
+
+            console.log(row);
             var spot = {
                 name: row[0],
                 centerX: Number(row[1]),
@@ -77,8 +79,9 @@ function(Papa) {
                 sizeZ: Number(row[6]),
                 intensity: NaN,
             };
+   
             if (isNaN(spot.centerX) || isNaN(spot.centerY) || isNaN(spot.centerZ) ||
-                isNaN(spot.sizeX) || isNaN(spot.sizeY) || isNaN(spot.SizeZ)) {
+                isNaN(spot.sizeX) || isNaN(spot.sizeY) || isNaN(spot.sizeZ)) {
                 parser.abort();
                 this._reportError('Invalid spot coordinates');
                 return;
@@ -97,6 +100,7 @@ function(Papa) {
 
         _handleHeader: function(header) {
             this.measures = header.slice(7).map(function(name, index) {
+                console.log(name);
                 return {
                     name: name,
                     index: index,
@@ -113,6 +117,9 @@ function(Papa) {
                 values.set(m.values);
                 m.values = values;
             }
+
+            console.log(this.spots);
+            console.log(this.measures);
 
             postMessage({
                 status: 'completed',

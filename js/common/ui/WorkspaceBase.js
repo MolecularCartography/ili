@@ -102,7 +102,7 @@ function (EventSource)
         },
 
         download: {
-            value: function(fileNames) {
+            value: function(fileNames, prefix) {
                 fileNames = this._savePatchedSettings(fileNames);
 
                 fileNames = fileNames.filter(function(name) {
@@ -113,7 +113,10 @@ function (EventSource)
                 }
 
                 var curPatch = this._settingsPatch;
-                this._doTask(WorkspaceBase.TaskType.DOWNLOAD, fileNames).
+                this._doTask(WorkspaceBase.TaskType.DOWNLOAD, {
+                    fileNames: fileNames,
+                    prefix: prefix
+                }).
                     then(function (result) {
                         this.loadFiles(result.items);
                     }.bind(this)).

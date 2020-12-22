@@ -35,9 +35,13 @@ function deleteStartLayout(){
 
 function surface(){
     deleteStartLayout();
-    require(['js/surface/main'], function (ili) { new ili(document.body);});
+    require(['js/surface/main'], function (ili) { 
+        new ili(document.body);
+    });
 }
 function volume(){
     deleteStartLayout();
-    require(['js/volume/main'], function (ili) { new ili(document.body);});
+    require(['js/volume/main'], function (ili) { 
+        new ili(document.body);
+    });
 }

@@ -5,6 +5,9 @@ require.config({
         'jqueryui': 'js/lib/jquery-ui.min',
         'bootstrap': 'js/lib/bootstrap.min',
 
+        /* ZLib */
+        'gunzip': 'js/lib/gunzip.min',
+
         /* jQuery plugins */
         'jquery_drag': 'js/lib/jquery.event.drag-2.2.min',
         'chosen': 'js/lib/chosen.jquery.min',
@@ -18,7 +21,10 @@ require.config({
         /* THREE.js */
         'three': 'js/lib/three.min',
         'orbitcontrols': 'js/lib/OrbitControls',
+        'volume': 'js/lib/Volume',
         'mtlloader': 'js/lib/MTLLoader',
+        'objloader': 'js/lib/OBJLoader',
+        'nrrdloader': 'js/lib/NRRDLoader',
         'underscore': 'js/lib/underscore.min',
 
         /* SlickGrid */

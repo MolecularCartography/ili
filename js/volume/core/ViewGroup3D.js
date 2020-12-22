@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-    'three', 'viewgroup3dbase', 'surfaceview3d', 'spotlabel3d'
+    'three', 'viewgroup3dbase', 'volumeview3d', 'spotlabel3d'
 ],
 function(THREE, ViewGroup3DBase, View3D, SpotLabel3D) {
     /**

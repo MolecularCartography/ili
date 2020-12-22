@@ -10,14 +10,15 @@ require({
     'utils'
 ], function(Utils) {
     onmessage = function(e) {
-        var fileNames = e.data;
-        var downloader = new Downloader();
+        console.log(e.data);
+        var fileNames = e.data.fileNames;
+        var prefix = e.data.prefix ? e.data.prefix : '';
+        var downloader = new Downloader(prefix);
 
         try {
             for (var i = 0; i < fileNames.length; i++) {
                 downloader.add(fileNames[i]);
             }
-
             downloader.start();
         } catch (e) {
             postMessage({
@@ -27,17 +28,16 @@ require({
         }
     };
 
-    function Downloader() {
+    function Downloader(prefix) {
         this.items = [];
+        this.prefix = prefix;
         this.completed = 0;
         this.failed = false;
     }
 
-    Downloader.FILE_SERVICE = 'https://ili-file-service.herokuapp.com/';
-
     Downloader.prototype = {
         add: function(fileName) {
-            var item = new Downloader.Item(fileName);
+            var item = new Downloader.Item(this.prefix + fileName);
             item.request.onprogress = this.onProgress.bind(this, item);
             item.request.onerror = this.onError.bind(this, item);
             item.request.onload = this.onLoad.bind(this, item);
@@ -119,7 +119,7 @@ require({
     Downloader.Item = function(fileName) {
         this.fileName = fileName;
         this.request = new XMLHttpRequest();
-        this.request.open('GET', Downloader.FILE_SERVICE + '?' + fileName, true);
+        this.request.open('GET', fileName, true);
         this.request.responseType = 'blob';
         this.total = NaN;
         this.loaded = 0;

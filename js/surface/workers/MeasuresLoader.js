@@ -111,7 +111,7 @@ function(Papa) {
                 values.set(m.values);
                 m.values = values;
             }
-
+            
             postMessage({
                 status: 'completed',
                 spots: this.spots,

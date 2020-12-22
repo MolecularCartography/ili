@@ -22,19 +22,19 @@ define(
             return index;
         },
 
-        getClipped = function(xIndex, yIndex, zIndex, bound) {
+        getClipped: function(xIndex, yIndex, zIndex, bound) {
             return this.get(xIndex, yIndex, Math.min(bound, Math.max(0, zIndex)));
         },
 
-        getXClipped = function(xIndex, yIndex, zIndex) {
+        getXClipped: function(xIndex, yIndex, zIndex) {
             return this.getClipped(xIndex, yIndex, zIndex, this.xTopBound);
         },
 
-        getYClipped = function(xIndex, yIndex, zIndex) {
+        getYClipped: function(xIndex, yIndex, zIndex) {
             return this.getClipped(xIndex, yIndex, zIndex, this.yTopBound);
         },
 
-        getZClipped = function(xIndex, yIndex, zIndex) {
+        getZClipped: function(xIndex, yIndex, zIndex) {
             return this.getClipped(xIndex, yIndex, zIndex, this.zTopBound);
         }
       });

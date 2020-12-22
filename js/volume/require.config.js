@@ -5,8 +5,10 @@ requirejs.config({
         'threejsutils': 'js/volume/utility/ThreeJsUtils',
         'volumenormalsprocessor': 'js/volume/utility/VolumeNormalsProcessor',
         'volumeremappingprocessor':  'js/volume/utility/VolumeRemappingProcessor',
+        'colormaptexturerenderer': 'js/volume/utility/ColorMapTextureRenderer',
 
         // Core
+        'volumerendermesh': 'js/volume/core/VolumeRenderMesh',
         'volumesettingscontroller': 'js/volume/core/SettingsController',
         'volumeinputfilesprocessor': 'js/volume/core/InputFilesProcessor',
         'volumescene2d': 'js/volume/core/Scene2D',
@@ -20,11 +22,19 @@ requirejs.config({
         'volumespotscontroller': 'js/volume/core/SpotsController',
         'volumeviewlegend': 'js/volume/core/ViewLegend',
 
+        // Workers
+        'volumecuboidmapper': 'js/volume/workers/cuboidmapper',
+        'volumemeasuresloader': 'js/volume/workers/measurerloader',
+        'volumeloader': 'js/volume/workers/volumeloader',
+
         // Tabs
         'volumetabcontroller3d': 'js/volume/tabs/TabController3D',
         'volumetabcontrollerdocumentation': 'js/volume/tabs/TabControllerDocumentation',
         'volumetabcontrollerexamples': 'js/volume/tabs/TabControllerExamples',
         'volumetabcontrollermapping': 'js/volume/tabs/TabControllerMapping',
         'volumetabcontrollerspots': 'js/volume/tabs/TabControllerSpots',
+
+        // Shaders
+        'volumeshaders':  'js/volume/shaders/volumeshaders',
     }
 });

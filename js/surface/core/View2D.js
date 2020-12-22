@@ -198,10 +198,10 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
                 }
 
                 var geometry = new THREE.BufferGeometry();
-                geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-                geometry.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
-                geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-                geometry.addAttribute('normal', new THREE.BufferAttribute(scales, 3));
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.setAttribute('normal', new THREE.BufferAttribute(scales, 3));
 
                 this._scene3js.add(new THREE.Mesh(geometry, this._material));
                 this._renderSpots();

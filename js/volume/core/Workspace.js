@@ -1,11 +1,9 @@
 'use strict';
 
 define([
-    'workspacebase', 'colormaps', 'eventsource', 'imageloader', 'volumeinputfilesprocessor', 'materialloader',
-    'volumescene3d', 'volumespotscontroller', 'three'
+    'workspacebase', 'volumeinputfilesprocessor', 'volumescene3d', 'volumespotscontroller', 'three', 'threejsutils'
 ],
-function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader,
-    Scene3D, SpotsController, THREE)
+function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils)
 {
     /**
      * Main application workspace. It works in 3 modes:
@@ -56,8 +54,12 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
         },
         LOAD_SHAPE: {
             key: 'load_shape',
-            worker: 'js/common/workers/Downloader.js' // TODO:
+            worker: 'js/volume/workers/VolumeLoader.js' 
         },
+        LOAD_NORMALS: {
+            key: 'load_normals',
+            worker: 'js/volume/workers/NormalsLoader.js'
+        }
     }, WorkspaceBase.TaskType);
 
     Workspace.prototype = Object.create(WorkspaceBase.prototype, {
@@ -68,8 +70,8 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
-                    this._scene3d.shapeData = null;
-                    this._scene3d.shapeTexture = null;
+                    console.log(result);
+                    this._scene3d.shapeData = result.shape;
                     this._tryMapVolume();
                 }.bind(this));
             }
@@ -89,17 +91,25 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
             }
         },
 
-        _tryMapVolume: function() {
-            if (this._mode == Workspace.Mode.MODE_3D && this.spotsController.spots) {
-                this._mapVolume(Scene3D.RecoloringMode.USE_COLORMAP);
+        _tryMapVolume: {
+            value: function() {
+                if (this._mode == Workspace.Mode.MODE_3D && this.spotsController.spots) {
+                    this._mapVolume(Scene3D.RecoloringMode.USE_COLORMAP);
+                }
             }
         },
 
         _onSpotScaleChange: {
             value: function () {
                 if (this.mode == Workspace.Mode.MODE_3D) {
-                    this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
+                    this._mapVolume(Scene3D.RecoloringMode.NO_COLORMAP);
                 }
+            }
+        },
+
+        _mapVolume: {
+            value: function (mode) {
+                console.log('VolumeRemappingRequired');
             }
         },
 
@@ -114,10 +124,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                 }
                 this._mode = value;
 
-                if (this._mode == Workspace.Mode.MODE_3D) {
-                    this._scene2d.resetImage();
-                    this._cancelTask(Workspace.TaskType.LOAD_IMAGE);
-                }
+                // TODO: implement.
 
                 this._notify(Workspace.Events.MODE_CHANGE);
             }

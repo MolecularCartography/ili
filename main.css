@@ -47,6 +47,7 @@ body {
     overflow: hidden;
     transition: all 0.5s;
     filter: grayscale(0.5);
+    border: darkgray 1px solid;
 }
 
 .menuBtn div{
