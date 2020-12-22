@@ -109,6 +109,9 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     return;
                 }
 
+                // TODO:
+                return;
+
                 const data = {
                     cuboids: spots,
                     volume: volume
