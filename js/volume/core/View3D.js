@@ -13,9 +13,11 @@ function(THREE, View3DBase) {
      * @param {HTMLDivElement} div.
      */
     function View3D(group, div) {
-        const camera = new THREE.OrthographicCamera(-100, 100, -100, 100, 1, 1000);
-        camera.position.set( 0, 0, 128 );
-        camera.up.set( 0, 0, 1 ); // In our data, z is up;
+        const camera = new THREE.OrthographicCamera();
+        camera.up.set( 0, 0, 1); // In our data, z is up;
+        camera.zoom = 0.005;
+        camera.near = 1;
+        camera.far = 1000;
 
         View3DBase.call(this, group, div, camera);
         return this;
