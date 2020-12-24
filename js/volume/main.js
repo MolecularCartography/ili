@@ -3,8 +3,8 @@
  */
 'use strict';
 
-define(['volumeworkspace', 'volumeviewcontainer', 'volumemapselector', 'volumesettingscontroller', 'volumespotscontroller', 'appbase'],
-function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsController, AppBase)
+define(['volumeworkspace', 'volumeviewcontainer', 'volumemapselector', 'volumesettingscontroller', 'volumespotscontroller', 'appbase', 'utils'],
+function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsController, AppBase, Utils)
 {
     const initializers = {
         createSpotsController: function() { return new SpotsController(); },
@@ -15,7 +15,7 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
     };
 
     function ili(appContainer) {
-        AppBase.call(this, appContainer, initializers);
+        AppBase.call(this, appContainer, initializers, Utils.webgl2Enabled);
         return this;
     };
 
@@ -23,54 +23,6 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
         render: {
             value: function () {
                 console.log('VolumeRender');
-            }
-        },
-
-        /* @opacity should be an object { spot_name: opacity_value }
-            *
-            * opacity_value should be a number from the interval of [0; 1]
-            */
-        spotOpacity: {
-            get: function() {
-                return this._spotsController.spotOpacity;
-            },
-            set: function (opacity) {
-                this._spotsController.spotOpacity = opacity;
-            }
-        },
-
-        /* @opacity should be a number from the interval of [0; 1]
-            */
-        globalSpotOpacity: {
-            get: function () {
-                return this._spotsController.globalSpotOpacity;
-            },
-            set: function (opacity) {
-                this._spotsController.globalSpotOpacity = opacity;
-            }
-        },
-
-        /* @scale should be an object { spot_name: scale_value }
-            *
-            * scale_value should be a non-negative number
-            */
-        spotScale: {
-            get: function() {
-                return this._spotsController.spotScale;
-            },
-            set: function (scale) {
-                this._spotsController.spotScale = scale;
-            }
-        },
-
-        /* @scale should be a non-negative number
-            */
-        globalSpotScale: {
-            get: function () {
-                return this._spotsController.globalSpotScale;
-            },
-            set: function (scale) {
-                this._spotsController.globalSpotScale = scale;
             }
         },
     });

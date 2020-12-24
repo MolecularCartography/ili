@@ -21,8 +21,8 @@ function (EventSource)
      * the user on progress in long-running tasks.
      *
      */
-    function WorkspaceBase(spotsController, inputFilesProcessor) {
-        EventSource.call(this, WorkspaceBase.Events);
+    function WorkspaceBase(spotsController, inputFilesProcessor, events) {
+        EventSource.call(this, events ? Object.create(WorkspaceBase.Events, events) : events);
 
         this._mode = null;
         this._errors = [];

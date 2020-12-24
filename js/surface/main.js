@@ -3,8 +3,8 @@
  */
 'use strict';
 
-define(['surfaceworkspace', 'surfaceviewcontainer', 'surfacemapselector', 'surfacesettingscontroller', 'surfacespotscontroller', 'appbase'],
-function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsController, AppBase)
+define(['surfaceworkspace', 'surfaceviewcontainer', 'surfacemapselector', 'surfacesettingscontroller', 'surfacespotscontroller', 'appbase', 'utils'],
+function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsController, AppBase, Utils)
 {
     const initializers = {
         createSpotsController: function() { return new SpotsController(); },
@@ -15,7 +15,7 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
     };
 
     function ili(appContainer) {
-        AppBase.call(this, appContainer, initializers);
+        AppBase.call(this, appContainer, initializers, Utils.webglEnabled);
         return this;
     };
 

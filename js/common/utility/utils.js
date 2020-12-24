@@ -43,6 +43,12 @@ function() {
             return !!context;
         },
 
+        webgl2Enabled: function() {
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('webgl2');
+            return !!context;
+        },
+
         asProps: function(object, props) {
             props = props || {};
             for (var i in object) {

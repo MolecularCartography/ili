@@ -1,9 +1,8 @@
 define(['three'], 
     function(THREE) {
-        const colorMapSize = 10;
-
-        function ColorMapTextureRenderer() {
-            this._textureSize = colorMapSize;
+        
+        function ColorMapTextureRenderer(textureSize) {
+            this._textureSize = textureSize;
             this._buffer = new Uint8Array(this._textureSize * 4);
             this._colorCache = new THREE.Color();
 
@@ -46,6 +45,9 @@ define(['three'],
 
             update: {
                 value: function(colorMap) {
+                    if (this._colorMap === colorMap) {
+                        return;
+                    }
                     this._isValid = false;
                     this._colorMap = colorMap;
                 },

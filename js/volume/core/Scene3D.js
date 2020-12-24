@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'eventsource', 'scene3dbase', 'volumespotscontroller', 'colormaptexturerenderer', 'shaderloader', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh'
+    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds'
 ],
-function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, ShaderLoader, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh) {
+function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds) {
     function Scene3D(spotsController) {
         Scene3DBase.call(this, spotsController);
 
@@ -15,10 +15,11 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         this._mapping = null;
 
-        this.opacity = 1;
+        this.opacity = 1.0;
         this.filling = 0.5;
-        this.spacing = 0.5;
+        this.spacing = 1.0;
         this.proportionalOpacityEnabled = false;
+        this.intensityOpacity = 1.0;
         this.shadingEnabled = false;
 
         this._meshContainer.add(this._volumeRenderMesh.mesh);
@@ -34,6 +35,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
                 result.color = this.color;
                 result.backgroundColor = this.backgroundColor;
                 result.slicing = this.slicing;
+                // TODO:
                 return result;
             }
         },
@@ -41,11 +43,16 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
         _onMappingChange: {
             value: function() {
                 this._volumeRenderMesh.intensityColorMap = this._spotsController.colorMap;
+                this._volumeRenderMesh.intensityBounds = new Bounds(this._spotsController.minValue, this._spotsController.maxValue);
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
         _onAttrChange: {
             value: function() {
+                this._volumeRenderMesh.proportionalOpacityEnabled = this._spotsController.dataDependentOpacity;
+                this._volumeRenderMesh.intensityOpacity = this._spotsController.spotOpacity;
+                this._notify(Scene3D.Events.CHANGE);
 
             }
         },
@@ -58,7 +65,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         _onIntensitiesChange: {
             value: function() {
-                this._tryRemapVolume();
+                
             }
         },
 
@@ -84,8 +91,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         slicing: Utils.makeProxyProperty('_slicing', ['minX', 'maxX', 'minY', 'maxY', 'minZ', 'maxZ'],
             function() {
-                // TODO:
-                if (this._mesh) {
+                if (this._shapeData) {
                     this._applySlicing();
                     this._notify(Scene3D.Events.CHANGE);
                 }
@@ -94,7 +100,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
         light: Utils.makeProxyProperty('_light', ['ambient', 'diffuse', 'specular'],
             function() {
                 // TODO:
-                if (this._mesh) {
+                if (this._shapeData) {
                     
                     this._notify(Scene3D.Events.CHANGE);
                 }
@@ -106,6 +112,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             },
             set: function(value) {
                 this._volumeRenderMesh.uniformalOpacity = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -115,6 +122,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             },
             set: function(value) {
                 this._volumeRenderMesh.uniformalStepOpacity = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -124,6 +132,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             },
             set: function(value) {
                 this._volumeRenderMesh.relativeStepSize = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -133,6 +142,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             },
             set: function(value) {
                 this._volumeRenderMesh.proportionalOpacityEnabled = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -142,6 +152,7 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             },
             set: function(value) {
                 this._volumeRenderMesh.lightingEnabled = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -165,31 +176,10 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
             }
         },
 
-        _onSpotsChange: {
-            value: function () {
-                if (this._mapping) {
-                    this._mapping = null; // Mapping is obsolete.
-                }
-                if (this._mesh) {
-                    //this._recolor(Scene3D.RecoloringMode.USE_COLORMAP);
-                    this._notify(Scene3D.Events.CHANGE);
-                }
-            }
-        },
-
         refreshSpots: {
             value: function () {
                 //this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
                 this._notify(Scene3D.Events.CHANGE);
-            }
-        },
-
-        _onIntensitiesChange: {
-            value: function(spots) {
-                if (this._mesh && this._mapping) {
-                    //this._recolor(Scene3D.RecoloringMode.USE_COLORMAP);
-                    this._notify(Scene3D.Events.CHANGE);
-                }
             }
         },
 
@@ -201,7 +191,6 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
 
         render: {
             value: function(renderer, camera) {
-                //this._frontLight.position.set(camera.position.x, camera.position.y, camera.position.z);
                 renderer.render(this._scene, camera);
             }
         },
@@ -209,7 +198,6 @@ function(EventSource, Scene3DBase, SpotsController, ColorMapTextureRenderer, Sha
         _applySlicing: {
             value: function() {
                 // TODO: update uniforms.
-         
             }
         },
 

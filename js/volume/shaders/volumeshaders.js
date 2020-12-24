@@ -201,7 +201,7 @@ function() {
                 //    current_color = add_lighting(current_color, normal_vector, view_ray);
                 //}
           
-                //current_color.a *= uniformal_step_opacity;
+                current_color.a *= uniformal_step_opacity;
         
                 final_color = inverseBlend(final_color, current_color);
         

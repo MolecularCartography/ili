@@ -6,9 +6,9 @@
 define(['workspacebase', 'mainlayout', 'dragndrop', 'utils'],
     function (WorkspaceBase, appLayout, DragAndDrop, Utils)
     {
-        function AppBase(appContainer, initializers) {
-            if (!Utils.webglEnabled()) {
-                alert('WebGL technology is not enabled in your browser. Turn it on to get `ili functioning properly.');
+        function AppBase(appContainer, initializers, checker) {
+            if (!checker()) {
+                alert('WebGL technology is not enabled in your browser or not supported at all. Turn it on or try to use a proper machine to get `ili functioning properly.');
             }
             this._appContainer = document.createElement('div');
             this._appContainer.id = 'ili-container';

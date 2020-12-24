@@ -1,9 +1,79 @@
 'use strict';
 
 define([
-    'three', 'viewgroup3dbase', 'volumeview3d', 'spotlabel3d'
+    'three', 'viewgroup3dbase', 'volumeview3d'
 ],
-function(THREE, ViewGroup3DBase, View3D, SpotLabel3D) {
+function(THREE, ViewGroup3DBase, View3D) {
+
+    /**
+     * The method is used to update orthogonal camera aspect.
+     * @param {*} camera Camera for update.
+     * @param {*} aspect Aspect ratio.
+     * @param {*} dimensions Bounding box dimensions.
+     */
+    function updateCameraAspect(camera, aspect, dimensions) {
+        const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
+        const cameraAspect = camera.aspect;
+
+        const right = maxDimension / 2 * cameraAspect;
+        const left = -right;
+        const top = maxDimension / 2;
+        const bottom = -top;
+
+        camera.left = left;
+        camera.right = right;
+        camera.top = top;
+        camera.bottom = bottom;
+        camera.updateProjectionMatrix();
+    }
+
+    /**
+     * Sets the camera default view.
+     * @param {*} camera Camera for update.
+     * @param {*} dimensions Bounding box dimensions.
+     * @param {*} offset Dimensions offset (multiplier).
+     */
+    function setDefaultView(camera, dimensions, offset) {
+        const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
+        camera.position.multiplyVectors(new THREE.Vector3(maxDimension, maxDimension, maxDimension), offset);
+        camera.near = 1;
+        camera.far = 1000;
+        
+        const up = new THREE.Vector3();
+        up.copy(offset);
+        up.normalize();
+
+        camera.up.crossVectors(up, new THREE.Vector3(1, 0, 0));
+        camera.zoom = 1;
+    }
+
+    /**
+     * Relative offset in direction of view.
+     */
+    const directionMultipler = 2;
+
+    /**
+     * Controllers for each camera.
+     */
+    const cameraControllers = [
+        {
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
+            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(0, 0, directionMultipler)) }
+        },
+        {
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
+            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(0, directionMultipler, 0)) }
+        },
+        {
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
+            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(directionMultipler, 0, 0)) }
+        },
+        {
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
+            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(directionMultipler, directionMultipler, directionMultipler)) }
+        }
+    ];
+
     /**
      * Group of View3D's. Manages shared objects: workspace, renderer, canvas.
      *
@@ -13,8 +83,8 @@ function(THREE, ViewGroup3DBase, View3D, SpotLabel3D) {
      */
     function ViewGroup3D(workspace, div) {
         ViewGroup3DBase.call(this, workspace, div, {
-            createView: function(group, div) {
-                return new View3D(group, div);
+            createView: function(group, div, index) {
+                return new View3D(group, div, workspace, cameraControllers[index]);
             },
             createSpotLabel: function(group, scene) {
                 return null;
@@ -24,7 +94,7 @@ function(THREE, ViewGroup3DBase, View3D, SpotLabel3D) {
 
     ViewGroup3D.prototype = Object.create(ViewGroup3DBase.prototype);
        
-    ViewGroup3D.Layout = ViewGroup3DBase.Layout;
+    Object.assign(ViewGroup3D, ViewGroup3DBase);
 
     return ViewGroup3D;
 });

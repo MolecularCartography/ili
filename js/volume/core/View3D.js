@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'view3dbase'
+    'three', 'view3dbase', 'volumeworkspace'
 ],
-function(THREE, View3DBase) {
+function(THREE, View3DBase, Workspace) {
     /**
      * View indise ViewGroup3D. All View3Ds share single canvas from the group.
      * Each view has own camera and own empty DIV for handling user input and
@@ -12,18 +12,59 @@ function(THREE, View3DBase) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div) {
-        const camera = new THREE.OrthographicCamera();
-        camera.up.set( 0, 0, 1); // In our data, z is up;
-        camera.zoom = 0.005;
-        camera.near = 1;
-        camera.far = 1000;
+    function View3D(group, div, workspace, cameraController) {
+        View3DBase.call(this, group, div, new THREE.OrthographicCamera());
 
-        View3DBase.call(this, group, div, camera);
+        this._workspace = workspace;
+        this._cameraController = cameraController;
+
+        this.addEventListener(View3DBase.Events.ASPECT_CHANGE, this._onAspectChange.bind(this));
+        this._workspace.addEventListener(Workspace.Events.SHAPE_LOAD, this._onShapeChange.bind(this));
         return this;
     }
 
-    View3D.prototype = Object.create(View3DBase.prototype);
+    View3D.prototype = Object.create(View3DBase.prototype, {
+        _onAspectChange: {
+            value: function(aspect) {
+                const shapeSize = this._shapeSize;
+                if (!shapeSize) {
+                    return;
+                }
+                this._cameraController.updateAspect(this.camera, aspect, shapeSize);
+                this.camera.updateProjectionMatrix();
+                this._updateControls();
+            }
+        },
+
+        _onShapeChange: {
+            value: function(shape) {
+                const shapeSize = this._shapeSize;
+                if (!shapeSize) {
+                    return;
+                }
+                this._cameraController.setDefaultView(this.camera, shapeSize);
+                this._cameraController.updateAspect(this.camera, this.camera.aspect, shapeSize);
+                this.camera.updateProjectionMatrix();
+                this._updateControls();
+            }
+        },
+
+        _shape: {
+            get: function() {
+                return this._workspace.shape;
+            }
+        },
+
+        _shapeSize: {
+            get: function() {
+                const shape = this._shape;
+                if (!shape) {
+                    return null;
+                }
+                return new THREE.Vector3(shape.sizeX, shape.sizeY, shape.sizeZ);
+            }
+        }
+    });
 
     return View3D;
 });

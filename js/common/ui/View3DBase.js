@@ -1,10 +1,11 @@
 'use strict';
 
 define([
-    'orbitcontrols', 'three'
+    'orbitcontrols', 'three', 'eventsource'
 ],
-function(OrbitControls, THREE) {
-    function View3DBase(group, div, camera) {
+function(OrbitControls, THREE, EventSource) {
+    function View3DBase(group, div, camera, events) {
+        EventSource.call(this, events ? Object.create(View3DBase.Events, events) : View3DBase.Events);
         this._group = group;
         this._div = div;
         this._left = 0;
@@ -20,13 +21,19 @@ function(OrbitControls, THREE) {
         this._controls.target = this._group._scene.position;
         this._controls.enableKeys = false;
         this._controls.autoRotate = false;
+        this._controls.minZoom = 0.1;
+        this._controls.maxZoom = 4.0;
         this._controls.autoRotateSpeed = 6.0;
         this._controls.update();
         this._controls.addEventListener('change', group.requestAnimationFrame.bind(group));
         this._controls.addEventListener('start', this._onOrbitStart.bind(this));
     }
 
-    View3DBase.prototype = Object.create(null, {
+    View3DBase.Events = {
+        ASPECT_CHANGE: 'aspect-change'
+    };
+
+    View3DBase.prototype = Object.create(EventSource.prototype, {
         prepareUpdateLayout: {
             value: function() {
                 this._left = this._div.offsetLeft;
@@ -50,10 +57,9 @@ function(OrbitControls, THREE) {
             value: function() {
                 const aspect = this.width / this.height;
                 this._camera.aspect = aspect;
-                if (this._onAspectUpdate) {
-                    this._onAspectUpdate(aspect);
-                }   
+                this._notify(View3DBase.Events.ASPECT_CHANGE, aspect);
                 this._camera.updateProjectionMatrix();
+                this._controls.update();
             }
         },
 
@@ -134,6 +140,12 @@ function(OrbitControls, THREE) {
                     this._controls.autoRotateSpeed = Math.abs(this._controls.autoRotateSpeed) * (event.ctrlKey ? -1 : 1);
                     this._group.requestAnimationFrame();
                 }
+            }
+        },
+
+        _updateControls: {
+            value: function() {
+                this._controls.update();
             }
         },
 

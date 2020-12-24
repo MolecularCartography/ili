@@ -28,7 +28,7 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
 
         var divs = this._div.querySelectorAll('.View3D');
         for (var i = 0; i < divs.length; i++) {
-            const view3d = initializer.createView(this, divs[i]);
+            const view3d = initializer.createView(this, divs[i], i);
             this._views.push(view3d);
         }
         this._spotLabel = initializer.createSpotLabel(this, this._scene);

@@ -24,7 +24,8 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
     function Workspace(spotsController) {
         WorkspaceBase.call(this, spotsController, 
             new InputFilesProcessor(this),
-            Workspace.TaskType);
+            Workspace.TaskType,
+            Workspace.Events);
 
         this._scene3d = new Scene3D(spotsController);
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
@@ -32,7 +33,10 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
     }
 
     Object.assign(Workspace, WorkspaceBase);
-
+    Object.assign(Workspace.Events, {
+        SHAPE_LOAD: 'shape-load'
+    });
+    
     Workspace.Mode = {
         MODE_3D: 3,
     };
@@ -70,8 +74,9 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
-                    console.log(result);
-                    this._scene3d.shapeData = result.shape;
+                    this._shape = result.shape;
+                    this._notify(Workspace.Events.SHAPE_LOAD, this._shape);
+                    this._scene3d.shapeData = this._shape;
                     this._mapVolume();
                 }.bind(this));
             }
@@ -140,6 +145,12 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                 this._notify(Workspace.Events.MODE_CHANGE);
             }
         },
+
+        shape: {
+            get: function() {
+                return this._shape;
+            }
+        },  
 
         scene3d: {
             get: function() {

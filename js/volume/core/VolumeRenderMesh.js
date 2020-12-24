@@ -12,6 +12,9 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
     };
     Object.freeze(RenderStyle);
 
+    const shapeColorMapTextureSize = 100;
+    const intensityColorMapTextureSize = 100;
+
     function VolumeRenderMesh(volumeShaders) {
        // Define render technique uniforms.
        this._uniforms = {
@@ -26,6 +29,7 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
             u_intensity_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
             u_intensity_cmdata: {value: new THREE.DataTexture(null, 1, 1) },
             u_intensity_bounds: {value: new THREE.Vector2(0, 0) },
+            u_intensity_opacity: {value: 1.0},
 
             u_normals_size: {value: new THREE.Vector3(0, 0, 0) },
             u_normals_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
@@ -47,7 +51,9 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
             u_scalemode: {value: 0},
         };
 
-        this._shapeColorMapRenderer = new ColorMapTextureRenderer();
+        // Color map texture renderers.
+        this._shapeColorMapRenderer = new ColorMapTextureRenderer(shapeColorMapTextureSize);
+        this._intensityColorMapRenderer = new ColorMapTextureRenderer(intensityColorMapTextureSize);
 
         // Define custom material.
         this._material = new THREE.ShaderMaterial({
@@ -63,6 +69,7 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
         const translate = 0.5;
         this._geometry.translate(translate, translate, translate);
 
+        // Define mesh.
         this._mesh = new THREE.Mesh(this._geometry, this._material);
 
         return this;
@@ -73,6 +80,17 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
         mesh: {
             get: function() {
                 return this._mesh;
+            }
+        },
+
+        intensityOpacity: {
+            get: function() {
+                return this._intensityOpacity;
+            },
+            set: function(value) {
+                this._intensityOpacity = value;
+                this._setUniform('u_intensity_opacity', value);
+                // TODO: implement the parameter.
             }
         },
 

@@ -25,7 +25,7 @@ define([
             const visualizationGroup = this.addGroupBox('Visualization');
             visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
-            visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 1);
+            visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 5);
             visualizationGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);
 
             const lightGroup = this.addGroupBox('Light');

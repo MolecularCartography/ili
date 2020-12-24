@@ -18,10 +18,10 @@ function() {
             this._listeners[eventName].push(listener);
         },
 
-        _notify: function(eventName) {
+        _notify: function(eventName, args) {
             var listeners = this._listeners[eventName];
             for (var i = 0; i < listeners.length; i++) {
-                listeners[i]();
+                listeners[i](args);
             }
         },
     };
