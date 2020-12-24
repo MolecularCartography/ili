@@ -2,8 +2,8 @@
 
 define(['three', 'colormaps', 'eventsource', 'utils'],
 function (THREE, ColorMap, EventSource, Utils) {
-    function SpotsController() {
-        EventSource.call(this, SpotsController.Events);
+    function SpotsControllerBase() {
+        EventSource.call(this, SpotsControllerBase.Events);
 
         this._spots = [];
 
@@ -14,7 +14,7 @@ function (THREE, ColorMap, EventSource, Utils) {
         this._globalSpotScale = 1.0;
 
         this._colorMap = ColorMap.Maps.VIRIDIS;
-        this._scale = SpotsController.Scale.LINEAR;
+        this._scale = SpotsControllerBase.Scale.LINEAR;
 
         this._measures = [];
         this._activeMeasure = null;
@@ -27,7 +27,7 @@ function (THREE, ColorMap, EventSource, Utils) {
         return this;
     }
 
-    SpotsController.Events = {
+    SpotsControllerBase.Events = {
         SPOTS_CHANGE: 'spots-change',
         SCALE_CHANGE: 'scale-change', // special event for the scaling as it requires sophisticated handler in 3D mode
         ATTR_CHANGE: 'attr-change',
@@ -37,7 +37,7 @@ function (THREE, ColorMap, EventSource, Utils) {
         INTENSITIES_CHANGE: 'intensities-change'
     };
 
-    SpotsController.Scale = {
+    SpotsControllerBase.Scale = {
         LOG: {
             id: 'log',
             function: Math.log10,
@@ -59,21 +59,21 @@ function (THREE, ColorMap, EventSource, Utils) {
         }
     };
 
-    SpotsController.getScaleById = function (id) {
-        for (var i in SpotsController.Scale) {
-            if (SpotsController.Scale[i].id == id) {
-                return SpotsController.Scale[i];
+    SpotsControllerBase.getScaleById = function (id) {
+        for (var i in SpotsControllerBase.Scale) {
+            if (SpotsControllerBase.Scale[i].id == id) {
+                return SpotsControllerBase.Scale[i];
             }
         }
         throw 'Invalid scale id: ' + id;
     };
 
-    SpotsController.DataDependentOpacity = {
+    SpotsControllerBase.DataDependentOpacity = {
         MIN: 0.1,
         MAX: 1
     };
 
-    SpotsController._createSpotsProperty = function (getter, setter, modificationEvent) {
+    SpotsControllerBase._createSpotsProperty = function (getter, setter, modificationEvent) {
         if (typeof getter === 'string') {
             var getName = getter;
             getter = function (spot) {
@@ -119,7 +119,7 @@ function (THREE, ColorMap, EventSource, Utils) {
         };
     };
 
-    SpotsController.prototype = Object.create(EventSource.prototype, {
+    SpotsControllerBase.prototype = Object.create(EventSource.prototype, {
         spots: {
             get: function () {
                 return this._spots;
@@ -132,7 +132,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                     spot.color = new THREE.Color();
                     spot.opacity = 1.0;
                 }
-                this._notify(SpotsController.Events.SPOTS_CHANGE);
+                this._notify(SpotsControllerBase.Events.SPOTS_CHANGE);
             }
         },
 
@@ -143,7 +143,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function (value) {
                 this._measures = Array.isArray(value) && value ? value : [];
                 this._activeMeasure = null;
-                this._notify(SpotsController.Events.INTENSITIES_LOADED);
+                this._notify(SpotsControllerBase.Events.INTENSITIES_LOADED);
             }
         },
 
@@ -175,7 +175,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                     return;
                 }
                 this._spotBorder = Utils.boundNumber(0.0, value, 1.0);
-                this._notify(SpotsController.Events.ATTR_CHANGE);
+                this._notify(SpotsControllerBase.Events.ATTR_CHANGE);
             }
         },
 
@@ -185,7 +185,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             },
             set: function (value) {
                 this._globalSpotScale = value < 0 ? 0 : value;
-                this._notify(SpotsController.Events.SCALE_CHANGE);
+                this._notify(SpotsControllerBase.Events.SCALE_CHANGE);
             }
         },
 
@@ -195,7 +195,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             },
             set: function (value) {
                 this._globalSpotOpacity = Utils.boundNumber(0.0, value, 1.0);
-                this._notify(SpotsController.Events.ATTR_CHANGE);
+                this._notify(SpotsControllerBase.Events.ATTR_CHANGE);
             }
         },
 
@@ -216,7 +216,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function (value) {
                 if (value in ColorMap.Maps) {
                     this._colorMap = ColorMap.Maps[value];
-                    this._notify(SpotsController.Events.MAPPING_CHANGE);
+                    this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
                 }
             }
         },
@@ -243,23 +243,23 @@ function (THREE, ColorMap, EventSource, Utils) {
             }
         },
 
-        spotOpacity: SpotsController._createSpotsProperty('opacity', function (spot, opacity) {
+        spotOpacity: SpotsControllerBase._createSpotsProperty('opacity', function (spot, opacity) {
             var v = opacity[spot.name];
             v = v < 0 ? 0 : v > 1 ? 1 : v;
             spot.opacity = v;
-        }, SpotsController.Events.ATTR_CHANGE),
+        }, SpotsControllerBase.Events.ATTR_CHANGE),
 
-        spotColors: SpotsController._createSpotsProperty(function (spot) {
+        spotColors: SpotsControllerBase._createSpotsProperty(function (spot) {
             return spot.color.getHexString();
         }, function (spot, colors) {
             spot.color = new THREE.Color(colors[spot.name]);
-        }, SpotsController.Events.ATTR_CHANGE),
+        }, SpotsControllerBase.Events.ATTR_CHANGE),
 
-        spotScale: SpotsController._createSpotsProperty('scale', function (spot, scale) {
+        spotScale: SpotsControllerBase._createSpotsProperty('scale', function (spot, scale) {
             var s = scale[spot.name];
             s = s < 0 ? 0 : s;
             spot.scale = s;
-        }, SpotsController.Events.SCALE_CHANGE),
+        }, SpotsControllerBase.Events.SCALE_CHANGE),
 
         dataDependentOpacity: {
             get: function() {
@@ -268,7 +268,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function(value) {
                 this._dataDependentOpacity = !!value;
                 this._updateDataDependentOpacity();
-                this._notify(SpotsController.Events.ATTR_CHANGE);
+                this._notify(SpotsControllerBase.Events.ATTR_CHANGE);
             }
         },
 
@@ -283,7 +283,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                     this._updateMinMaxValues();
                     this._updateIntensities();
                 }
-                this._notify(SpotsController.Events.AUTO_MAPPING_CHANGE);
+                this._notify(SpotsControllerBase.Events.AUTO_MAPPING_CHANGE);
             }
         },
 
@@ -296,7 +296,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                 if (this._autoMinMax) return;
                 this._minValue = Number(value);
                 this._updateIntensities();
-                this._notify(SpotsController.Events.MAPPING_CHANGE);
+                this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
             }
         },
 
@@ -309,7 +309,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                 if (this._autoMinMax) return;
                 this._maxValue = Number(value);
                 this._updateIntensities();
-                this._notify(SpotsController.Events.MAPPING_CHANGE);
+                this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
             }
         },
 
@@ -326,18 +326,18 @@ function (THREE, ColorMap, EventSource, Utils) {
 
             set: function(value) {
                 if (this._scale.id == value) return;
-                this._scale = SpotsController.getScaleById(value);
+                this._scale = SpotsControllerBase.getScaleById(value);
                 if (this._autoMinMax) this._updateMinMaxValues();
                 this._updateIntensities();
-                this._notify(SpotsController.Events.MAPPING_CHANGE);
+                this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
             }
         },
 
         _updateDataDependentOpacity: {
             value: function () {
                 var enabled = this._dataDependentOpacity;
-                var minOpacity = SpotsController.DataDependentOpacity.MIN;
-                var opacityRange = SpotsController.DataDependentOpacity.MAX - SpotsController.DataDependentOpacity.MIN;
+                var minOpacity = SpotsControllerBase.DataDependentOpacity.MIN;
+                var opacityRange = SpotsControllerBase.DataDependentOpacity.MAX - SpotsControllerBase.DataDependentOpacity.MIN;
 
                 for (var i = 0; i < this._spots.length; ++i) {
                     var spot = this._spots[i];
@@ -360,8 +360,8 @@ function (THREE, ColorMap, EventSource, Utils) {
                 if (this._minValue != minValue || this._maxValue != maxValue) {
                     this._minValue = minValue;
                     this._maxValue = maxValue;
-                    this._notify(SpotsController.Events.AUTO_MAPPING_CHANGE);
-                    this._notify(SpotsController.Events.MAPPING_CHANGE);
+                    this._notify(SpotsControllerBase.Events.AUTO_MAPPING_CHANGE);
+                    this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
                     return true;
                 } else {
                     return false;
@@ -387,10 +387,10 @@ function (THREE, ColorMap, EventSource, Utils) {
                     this._spots[i].intensity = intensity;
                 }
                 this._updateDataDependentOpacity();
-                this._notify(SpotsController.Events.INTENSITIES_CHANGE);
+                this._notify(SpotsControllerBase.Events.INTENSITIES_CHANGE);
             }
         },
     });
 
-    return SpotsController;
+    return SpotsControllerBase;
 });

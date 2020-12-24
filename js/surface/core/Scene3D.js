@@ -34,13 +34,8 @@ function(Scene3DBase, THREE, Utils) {
 
     Object.assign(Scene3D, Scene3DBase);
 
-    Scene3D._makeLightProperty = function(field) {
-        return Utils.makeProxyProperty(field, ['intensity'], function() {
-            this._notify(Scene3D.Events.CHANGE);
-        });
-    };
-
     Scene3D.prototype = Object.create(Scene3DBase.prototype, {
+
         clone: {
             value: function(eventName, listener) {
                 var result = new Scene3D(this._spotsController);
@@ -57,7 +52,9 @@ function(Scene3DBase, THREE, Utils) {
             }
         },
 
-        frontLight: Scene3D._makeLightProperty('_frontLight'),
+        frontLight: Utils.makeProxyProperty('_frontLight', ['intensity'], function() {
+            this._notify(Scene3D.Events.CHANGE);
+        }),
 
         color: {
             get: function() {

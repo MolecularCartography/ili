@@ -8,31 +8,23 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         Scene3DBase.call(this, spotsController);
 
         this._volumeRenderMesh = new VolumeRenderMesh(VolumeShaders);
-        this._volumeRenderMesh.shapeColorMap = ColorMaps.Maps.GC;
+
+        this._shapeColorMapId = 'GC';
 
         this._slicing = { minX: 0, maxX: 1, minY: 0, maxY: 1, minZ: 0, maxZ: 1 };
         this._light = { ambient: 0.3, diffuse: 0.6, specular: 0.3 };
 
         this._mapping = null;
 
+        this.slicing = this._slicing;
+        this.light = this._light;
         this.opacity = 1.0;
         this.filling = 0.5;
         this.spacing = 1.0;
         this.proportionalOpacityEnabled = false;
         this.intensityOpacity = 1.0;
         this.shadingEnabled = false;
-
-        this.light.ambient = 0.3;
-        this.light.diffuse = 0.6;
-        this.light.specular = 0.3;
-
-        this.slicing.minX = 0;
-        this.slicing.maxX = 1;
-        this.slicing.minY = 0;
-        this.slicing.maxY = 1;
-        this.slicing.minZ = 0;
-        this.slicing.maxZ = 1;
-
+        
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
 
@@ -85,6 +77,17 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
             }
         },
 
+        shapeColorMapId: {
+            get: function() {
+                return this._shapeColorMapId;
+            },
+            set: function(value) {
+                this._shapeColorMapId = value;
+                this._volumeRenderMesh.shapeColorMap = ColorMaps.Maps[value];
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
         shapeData: {
             get: function() {
                 return this._volumeRenderMesh.shapeData;
@@ -97,19 +100,14 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
 
         slicing: Utils.makeProxyProperty('_slicing', ['minX', 'maxX', 'minY', 'maxY', 'minZ', 'maxZ'],
             function() {
-                if (this._shapeData) {
-                    this._applySlicing();
-                    this._notify(Scene3D.Events.CHANGE);
-                }
+                this._volumeRenderMesh.slicing = this._slicing;
+                this._notify(Scene3D.Events.CHANGE);   
             }),
 
         light: Utils.makeProxyProperty('_light', ['ambient', 'diffuse', 'specular'],
             function() {
-                // TODO:
-                if (this._shapeData) {
-                    
-                    this._notify(Scene3D.Events.CHANGE);
-                }
+                this._volumeRenderMesh.light = this._light;
+                this._notify(Scene3D.Events.CHANGE);  
             }),
 
         opacity: {

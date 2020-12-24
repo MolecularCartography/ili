@@ -17,6 +17,7 @@ function() {
         uniform sampler3D u_intensity_data;
         uniform sampler2D u_intensity_cmdata;
         uniform vec2 u_intensity_bounds;
+        uniform float u_intensity_opacity;
         
         uniform vec3 u_normals_size;
         uniform sampler3D u_normals_data;
@@ -76,6 +77,20 @@ function() {
         
         vec4 inverseBlend(vec4 base, vec4 blend);
         vec4 finish_inverse_blend(vec4 color);
+
+        bool ray_box_intersection(vec3 view_ray_start, vec3 view_ray_direction, vec3 top, vec3 bottom, out float t_0, out float t_1)
+        {
+            vec3 direction_inv = 1.0 / view_ray_direction;
+            vec3 t_top = direction_inv * (top - view_ray_start);
+            vec3 t_bottom = direction_inv * (bottom - view_ray_start);
+            vec3 t_min = min(t_top, t_bottom);
+            vec2 t = max(t_min.xx, t_min.yz);
+            t_0 = max(0.0, max(t.x, t.y));
+            vec3 t_max = max(t_top, t_bottom);
+            t = min(t_max.xx, t_max.yz);
+            t_1 = min(t.x, t.y);
+            return !(t_0 < 0.0 || t_0 > t_1);
+        }
         
         void main() {
             // Normalize clipping plane info
@@ -83,22 +98,27 @@ function() {
             vec3 nearpos = v_nearpos.xyz / v_nearpos.w;
         
             // Calculate unit vector pointing in the view direction through this fragment.
+            //vec3 view_ray = normalize(nearpos.xyz - farpos.xyz);
             vec3 view_ray = normalize(nearpos.xyz - farpos.xyz);
         
             vec3 minPosition = u_shape_slice_min * u_shape_size;
             vec3 maxPosition = u_shape_slice_max * u_shape_size;
-            vec3 backPosition = max(min(v_position, maxPosition), minPosition);
 
-            // Compute distance between front plane and back position.
-            float distance = calculate_distance(nearpos, farpos, view_ray, backPosition);
+            // Intersect the view ray and the box.
+            float t_0, t_1;
+            if (!ray_box_intersection(nearpos, view_ray, maxPosition, minPosition, t_0, t_1)) {
+                discard; // TODO: seems to be an error in this check
+            }
+            vec3 ray_start = (nearpos + view_ray * t_0) / u_shape_size;
+            vec3 ray_stop = (nearpos + view_ray * t_1) / u_shape_size;
+            
+            // Find distance.
+            vec3 ray_diff = ray_stop - ray_start;
+            float distance = length(ray_diff * u_shape_size);
 
-            // Now we have the starting position on the front surface
-            vec3 front = backPosition + view_ray * distance;
-            front = max(min(front, maxPosition), minPosition);
-        
             // Decide how many steps to take
-            int nsteps = int((-distance / u_relative_step_size) + 0.5);
-
+            int nsteps = int((distance / u_relative_step_size) + 0.5);
+    
             if ( nsteps < 1 )
             {
                 if(debug_mode)
@@ -112,13 +132,12 @@ function() {
                 }
             }
 
-            // Get starting location and step vector in texture coordinates
-            vec3 step = ((backPosition - front) / u_shape_size) / float(nsteps);
-            vec3 start_loc = front / u_shape_size;
+            // Get texture step.
+            vec3 step = ray_diff / float(nsteps);
 
             if (u_renderstyle == 0)
             {
-                raycast(start_loc, step, nsteps, view_ray);
+                raycast(ray_start, step, nsteps, view_ray);
             }
             if (u_renderstyle == 1)
             {
@@ -138,29 +157,6 @@ function() {
         
         vec3 normals_sample(vec3 texcoords) {
             return 2.0 * (texture(u_normals_data, texcoords.xyz).rgb - vec3(0.5));
-        }
-        
-        float calculate_distance(vec3 nearpos, vec3 farpos, vec3 view_ray, vec3 backPosition) {
-            // Compute the (negative) distance to the front surface or near clipping plane.
-            // v_position is the back face of the cuboid, so the initial distance calculated in the dot
-            // product below is the distance from near clip plane to the back of the cuboid
-            float distance = dot(nearpos - backPosition, view_ray);
-            if (complex_distance_calculation)
-            {
-                distance = max(
-                    distance,
-                    min((-0.5 - backPosition.x) / view_ray.x,
-                        (u_shape_size.x - 0.5 - backPosition.x) / view_ray.x));
-                distance = max(
-                    distance,
-                    min((-0.5 - backPosition.y) / view_ray.y,
-                        (u_shape_size.y - 0.5 - backPosition.y) / view_ray.y));
-                distance = max(
-                    distance,
-                    min((-0.5 - backPosition.z) / view_ray.z,
-                        (u_shape_size.z - 0.5 - backPosition.z) / view_ray.z));
-            }
-            return distance;
         }
         
         vec4 apply_shape_colormap(float normalized_value) {
@@ -196,6 +192,7 @@ function() {
                 //    u_intensity_bounds);
                 //if (!isnan(normalized_intensity_value)) {
                 //    vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
+                //    intensity_color.a *= u_intensity_opacity;
                 //    if (u_proportional_opacity_enabled == 1) {
                 //        intensity_color.a *= normalized_intensity_value; 
                 //    }
@@ -311,8 +308,6 @@ function() {
             varying vec4 v_farpos;
             varying vec3 v_position;
 
-            uniform vec3 slicing_min;
-            uniform vec3 slicing_max;
             uniform vec3 u_shape_size;
             
             void main() {
@@ -325,7 +320,8 @@ function() {
                 // backward (in cam coords) to the near clipping plane, and project back. Do
                 // the same for the far clipping plane. This gives us all the information we
                 // need to calculate the ray and truncate it to the viewing cone.
-                vec4 position4 = vec4(position, 1.0);
+                vec4 position4 = vec4((position + vec3(0.5)) * u_shape_size, 1.0);
+                vec4 shiftPosition4 = vec4(position * u_shape_size, 1.0);
                 vec4 pos_in_cam = viewtransformf * position4;
             
                 // Intersection of ray and near clipping plane (z = -1 in clip coords)
@@ -338,7 +334,7 @@ function() {
 
                 // Set varyings and output pos
                 v_position = position;
-                gl_Position = projectionMatrix * viewMatrix * modelMatrix * position4;
+                gl_Position = projectionMatrix * viewMatrix * modelMatrix * shiftPosition4;
             }           
         `
     };

@@ -101,7 +101,7 @@ function() {
                         }.bind(this, properties[i])
                     });  
                 }
-                return this;
+                return this[proxyName];
             },
 
             set: function(value) {

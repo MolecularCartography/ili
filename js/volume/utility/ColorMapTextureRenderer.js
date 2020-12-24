@@ -22,6 +22,13 @@ define(['three'],
         }
 
         ColorMapTextureRenderer.prototype = Object.create(null, {
+
+            dispose: {
+                value: function() {
+                    this._texture.dispose();
+                }
+            },
+
             texture: {
                 get: function() {
                     if (!this._isValid) {

@@ -22,7 +22,7 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
     ili.prototype = Object.create(AppBase.prototype, {
         render: {
             value: function () {
-                console.log('VolumeRender');
+                this._views.g3d.requestAnimationFrame();
             }
         },
     });

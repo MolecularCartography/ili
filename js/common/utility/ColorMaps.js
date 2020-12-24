@@ -63,6 +63,10 @@ function(THREE) {
     });
 
     ColorMap.Maps = {
+        GC: new ColorMap('Gray-Scale', [
+            '#000000',
+            '#ffffff']),
+            
         VIRIDIS: new ColorMap('Viridis', [
                 '#440154',
                 '#482777',
@@ -127,11 +131,7 @@ function(THREE) {
                 '#8080ff',
                 '#6666ff',
                 '#4d4dff',
-                '#3333ff']),
-        GC: new ColorMap('Gray-Scale', [
-            '#000000',
-            '#ffffff']),
-
+                '#3333ff'])
     };
 
     return ColorMap

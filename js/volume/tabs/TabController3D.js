@@ -1,10 +1,7 @@
 'use strict';
 
-define([
-        'tabcontrollerbase',
-        'volumeviewgroup3d'
-    ],
-    function (TabControllerBase, VolumeViewGroup3D) {
+define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
+    function (TabControllerBase, VolumeViewGroup3D, ColorMap) {
         function TabController3D(container, workspace, views) {
             var description = 'Settings of 3D view';
             var title = '3D';
@@ -23,6 +20,11 @@ define([
             generalGroup.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
 
             const visualizationGroup = this.addGroupBox('Visualization');
+            var colorMapOptions = Object.keys(ColorMap.Maps).reduce(function (prev, cur) {
+                prev.push([ColorMap.Maps[cur].name, cur]);
+                return prev;
+            }, []);
+            visualizationGroup.addChoice(workspace.scene3d, 'shapeColorMapId', 'Shape Color Map', colorMapOptions);
             visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 5);

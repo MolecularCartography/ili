@@ -193,6 +193,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                         this.set(object[key]);
                     }
                 };
+                result.set(object[key]);
                 this._params[this._toKey(name)] = result;
                 return result;
             }
