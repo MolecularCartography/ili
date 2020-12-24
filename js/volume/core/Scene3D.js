@@ -22,6 +22,17 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         this.intensityOpacity = 1.0;
         this.shadingEnabled = false;
 
+        this.light.ambient = 0.3;
+        this.light.diffuse = 0.6;
+        this.light.specular = 0.3;
+
+        this.slicing.minX = 0;
+        this.slicing.maxX = 1;
+        this.slicing.minY = 0;
+        this.slicing.maxY = 1;
+        this.slicing.minZ = 0;
+        this.slicing.maxZ = 1;
+
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
 
@@ -31,12 +42,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         clone: {
             value: function(eventName, listener) {
                 console.warn("Clone is bad now.");
-                var result = new Scene3D(this._spotsController);
-                result.color = this.color;
-                result.backgroundColor = this.backgroundColor;
-                result.slicing = this.slicing;
-                // TODO:
-                return result;
+                return null;
             }
         },
 

@@ -34,7 +34,7 @@ define(['three'],
                             buffer[index] = Math.floor(color.r * 255.0);
                             buffer[index + 1] = Math.floor(color.g * 255.0);
                             buffer[index + 2] = Math.floor(color.b * 255.0);
-                            buffer[index + 3] = 255; //Math.floor(color.a * 255.0);
+                            buffer[index + 3] = 255;
                         }
                         this._texture.needsUpdate = true;
                         this._isValid = true;

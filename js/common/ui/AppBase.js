@@ -4,16 +4,15 @@
 'use strict';
 
 define(['workspacebase', 'mainlayout', 'dragndrop', 'utils'],
-    function (WorkspaceBase, appLayout, DragAndDrop, Utils)
+    function ( WorkspaceBase, appLayout, DragAndDrop, Utils)
     {
-        function AppBase(appContainer, initializers, checker) {
+        function AppBase(appEnvironment, appContainer, initializers, checker) {
+            this._appEnvironment = appEnvironment;
+            this._appContainer = this._appEnvironment.appContainer;
+
             if (!checker()) {
                 alert('WebGL technology is not enabled in your browser or not supported at all. Turn it on or try to use a proper machine to get `ili functioning properly.');
             }
-            this._appContainer = document.createElement('div');
-            this._appContainer.id = 'ili-container';
-            this._appContainer.innerHTML = appLayout;
-            appContainer.appendChild(this._appContainer);
 
             this._spotsController = initializers.createSpotsController();
             this._workspace = initializers.createWorkspace(this._spotsController);
@@ -160,32 +159,13 @@ define(['workspacebase', 'mainlayout', 'dragndrop', 'utils'],
 
             _onWorkspaceStatusChange: {
                 value: function() {
-                    var statusContainer = this._appContainer.querySelector('#status');
-                    if (this._workspace.status) {
-                        var textField = statusContainer.querySelector('span');
-                        textField.innerHTML = this._workspace.status;
-                        statusContainer.style.visibility = 'visible';
-                    } else {
-                        statusContainer.style.visibility = 'hidden';
-                    }
+                    this._appEnvironment.setAppStatus(this._workspace.status);
                 }
             },
 
             _onWorkspaceErrorsChange: {
                 value: function () {
-                    var errorBox = this._appContainer.querySelector('div#errors');
-                    var list = errorBox.querySelector('ul');
-                    list.textContent = '';
-                    this._workspace.errors.forEach(function (error) {
-                        var item = document.createElement('li');
-                        item.textContent = error;
-                        list.appendChild(item);
-                    });
-                    if (this._workspace.errors.length == 0) {
-                        errorBox.setAttribute('hidden', 'true');
-                    } else {
-                        errorBox.removeAttribute('hidden');
-                    }
+                    this._appEnvironment.setAppErrorsStatus( this._workspace.errors);
                 }
             },
 

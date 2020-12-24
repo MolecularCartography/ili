@@ -16,6 +16,7 @@ define('ili', [], function () {
             paths: {
                 /* HTML templates */
                 'mainlayout': './template.html',
+                'initiallayout': './initial-template.html',
                 'documentationlayout': './documentation.html'
             },
         });

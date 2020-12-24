@@ -37,7 +37,7 @@ function(THREE, ViewGroup3DBase, View3D) {
         const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
         camera.position.multiplyVectors(new THREE.Vector3(maxDimension, maxDimension, maxDimension), offset);
         camera.near = 1;
-        camera.far = 1000;
+        camera.far = maxDimension * 5;
         
         const up = new THREE.Vector3();
         up.copy(offset);

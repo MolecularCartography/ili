@@ -34,6 +34,9 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
             u_normals_size: {value: new THREE.Vector3(0, 0, 0) },
             u_normals_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
 
+            u_slicing_min: {value: new THREE.Vector3(0, 0, 0)},
+            u_slicing_max: {value: new THREE.Vector3(1, 1, 1)},
+
             u_ambient_intensity: {value: 0.4},
             u_diffuse_intensity: {value: 0.5},
             u_specular_intensity: {value: 0.5},
@@ -64,22 +67,31 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
             transparent: true,
         });
 
-        // Define geometry.
-        this._geometry = new THREE.BoxBufferGeometry(1, 1, 1);
-        const translate = 0.5;
-        this._geometry.translate(translate, translate, translate);
-
         // Define mesh.
-        this._mesh = new THREE.Mesh(this._geometry, this._material);
+        this._meshContainer = new THREE.Object3D();
 
         return this;
     }
 
     VolumeRenderMesh.prototype = Object.create(null, {
 
+        dispose: {
+            value: function() {
+                if (this._shapeTexture) {
+                    this._shapeTexture.dispose();
+                }
+                if (this._geometry) {
+                    this._geometry.dispose();
+                }
+                if (this._material) {
+                    this._material.dispose();
+                }
+            }
+        },
+
         mesh: {
             get: function() {
-                return this._mesh;
+                return this._meshContainer;
             }
         },
 
@@ -160,19 +172,19 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
                 return this._shapeData;
             },
             set: function(value) {
+                if (this._shapeTexture) {
+                    this._shapeTexture.dispose();
+                }
+
                 this._shapeData = value;
                 
                 const shapeSize = new THREE.Vector3(value.lengthX, value.lengthY, value.lengthZ);
                 this._setUniform('u_shape_size', shapeSize);
                 this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max));
 
-                const shapeTexture = ThreeUtils.createFloatTexture3D(value);
-                this._setUniform('u_shape_data', shapeTexture);
-
-                this._geometry.scale(value.sizeX, value.sizeY, value.sizeZ);
-                this._mesh.position.x = -value.sizeX / 2;
-                this._mesh.position.y = -value.sizeY / 2;
-                this._mesh.position.z = -value.sizeZ / 2;
+                this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
+                this._resetTransform();
+                this._setUniform('u_shape_data', this._shapeTexture);
             }
         },
 
@@ -182,6 +194,37 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
                 this._material.uniformsNeedUpdate = true;
             }
         },
+
+        _resetTransform: {
+            value: function() {
+                if (this._geometry) {
+                    this._geometry.dispose();
+                    this._meshContainer.remove(this._mesh);
+                }
+
+                const shape = this._shapeData;
+                if (shape) {
+
+                    const minX = 0;
+                    const maxX = 1;
+
+                    // Shift geometry so its angle is at [0; 0; 0]
+                    this._geometry = new THREE.BoxBufferGeometry(shape.sizeX, shape.sizeY, shape.sizeZ);
+                    this._geometry.translate(shape.sizeX * (maxX - minX) / 2, shape.sizeY / 2, shape.sizeZ / 2);
+
+                    this._geometry.translate(shape.sizeX * minX, 0, 0);
+                    
+                    // Shift back. Note that mesh shift is achieved by model matrix.
+                    this._mesh = new THREE.Mesh(this._geometry, this._material);
+                    this._mesh.position.x = -shape.sizeX / 2;
+                    this._mesh.position.y = -shape.sizeY / 2;
+                    this._mesh.position.z = -shape.sizeZ / 2;
+    
+
+                    this._meshContainer.add(this._mesh);
+                }
+            }
+        }
 
         
     });

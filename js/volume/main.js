@@ -14,8 +14,8 @@ function (Workspace, ViewContainer, MapSelector, AppSettingsController, SpotsCon
         createSettingsController: function(div, workspace, viewContainer) { return new AppSettingsController(div, workspace, viewContainer); }
     };
 
-    function ili(appContainer) {
-        AppBase.call(this, appContainer, initializers, Utils.webgl2Enabled);
+    function ili(appEnvironment, appContainer) {
+        AppBase.call(this, appEnvironment, appContainer, initializers, Utils.webgl2Enabled);
         return this;
     };
 

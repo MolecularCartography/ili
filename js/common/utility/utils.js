@@ -92,7 +92,7 @@ function() {
                 for (var i = 0; i < properties.length; i++) {
                     Object.defineProperty(this[proxyName], properties[i], {
                         get: function(prop) {
-                            return this[field][prop]
+                            return this[field][prop];
                         }.bind(this, properties[i]),
 
                         set: function(prop, value) {

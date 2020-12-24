@@ -13,6 +13,7 @@
     display: flex;
     flex-direction: row;
     flex: auto;
+    height: 100%;
 }
 body {
     margin: 0;
@@ -48,6 +49,11 @@ body {
     transition: all 0.5s;
     filter: grayscale(0.5);
     border: darkgray 1px solid;
+    border-radius: 25px;
+}
+
+.menuBtn .text {
+    font-size: 4em;
 }
 
 .menuBtn div{

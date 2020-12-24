@@ -12,6 +12,7 @@ require.config({
 
         // Ui.
         'appbase': 'js/common/ui/AppBase',
+        'appenvironment': 'js/common/ui/AppEnvironment',
         'dragndrop': 'js/common/ui/DragAndDrop',
         'scene3dbase': 'js/common/ui/Scene3DBase',
         'view3dbase': 'js/common/ui/View3DBase',
