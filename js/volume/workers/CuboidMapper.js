@@ -24,11 +24,12 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, RemappingProcessor) {
 
         const cuboids = data.cuboids;
         const sizedVolume = data.volume;
+        const intensities = data.intensities;
 
         const processor = new RemappingProcessor(
             sizedVolume.lengthX, sizedVolume.lengthY, sizedVolume.lengthZ,
             sizedVolume.sizeX, sizedVolume.sizeY, sizedVolume.sizeZ,
-            cuboids, {
+            cuboids, intensities, {
                 setup: function(count) {
                     postMessage({
                         status: 'working',
@@ -45,13 +46,12 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, RemappingProcessor) {
 
                 finished: function() { 
                     postMessage({
-                        data: processor.result,
+                        data: processor._volume,
                         status: 'completed'
                     });
                 }
             }
         );
-        console.log(processor);
         processor.calculate();
     }
 

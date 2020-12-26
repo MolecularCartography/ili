@@ -147,6 +147,12 @@ function (THREE, ColorMap, EventSource, Utils) {
             }
         },
 
+        activeMeasure: {
+            get: function() {
+                return this._activeMeasure;
+            },
+        },
+
         hotspotQuantile: {
             get: function () {
                 return this._hotspotQuantile;
@@ -335,6 +341,7 @@ function (THREE, ColorMap, EventSource, Utils) {
 
         _updateDataDependentOpacity: {
             value: function () {
+                console.log('spots', this._spots);
                 var enabled = this._dataDependentOpacity;
                 var minOpacity = SpotsControllerBase.DataDependentOpacity.MIN;
                 var opacityRange = SpotsControllerBase.DataDependentOpacity.MAX - SpotsControllerBase.DataDependentOpacity.MIN;

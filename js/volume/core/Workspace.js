@@ -107,24 +107,25 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         _mapVolume: {
             value: function() {
                 const spots = this._spotsController.spots;
-                const measures = this._spotsController.measures;
                 const volume = this._scene3d.shapeData;
+                const activeMeasure = this._spotsController.activeMeasure;
 
-                if (!spots || !measures || !volume) {
+                if (!spots || !activeMeasure || !volume) {
                     return;
                 }
 
-                // TODO:
-                return;
-
                 const data = {
+                    volume: volume,
                     cuboids: spots,
-                    volume: volume
+                    intensities: activeMeasure.values,
                 };
                 this._doTask(Workspace.TaskType.MAP, data).
                     then(function (result) {
-                        console.log(result.data);
                         this._scene3d.intensityData = result.data;
+                    }.bind(this));
+                this._doTask(Workspace.TaskType.LOAD_NORMALS, volume)
+                    .then(function (normalsData) {
+                        this._scene3d.normalsData = normalsData.data;
                     }.bind(this));
             }
         }, 

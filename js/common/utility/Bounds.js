@@ -21,8 +21,10 @@ define(['three'], function(THREE) {
     });
 
     Bounds.fromArray = function(data) {
-        const min = data.reduce(Math.min, Number.MAX_VALUE);
-        const max = data.reduce(Math.max, Number.MIN_VALUE);    
+        const min = data.reduce((left, right) => left < right ? left : right, Number.MAX_VALUE);
+        const max = data.reduce((left, right) => left > right ? left : right, Number.MIN_VALUE);    
+        console.log('data to calculate bounds', data);
+        console.log('calculated bounds', min, max);
         return new Bounds(min, max);
     };
 

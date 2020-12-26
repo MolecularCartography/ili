@@ -81,6 +81,12 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
                 if (this._shapeTexture) {
                     this._shapeTexture.dispose();
                 }
+                if (this._intensityTexture) {
+                    this._intensityTexture.dispose();
+                }
+                if (this._normalsTexture) {
+                    this._normalsTexture.dipose();
+                }
                 if (this._geometry) {
                     this._geometry.dispose();
                 }
@@ -209,6 +215,50 @@ function(THREE, ThreeUtils, ColorMapTextureRenderer, RawVolumeData) {
                 this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
                 this._setUniform('u_shape_data', this._shapeTexture);
             }
+        },
+
+        intensityColorMap: {
+            get: function() {
+                return this._intensityColormap;
+            },
+            set: function(value) {  
+                this._intensityColormap = value;
+                this._intensityColorMapRenderer.update(value);
+                this._setUniform('u_intensity_cmdata', this._intensityColorMapRenderer.texture);
+            }
+        },
+
+        intensityData: {
+            get: function() {
+                return this._intensityData;
+            },
+            set: function(value) {
+                if (this._intensityTexture) {
+                    this._intensityTexture.dispose();
+                }
+                this._intensityData = value;
+                const intensitySize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
+                this._setUniform('u_intensity_size', intensitySize);
+                const bounds = new THREE.Vector2(value.bounds.min, value.bounds.max);
+                this._setUniform('u_intensity_bounds', bounds);
+                this._intensityTexture = ThreeUtils.createFloatTexture3D(value);
+                this._setUniform('u_intensity_data', this._intensityTexture);
+            },
+        },
+
+        normalsData: {
+            get: function() {
+                return this._normalsData;
+            },
+            set: function(value) {
+                if (this._normalsTexture) {
+                    this._normalsTexture.dispose();
+                }
+                this._normalsData = value;
+                const normalsSize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
+                this._setUniform('u_normals_size', normalsSize);
+                this._setUniform('u_normals_data', value);
+            },
         },
 
         _setUniform: {

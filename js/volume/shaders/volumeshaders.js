@@ -186,23 +186,23 @@ function() {
 
                 vec4 current_color = shape_color; 
                 
-                //float intensity_value = intensity_sample(loc);
-                //float normalized_intensity_value = normalized_value(
-                //    intensity_value, 
-                //    u_intensity_bounds);
-                //if (!isnan(normalized_intensity_value)) {
-                //    vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
-                //    intensity_color.a *= u_intensity_opacity;
-                //    if (u_proportional_opacity_enabled == 1) {
-                //        intensity_color.a *= normalized_intensity_value; 
-                //    }
-                //    current_color.rgb = mix(current_color.rgb, intensity_color.rgb, intensity_color.a);
-                //}
+                float intensity_value = intensity_sample(loc);
+                float normalized_intensity_value = normalized_value(
+                    intensity_value, 
+                    u_intensity_bounds);
+                if (!isnan(normalized_intensity_value)) {
+                    vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
+                    //intensity_color.a *= u_intensity_opacity;
+                    if (u_proportional_opacity_enabled == 1) {
+                        intensity_color.a *= normalized_intensity_value; 
+                    }
+                    current_color.rgb = mix(current_color.rgb, intensity_color.rgb, intensity_color.a);
+                }
               
-                //if (u_lighting_enabled == 1) {
-                //    vec3 normal_vector = normals_sample(loc);
-                //    current_color = add_lighting(current_color, normal_vector, view_ray);
-                //}
+                if (u_lighting_enabled == 1) {
+                    vec3 normal_vector = normals_sample(loc);
+                    current_color = add_lighting(current_color, normal_vector, view_ray);
+                }
           
                 current_color.a *= uniformal_step_opacity;
         
