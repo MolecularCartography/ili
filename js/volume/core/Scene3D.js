@@ -1,13 +1,13 @@
 'use strict';
 
 define([
-    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds'
+    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumerendermesh', 'bounds'
 ],
-function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds) {
+function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRenderMesh, Bounds) {
     function Scene3D(spotsController) {
         Scene3DBase.call(this, spotsController);
 
-        this._volumeRenderMesh = new VolumeRenderMesh(VolumeShaders);
+        this._volumeRenderMesh = new VolumeRenderMesh();
 
         this._shapeColorMapId = 'GC';
 
@@ -24,7 +24,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         this.proportionalOpacityEnabled = false;
         this.intensityOpacity = 1.0;
         this.shadingEnabled = true;
-        
+
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
 
@@ -35,6 +35,32 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
             value: function(eventName, listener) {
                 console.warn("Clone is bad now.");
                 return null;
+            }
+        },
+
+        vertexShader: {
+            get: function() {
+                return this._volumeRenderMesh.vertexShader;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.vertexShader = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        fragmentShader: {
+            get: function() {
+                return this._volumeRenderMesh.fragmentShader;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.fragmentShader = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        _manageMeshVisibility: {
+            value: function() {
+                this._volumeRenderMesh.visible = this.vertexShader && this.fragmentShader;
             }
         },
 

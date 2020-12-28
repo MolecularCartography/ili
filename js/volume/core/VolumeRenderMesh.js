@@ -15,7 +15,7 @@ define([
         const shapeColorMapTextureSize = 100;
         const intensityColorMapTextureSize = 100;
 
-        function VolumeRenderMesh(volumeShaders) {
+        function VolumeRenderMesh() {
             // define render technique uniforms.
             this._uniforms = {
                 u_shape_size: { value: new THREE.Vector3(0, 0, 0)},
@@ -61,8 +61,6 @@ define([
             // define custom material.
             this._material = new THREE.ShaderMaterial({
                 uniforms: this._uniforms,
-                vertexShader: volumeShaders.vertex,
-                fragmentShader: volumeShaders.fragment,
                 side: THREE.BackSide,
                 transparent: true,
             });
@@ -93,6 +91,26 @@ define([
                     if (this._material) {
                         this._material.dispose();
                     }
+                }
+            },
+
+            vertexShader: {
+                get: function() {
+                    return this._material.vertexShader;
+                },
+                set: function(value) {
+                    this._material.vertexShader = value;
+                    this._material.needsUpdate = true;
+                }
+            },
+
+            fragmentShader: {
+                get: function() {
+                    return this._material.fragmentShader;
+                },
+                set: function(value) {
+                    this._material.fragmentShader = value;
+                    this._material.needsUpdate = true;
                 }
             },
 

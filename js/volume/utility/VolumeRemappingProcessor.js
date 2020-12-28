@@ -77,7 +77,11 @@ define(
                         for (let yIndex = yStartIndex; yIndex <= yEndIndex; ++yIndex) {
                             for (let zIndex = zStartIndex; zIndex <= zEndIndex; ++zIndex) {
                                 const intensity = this._intensities[index];
-                                result[resultIndexer.get(xIndex, yIndex, zIndex)] = intensity;
+                                const resultIndex = resultIndexer.get(xIndex, yIndex, zIndex);
+                                if (!isNaN(result[resultIndex])) {
+                                    this._warnLossOfData(xIndex, yIndex, zIndex);
+                                }
+                                result[resultIndex] = intensity;
                             }
                         }
                     }
@@ -86,6 +90,18 @@ define(
                 this.volume = this._volume;
                 callback.finished();
                 return result;
+            },
+
+            _warnLossOfData: function(xIndex, yIndex, zIndex) {
+                if (this.lossOfDataLogged) {
+                    return;
+                }
+                console.warn(
+                    'Loss of data. Rewriting non-empty intensity value at',
+                    xIndex,
+                    yIndex,
+                    zIndex);
+                this.lossOfDataLogged = true;
             },
 
             _getPivot: function(center, size) {
@@ -104,15 +120,23 @@ define(
             _getEndPosition: function(startPosition, size, limit) {
                 const endPosition = startPosition + size;
                 if (endPosition > limit) {
-                    console.error(
-                        'Cuboid is out of volume limits. Cuboid\'s end position: ' +
-                        endPosition +
-                        ' , Limit: ' +
-                        limit);
+                    this._warnOutOfLimits(endPosition, limit);
                     return limit;
                 } else {
                     return endPosition;
                 }
+            },
+
+            _warnOutOfLimits: function(endPosition, limit) {
+                if (this.outOfLimitsLogged) {
+                    return;
+                }
+                console.warn(
+                    'Cuboid is out of volume limits. Cuboid\'s end position: ' +
+                    endPosition +
+                    ' , Limit: ' +
+                    limit);
+                this.outOfLimitsLogged = true;
             },
 
             _map(value, minFrom, maxFrom, minTo, maxTo) {
