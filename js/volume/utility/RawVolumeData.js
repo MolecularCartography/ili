@@ -27,6 +27,6 @@ define([],
 
       SizedRawVolumeData.prototype = Object.create(RawVolumeData.prototype);
 
-      return { RawVolumeData, SizedRawVolumeData };
+      return {RawVolumeData, SizedRawVolumeData };
     }
 );
