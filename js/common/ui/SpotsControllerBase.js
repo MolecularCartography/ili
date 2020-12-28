@@ -147,6 +147,12 @@ function (THREE, ColorMap, EventSource, Utils) {
             }
         },
 
+        activeMeasure: {
+            get: function() {
+                return this._activeMeasure;
+            },
+        },
+
         hotspotQuantile: {
             get: function () {
                 return this._hotspotQuantile;

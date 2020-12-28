@@ -23,7 +23,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         this.spacing = 1.0;
         this.proportionalOpacityEnabled = false;
         this.intensityOpacity = 1.0;
-        this.shadingEnabled = false;
+        this.shadingEnabled = true;
         
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
@@ -49,7 +49,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         _onAttrChange: {
             value: function() {
                 this._volumeRenderMesh.proportionalOpacityEnabled = this._spotsController.dataDependentOpacity;
-                this._volumeRenderMesh.intensityOpacity = this._spotsController.spotOpacity;
+                this._volumeRenderMesh.intensityOpacity = this._spotsController.globalSpotOpacity;
                 this._notify(Scene3D.Events.CHANGE);
 
             }
@@ -73,6 +73,16 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
             },
             set: function(value) {
                 this._volumeRenderMesh.intensityData = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        normalsData: {
+            get: function() {
+                return this._volumeRenderMesh.normalsData;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.normalsData = value;
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
@@ -195,6 +205,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
 
         render: {
             value: function(renderer, camera) {
+                console.log('rendering...');
                 renderer.render(this._scene, camera);
             }
         },
