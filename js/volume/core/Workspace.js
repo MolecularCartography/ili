@@ -118,6 +118,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     volume: volume,
                     cuboids: spots,
                     intensities: activeMeasure.values,
+                    cuboidsSizeScale: this._spotsController.globalSpotScale,
                 };
                 this._doTask(Workspace.TaskType.MAP, data).
                     then(function (result) {

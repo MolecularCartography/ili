@@ -4,9 +4,10 @@ define(
         function VolumeRemappingProcessor(
             lengthX, lengthY,  lengthZ,
             sizeX, sizeY, sizeZ,
-            cuboids, intensities,
+            cuboids, intensities, cuboidsSizeScale,
             callback) {
             this._count = lengthX * lengthY * lengthZ;
+            this._cuboidsSizeScale = cuboidsSizeScale;
             const result = new Float32Array(this._count);
             result.fill(Number.NaN); // Fake value that indicates that voxel should not be colored.
             this._volume = new RawVolumeData.SizedRawVolumeData(
@@ -47,24 +48,28 @@ define(
                 this._volume.bounds = intensityBounds;
 
                 cuboids.forEach((cuboid, index) => {
-                    const xPivot = this._getXPivot(cuboid);
-                    const yPivot = this._getYPivot(cuboid);
-                    const zPivot = this._getZPivot(cuboid);
+                    const cuboidXSize = cuboid.sizeX * this._cuboidsSizeScale;
+                    const cuboidYSize = cuboid.sizeY * this._cuboidsSizeScale;
+                    const cuboidZSize = cuboid.sizeZ * this._cuboidsSizeScale;
+
+                    const xPivot = this._getPivot(cuboid.centerX, cuboidXSize);
+                    const yPivot = this._getPivot(cuboid.centerY, cuboidYSize);
+                    const zPivot = this._getPivot(cuboid.centerZ, cuboidZSize);
 
                     const xStartIndex = Math.floor(this._getIndex(xPivot, xStep, lengthX));
                     const yStartIndex = Math.floor(this._getIndex(yPivot, yStep, lengthY));
                     const zStartIndex = Math.floor(this._getIndex(zPivot, zStep, lengthZ));
 
                     const xEndIndex = Math.floor(this._getIndex(
-                        this._getEndPosition(xPivot, cuboid.sizeX, sizeX),
+                        this._getEndPosition(xPivot, cuboidXSize, sizeX),
                         xStep,
                         lengthX));
                     const yEndIndex = Math.floor(this._getIndex(
-                        this._getEndPosition(yPivot, cuboid.sizeY, sizeY),
+                        this._getEndPosition(yPivot, cuboidYSize, sizeY),
                         yStep,
                         lengthY));
                     const zEndIndex = Math.floor(this._getIndex(
-                        this._getEndPosition(zPivot, cuboid.sizeZ, sizeZ),
+                        this._getEndPosition(zPivot, cuboidZSize, sizeZ),
                         zStep,
                         lengthZ));
 
@@ -83,16 +88,8 @@ define(
                 return result;
             },
 
-            _getXPivot: function(cuboid) {
-                return cuboid.centerX - cuboid.sizeX / 2;
-            },
-
-            _getYPivot: function(cuboid) {
-                return cuboid.centerY - cuboid.sizeY / 2;
-            },
-
-            _getZPivot: function(cuboid) {
-                return cuboid.centerZ - cuboid.sizeZ / 2;
+            _getPivot: function(center, size) {
+                return center - size / 2;
             },
 
             _getStep: function(length, size) {
@@ -100,7 +97,8 @@ define(
             },
 
             _getIndex: function(position, step, limit) {
-                return Math.min(position / step, limit - 1);
+                const index = position / step;
+                return Math.min(Math.max(index, 0), limit - 1);
             },
 
             _getEndPosition: function(startPosition, size, limit) {
