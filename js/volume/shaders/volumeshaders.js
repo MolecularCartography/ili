@@ -25,8 +25,8 @@ function() {
         uniform int u_renderstyle;
         uniform float u_relative_step_size;
         uniform int u_scalemode;
-        uniform float uniformal_opacity;
-        uniform float uniformal_step_opacity;
+        uniform float u_uniformal_opacity;
+        uniform float u_uniformal_step_opacity;
         
         uniform int u_proportional_opacity_enabled;
         uniform int u_lighting_enabled;
@@ -192,7 +192,7 @@ function() {
                     u_intensity_bounds);
                 if (!isnan(normalized_intensity_value)) {
                     vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
-                    //intensity_color.a *= u_intensity_opacity;
+                    intensity_color.a *= u_intensity_opacity;
                     if (u_proportional_opacity_enabled == 1) {
                         intensity_color.a *= normalized_intensity_value; 
                     }
@@ -204,14 +204,14 @@ function() {
                     current_color = add_lighting(current_color, normal_vector, view_ray);
                 }
           
-                current_color.a *= uniformal_step_opacity;
+                current_color.a *= u_uniformal_step_opacity;
         
                 final_color = inverseBlend(final_color, current_color);
         
                 loc += step;
             }
             final_color = finish_inverse_blend(final_color);
-            final_color.a *= uniformal_opacity;
+            final_color.a *= u_uniformal_opacity;
             gl_FragColor = final_color;
         }
         

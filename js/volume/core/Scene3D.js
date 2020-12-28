@@ -49,7 +49,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         _onAttrChange: {
             value: function() {
                 this._volumeRenderMesh.proportionalOpacityEnabled = this._spotsController.dataDependentOpacity;
-                this._volumeRenderMesh.intensityOpacity = this._spotsController.spotOpacity;
+                this._volumeRenderMesh.intensityOpacity = this._spotsController.globalSpotOpacity;
                 this._notify(Scene3D.Events.CHANGE);
 
             }
