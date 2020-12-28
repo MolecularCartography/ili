@@ -28,49 +28,54 @@ function(THREE, ViewGroup3DBase, View3D) {
     }
 
     /**
-     * Sets the camera default view.
-     * @param {*} camera Camera for update.
-     * @param {*} dimensions Bounding box dimensions.
-     * @param {*} offset Dimensions offset (multiplier).
-     */
-    function setDefaultView(camera, dimensions, offset) {
-        const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
-        camera.position.multiplyVectors(new THREE.Vector3(maxDimension, maxDimension, maxDimension), offset);
-        camera.near = 1;
-        camera.far = maxDimension * 5;
-        
-        const up = new THREE.Vector3();
-        up.copy(offset);
-        up.normalize();
-
-        camera.up.crossVectors(up, new THREE.Vector3(1, 0, 0));
-        camera.zoom = 1;
-    }
-
-    /**
      * Relative offset in direction of view.
      */
     const directionMultipler = 2;
+
+    /**
+     * Sets the camera default view.
+     * @param {*} camera Camera for update.
+     * @param {*} dimensions Bounding box dimensions.
+     * @param {*} depthIndex Depth axis index.
+     */
+    function setDefaultView(camera, dimensions, horizontalIndex, verticalIndex) {
+        const depthIndex = 3 - (horizontalIndex + verticalIndex);
+
+        const offset = new THREE.Vector3();
+        offset.setComponent(depthIndex, 1);
+
+        const upVector = new THREE.Vector3();
+        upVector.setComponent(verticalIndex, 1);
+
+        const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
+        const offsetMultiplier = maxDimension * directionMultipler;
+        camera.position.multiplyVectors(new THREE.Vector3(offsetMultiplier, offsetMultiplier, offsetMultiplier), offset);
+        camera.near = 1;
+        camera.far = maxDimension * 5;
+        
+        camera.up = upVector;
+        camera.zoom = 1;
+    }
 
     /**
      * Controllers for each camera.
      */
     const cameraControllers = [
         {
-            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
-            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(0, 0, directionMultipler)) }
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
+            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
         },
         {
-            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
-            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(0, directionMultipler, 0)) }
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
+            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
         },
         {
-            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
-            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(directionMultipler, 0, 0)) }
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
+            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
         },
         {
-            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d) },
-            setDefaultView: function(c, d) { setDefaultView(c, d, new THREE.Vector3(directionMultipler, directionMultipler, directionMultipler)) }
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
+            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
         }
     ];
 
