@@ -36,12 +36,23 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
             lightGroup.addNumeric(workspace.scene3d.light, 'specular', 'Specular', 0, 1);
             
             const slicingGroup = this.addGroupBox('Slicing');
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'minX', 'X min', 0, 1);
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxX', 'X max', 0, 1);
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'minY', 'Y min', 0, 1);
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxY', 'Y max', 0, 1);
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'minZ', 'Z min', 0, 1);
-            slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxZ', 'Z max', 0, 1);
+            const slicingControls = [];
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'minX', 'X min', 0, 1));
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxX', 'X max', 0, 1));
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'minY', 'Y min', 0, 1));
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxY', 'Y max', 0, 1));
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'minZ', 'Z min', 0, 1));
+            slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxZ', 'Z max', 0, 1));
+            slicingGroup.addAction('Reset', () => {
+                const slicing = workspace.scene3d.slicing;
+                slicing.minX = 0; 
+                slicing.maxX = 1; 
+                slicing.minY = 0; 
+                slicing.maxY = 1;
+                slicing.minZ = 0; 
+                slicing.maxZ = 1; 
+                slicingControls.forEach((v) => v.refresh());
+            });
             return this;
         }
 
