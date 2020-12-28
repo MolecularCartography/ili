@@ -102,7 +102,7 @@ void main() {
     // Intersect the view ray and the box.
     float t_0, t_1;
     if (!ray_box_intersection(nearpos, view_ray, maxPosition, minPosition, t_0, t_1)) {
-        discard; // TODO: seems to be an error in this check
+        //discard; // TODO: seems to be an error in this check
     }
     vec3 ray_start = (nearpos + view_ray * t_0) / u_shape_size;
     vec3 ray_stop = (nearpos + view_ray * t_1) / u_shape_size;

@@ -33,8 +33,5 @@ requirejs.config({
         'volumetabcontrollerexamples': 'js/volume/tabs/TabControllerExamples',
         'volumetabcontrollermapping': 'js/volume/tabs/TabControllerMapping',
         'volumetabcontrollerspots': 'js/volume/tabs/TabControllerSpots',
-
-        // Shaders
-        'volumeshaders':  'js/volume/shaders/volumeshaders',
     }
 });
