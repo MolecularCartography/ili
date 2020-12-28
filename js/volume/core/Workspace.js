@@ -29,6 +29,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
 
         this._scene3d = new Scene3D(spotsController);
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
+        this.spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._mapVolume.bind(this));
 
         const shaderLoader = new ShaderLoader();
         shaderLoader.load(
