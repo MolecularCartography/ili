@@ -13,47 +13,49 @@ require({
         'bounds': '../../common/utility/Bounds',
         'rawvolumedata': '../utility/RawVolumeData',
         'indexer1d': '../../common/utility/Indexer1D',
+        'threejsutils': '../utility/ThreeJsUtils',
         'remappingprocessor': '../utility/VolumeRemappingProcessor'
     }
 }, [
-    'utils', 'three', 'bounds', 'rawvolumedata', 'indexer1d', 'remappingprocessor'
+    'utils', 'three', 'bounds', 'rawvolumedata', 'indexer1d', 'threejsutils', 'remappingprocessor'
 ],
-function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, RemappingProcessor) {
+function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, ThreeUtils, RemappingProcessor) {
     onmessage = function(e) {
         const data = e.data;
 
         const cuboids = data.cuboids;
-        const sizedVolume = data.volume;
         const intensities = data.intensities;
         const cuboidsSizeScale = data.cuboidsSizeScale;
 
-        const processor = new RemappingProcessor(
-            sizedVolume.lengthX, sizedVolume.lengthY, sizedVolume.lengthZ,
-            sizedVolume.sizeX, sizedVolume.sizeY, sizedVolume.sizeZ,
-            cuboids, intensities, cuboidsSizeScale, {
-                setup: function(count) {
-                    postMessage({
-                        status: 'working',
-                        message: `Count of operations: ${count}`
-                    });
-                },
+        let progressReportTime = new Date().valueOf();
 
-                notify: function(progress, total) {
-                    postMessage({
-                        status: 'working',
-                        message: `Performing cuboid remapping - ${progress} operation of ${total}`
-                    });
-                },
+        const buffer = data.buffer;
+        const processor = new RemappingProcessor();
+        processor.calculate(data.volume, buffer, cuboids, intensities, cuboidsSizeScale, {
+            setup: function(count) {
+                postMessage({
+                    status: 'working',
+                    message: `Remapping cuboids...`
+                });
+            },
 
-                finished: function() { 
-                    postMessage({
-                        data: processor._volume,
-                        status: 'completed'
-                    });
-                }
+            notify: function(progress, total) {
+                var now = new Date().valueOf();
+                if (now < progressReportTime + 100) return;
+                progressReportTime = now;
+                postMessage({
+                    status: 'working',
+                    message: `Cuboid remapping - ${progress} operations of ${total}`
+                });
+            },
+
+            finished: function() { 
+                postMessage({
+                    status: 'completed',
+                    buffer: buffer
+                }, [buffer]);
             }
-        );
-        processor.calculate();
+        });
     }
 
     postMessage({

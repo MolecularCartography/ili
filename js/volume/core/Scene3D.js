@@ -90,22 +90,22 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
             }
         },
 
-        intensityData: {
+        intensityTexture: {
             get: function() {
-                return this._volumeRenderMesh.intensityData;
+                return this._volumeRenderMesh.intensityTexture;
             },
             set: function(value) {
-                this._volumeRenderMesh.intensityData = value;
+                this._volumeRenderMesh.intensityTexture = value;
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
 
-        normalsData: {
+        normalsTexture: {
             get: function() {
-                return this._volumeRenderMesh.normalsData;
+                return this._volumeRenderMesh.normalsTexture;
             },
             set: function(value) {
-                this._volumeRenderMesh.normalsData = value;
+                this._volumeRenderMesh.normalsTexture = value;
                 this._notify(Scene3D.Events.CHANGE);
             }
         },

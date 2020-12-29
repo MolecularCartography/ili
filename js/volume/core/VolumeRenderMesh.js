@@ -250,6 +250,56 @@ define([
                 }
             },
 
+            shapeColorMapTexture: {
+                get: function() {
+                    return this._shapeColorMapTexture;
+                },
+                set: function(value) {
+                    this._shapeColorMapTexture = value;
+                    this._setUniform('u_shape_cmdata', this._shapeColorMapTexture);
+                }
+            },
+
+            intensityColorMapTexture: {
+                get: function() {
+                    return this._intensityColorMapTexture;
+                },
+                set: function(value) {
+                    this._intensityColorMapTexture = value;
+                    this._setUniform('u_intensity_cmdata', this._intensityColorMapTexture);
+                }
+            },
+
+            shapeTexture: {
+                get: function() {
+                    return this._shapeTexture;
+                },
+                set: function(value) {
+                    this._shapeTexture = value;
+                    this._setUniform('u_shape_data', this._shapeTexture);
+                }
+            },
+
+            shapeBounds: {
+                get: function() {
+                    return this._shapeBounds;
+                },
+                set: function(value) {
+                    this._shapeBounds = value;
+                    this._setUniform('u_shape_bounds', this._shapeBounds);
+                }
+            },
+        
+            shapeSize: {
+                get: function() {
+                    return this._shapeSize;
+                },
+                set: function(value) {
+                    this._shapeSize = value;
+                    this._setUniform('u_shape_size', this._shapeSize);
+                }
+            },
+
             shapeData: {
                 get: function() {
                     return this._shapeData;
@@ -297,46 +347,33 @@ define([
                 }
             },
 
-            intensityData: {
+            intensityTexture: {
                 get: function() {
-                    return this._intensityData;
+                    return this._intensityTexture;
                 },
                 set: function(value) {
-                    if (this._intensityTexture) {
-                        this._intensityTexture.dispose();
-                    }
-                    this._intensityData = value;
-                    if (this._intensityData) {
-                        const intensitySize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
-                        this._setUniform('u_intensity_size', intensitySize);
-                        this._intensityTexture = ThreeUtils.createFloatTexture3D(value);
-                        this._setUniform('u_intensity_data', this._intensityTexture);
-                    }
+                    this._intensityTexture = value;
+                    this._setUniform('u_intensity_data', this._intensityTexture);
                     this._resetIntensityEnabled();
-                },
+                }
             },
 
             _resetIntensityEnabled: {
                 value: function() {
                     const value = 
-                        this._intensityData && 
+                        this._intensityTexture && 
                         this._intensityColorMap && 
                         this._intensityBoundsScaled ? 1 : 0;
                     this._setUniform('u_intensity_enabled', value);
                 }
             },
 
-            normalsData: {
+            normalsTexture: {
                 get: function() {
-                    return this._normalsData;
+                    return this._normalsTexture;
                 },
                 set: function(value) {
-                    if (this._normalsTexture) {
-                        this._normalsTexture.dispose();
-                    }
-                    this._normalsData = value;
-                    const normalsSize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
-                    this._setUniform('u_normals_size', normalsSize);
+                    this._normalsTexture = value;
                     this._setUniform('u_normals_data', value);
                 },
             },

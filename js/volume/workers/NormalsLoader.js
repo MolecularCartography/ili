@@ -9,42 +9,45 @@ require({
         'bounds': '../../common/utility/Bounds',
         'rawvolumedata': '../utility/RawVolumeData',
         'indexer1d': '../../common/utility/Indexer1D',
-        'volumeNormalsProcessor': '../utility/VolumeNormalsProcessor'
+        'volumenormalsprocessor': '../utility/VolumeNormalsProcessor'
     }
 }, [
-    'utils', 'three', 'bounds', 'rawvolumedata', 'indexer1d', 'volumeNormalsProcessor'
+    'utils', 'three', 'bounds', 'rawvolumedata', 'indexer1d', 'volumenormalsprocessor'
 ],
 function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor) {
+
     onmessage = function(e) {
-        const inputVolume = e.data;
-        const normalsBounds = new Bounds(0, 255); 
+        const data = e.data;
+  
+        let progressReportTime = new Date().valueOf();
 
-        const processor = new VolumeNormalsProcessor(
-            inputVolume,
-            normalsBounds,
-            {
-                setup: function(count) {
-                    postMessage({
-                        status: 'working',
-                        message: `Count of operations: ${count}`
-                    });
-                },
+        const processor = new VolumeNormalsProcessor();
+        const buffer = data.buffer;
+        processor.calculate(data.volume, buffer, {
+            setup: function(count) {
+                postMessage({
+                    status: 'working',
+                    message: `Calculating normals...`
+                });
+            },
 
-                notify: function(progress, total) {
-                    postMessage({
-                        status: 'working',
-                        message: `Calculating normals - ${progress} operation of ${total}`
-                    });
-                },
+            notify: function(progress, total) {
+                var now = new Date().valueOf();
+                if (now < progressReportTime + 100) return;
+                progressReportTime = now;
+                postMessage({
+                    status: 'working',
+                    message: `Calculating normals - ${progress} operation of ${total}`
+                });
+            },
 
-                finished: function() { 
-                    postMessage({
-                        data: processor._volume,
-                        status: 'completed'
-                    });
-                }
+            finished: function() { 
+                postMessage({
+                    buffer: buffer,
+                    status: 'completed'
+                });
             }
-        );
+        });
         processor.calculate();
     }
 

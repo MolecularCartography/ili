@@ -1,9 +1,10 @@
 'use strict';
 
 define([
-    'workspacebase', 'volumeinputfilesprocessor', 'volumescene3d', 'volumespotscontroller', 'three', 'threejsutils'
+    'workspacebase', 'volumeinputfilesprocessor', 'volumescene3d', 'volumespotscontroller', 
+    'three', 'threejsutils', 'volumeremappingprocessor', 'volumedatacache'
 ],
-function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils)
+function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils, VolumeRemappingController, VolumeDataCache)
 {
     /**
      * Main application workspace. It works in 3 modes:
@@ -27,7 +28,18 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             Workspace.TaskType,
             Workspace.Events);
 
+        this._intensityVolumeDataCache = new VolumeDataCache.VolumeDataCache(
+            (size) => new Float32Array(size),
+            (buffer) => new Float32Array(buffer));
+        this._intensityVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createFloatTexture3D(volume));
+
+        this._normalsVolumeDataCache = new VolumeDataCache.VolumeDataCache(
+            (size) => new Uint8Array(size * 3),
+            (buffer) => new Uint8Array(buffer));
+        this._normalsVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createNormalTexture3D(volume));
+
         this._scene3d = new Scene3D(spotsController);
+
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
         return this;
     }
@@ -78,6 +90,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     this._shape = result.shape;
                     this._notify(Workspace.Events.SHAPE_LOAD, this._shape);
                     this._scene3d.shapeData = this._shape;
+                    this._loadNormals();
                     this._mapVolume();
                 }.bind(this));
             }
@@ -105,6 +118,30 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             }
         },
 
+        _loadNormals: {
+            value: function() {
+                const volume = this._scene3d.shapeData;
+
+                const shape = this._shape;
+                this._normalsVolumeDataCache.tryResize(
+                    shape.lengthX, shape.lengthY, shape.lengthZ
+                );
+
+                const transferBuffer = this._normalsVolumeDataCache.buffer;
+                const data = {
+                    volume: volume,
+                    buffer: transferBuffer
+                };
+
+                this._doTask(Workspace.TaskType.LOAD_NORMALS, data, [transferBuffer])
+                    .then(function (result) {
+                        this._normalsVolumeDataCache.updateBuffer(result.buffer);
+                        this._normalsVolumeTextureCache.setup(this._normalsVolumeDataCache.volume);
+                        this._scene3d.normalsTexture = this._normalsVolumeTextureCache.texture;
+                    }.bind(this));
+            }
+        },
+
         _mapVolume: {
             value: function() {
                 const spots = this._spotsController.spots;
@@ -115,19 +152,25 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     return;
                 }
 
+                const shape = this._shape;
+                this._intensityVolumeDataCache.tryResize(
+                    shape.lengthX, shape.lengthY, shape.lengthZ,
+                    shape.sizeX, shape.sizeY, shape.sizeZ
+                );
+                
+                const transferBuffer = this._intensityVolumeDataCache.buffer;
                 const data = {
-                    volume: volume,
+                    volume: this._intensityVolumeDataCache.volume,
+                    buffer: transferBuffer,
                     cuboids: spots,
                     intensities: activeMeasure.values,
                     cuboidsSizeScale: this._spotsController.globalSpotScale,
                 };
-                this._doTask(Workspace.TaskType.MAP, data).
+                this._doTask(Workspace.TaskType.MAP, data, [transferBuffer]).
                     then(function (result) {
-                        this._scene3d.intensityData = result.data;
-                    }.bind(this));
-                this._doTask(Workspace.TaskType.LOAD_NORMALS, volume)
-                    .then(function (normalsData) {
-                        this._scene3d.normalsData = normalsData.data;
+                        this._intensityVolumeDataCache.updateBuffer(result.buffer);
+                        this._intensityVolumeTextureCache.setup(this._intensityVolumeDataCache.volume);
+                        this._scene3d.intensityTexture = this._intensityVolumeTextureCache.texture;
                     }.bind(this));
             }
         }, 

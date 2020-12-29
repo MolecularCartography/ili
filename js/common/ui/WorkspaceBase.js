@@ -220,10 +220,11 @@ function (EventSource)
          *
          * @param {WorkspaceBase.TaskType} taskType Task to run.
          * @param {Object} args Arguments to post to the task's worker.
+         * @param {Object} transfer Arguments to transfer to the task's worker.
          * @return {Promise}
          **/
         _doTask: {
-            value: function(taskType, args) {
+            value: function(taskType, args, transfer) {
                 if (taskType.key in this._tasks) this._cancelTask(taskType);
 
                 var task = {
@@ -239,7 +240,7 @@ function (EventSource)
                 var addError = this._addError.bind(this);
 
                 if (typeof taskType.worker == 'function') {
-                    task.worker.postMessage(args);
+                    task.worker.postMessage(args, transfer);
                 }
                 return new Promise(function(resolve, reject) {
                     task.worker.onmessage = function(event) {
@@ -291,18 +292,7 @@ function (EventSource)
                     return;
                 }
                 this._mode = value;
-
-                /*
-                if (this._mode == WorkspaceBase.Mode.MODE_3D) {
-                    this._scene2d.resetImage();
-                    this._cancelTask(WorkspaceBase.TaskType.LOAD_IMAGE);
-                }
-                if (this._mode == WorkspaceBase.Mode.MODE_2D) {
-                    this._scene3d.geometry = null;
-                    this._cancelTask(WorkspaceBase.TaskType.LOAD_MESH);
-                }*/
-
-                this._notify(WorkspaceBase.Events.MODE_CHANGE);
+                this._notify(WorkspaceBase.Events.MODE_CHANGE, this._mode);
             }
         },
 

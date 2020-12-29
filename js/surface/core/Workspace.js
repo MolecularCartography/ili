@@ -30,7 +30,10 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
 
         this._scene3d = new Scene3D(spotsController);
         this._scene2d = new Scene2D(spotsController);
+
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
+        this.addEventListener(WorkspaceBase.Events.MODE_CHANGE, this._onModeChange.bind(this));
+
         return this;
     }
 
@@ -155,6 +158,19 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                     };
                 }.bind(this));
             }
+        },
+
+        _noModeChange: {
+            value: function(mode) {
+                if (mode == WorkspaceBase.Mode.MODE_3D) {
+                    this._scene2d.resetImage();
+                    this._cancelTask(WorkspaceBase.TaskType.LOAD_IMAGE);
+                }
+                if (mode == WorkspaceBase.Mode.MODE_2D) {
+                    this._scene3d.geometry = null;
+                    this._cancelTask(WorkspaceBase.TaskType.LOAD_MESH);
+                }
+            }       
         },
 
         _onSpotScaleChange: {

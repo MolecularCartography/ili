@@ -6,6 +6,7 @@ requirejs.config({
         'volumenormalsprocessor': 'js/volume/utility/VolumeNormalsProcessor',
         'volumeremappingprocessor':  'js/volume/utility/VolumeRemappingProcessor',
         'colormaptexturerenderer': 'js/volume/utility/ColorMapTextureRenderer',
+        'volumedatacache': 'js/volume/utility/volumedatacache',
 
         // Core
         'volumerendermesh': 'js/volume/core/VolumeRenderMesh',
