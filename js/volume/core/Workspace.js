@@ -38,7 +38,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             (buffer) => new Uint8Array(buffer));
         this._normalsVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createNormalTexture3D(volume));
 
-        this._scene3d = new Scene3D(spotsController);
+        this._scene3d = new Scene3D(this, spotsController);
 
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
         return this;
@@ -85,13 +85,18 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         loadShape: {
             value: function(blob) {
                 this._scene3d.reset();
+                this._normalsTexture = null;
+                this._shape = null;
+
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
                     this._shape = result.shape;
                     this._notify(Workspace.Events.SHAPE_LOAD, this._shape);
                     this._scene3d.shapeData = this._shape;
-                    this._loadNormals();
                     this._mapVolume();
+                    if (this._scene3d.shadingEnabled) {
+                        this.requestNormalTexture();
+                    }
                 }.bind(this));
             }
         },
@@ -110,21 +115,19 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             }
         },
 
-        _onSpotScaleChange: {
-            value: function () {
-                if (this.mode == Workspace.Mode.MODE_3D) {
-                    this._mapVolume(Scene3D.RecoloringMode.NO_COLORMAP);
-                }
-            }
-        },
-
-        _loadNormals: {
+        requestNormalTexture: {
             value: function() {
-                const volume = this._scene3d.shapeData;
+                if (this._normalsTexture) {
+                    return this._normalsTexture;
+                }
 
-                const shape = this._shape;
+                const volume = this._shape;
+                if (!volume) {
+                    return;
+                }
+
                 this._normalsVolumeDataCache.tryResize(
-                    shape.lengthX, shape.lengthY, shape.lengthZ
+                    volume.lengthX, volume.lengthY, volume.lengthZ
                 );
 
                 const transferBuffer = this._normalsVolumeDataCache.buffer;
@@ -133,14 +136,23 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     buffer: transferBuffer
                 };
 
-                this._doTask(Workspace.TaskType.LOAD_NORMALS, data, [transferBuffer])
+                this._doTask(Workspace.TaskType.LOAD_NORMALS, data, [transferBuffer, volume.data.buffer])
                     .then(function (result) {
                         this._normalsVolumeDataCache.updateBuffer(result.buffer);
                         this._normalsVolumeTextureCache.setup(this._normalsVolumeDataCache.volume);
-                        this._scene3d.normalsTexture = this._normalsVolumeTextureCache.texture;
+                        this._normalsTexture = this._normalsVolumeTextureCache.texture;
+                        this._scene3d.normalsTexture = this._normalsTexture;
                     }.bind(this));
             }
         },
+
+        _onSpotScaleChange: {
+            value: function () {
+                if (this.mode == Workspace.Mode.MODE_3D) {
+                    this._mapVolume(Scene3D.RecoloringMode.NO_COLORMAP);
+                }
+            }
+        },  
 
         _mapVolume: {
             value: function() {

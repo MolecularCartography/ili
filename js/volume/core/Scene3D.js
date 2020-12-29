@@ -4,9 +4,11 @@ define([
     'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
 ],
 function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds, SpotsControllerBase) {
-    function Scene3D(spotsController) {
+
+    function Scene3D(workspace, spotsController) {
         Scene3DBase.call(this, spotsController);
 
+        this._workspace = workspace;
         this._volumeRenderMesh = new VolumeRenderMesh(VolumeShaders);
 
         this._shapeColorMapId = 'GC';
@@ -23,7 +25,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         this.spacing = 1.0;
         this.proportionalOpacityEnabled = false;
         this.intensityOpacity = 1.0;
-        this.shadingEnabled = true;
+        this.shadingEnabled = false;
 
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
@@ -54,7 +56,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
                 this._volumeRenderMesh.proportionalOpacityEnabled = this._spotsController.dataDependentOpacity;
                 this._volumeRenderMesh.intensityOpacity = this._spotsController.globalSpotOpacity;
                 this._notify(Scene3D.Events.CHANGE);
-
             }
         },
 
@@ -189,6 +190,9 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
             },
             set: function(value) {
                 this._volumeRenderMesh.lightingEnabled = value;
+                if (value) {
+                    this._workspace.requestNormalTexture();
+                }  
                 this._notify(Scene3D.Events.CHANGE);
             }
         },

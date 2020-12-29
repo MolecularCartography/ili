@@ -33,7 +33,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor
 
             notify: function(progress, total) {
                 var now = new Date().valueOf();
-                if (now < progressReportTime + 100) return;
+                if (now < progressReportTime + 500) return;
                 progressReportTime = now;
                 postMessage({
                     status: 'working',
@@ -45,10 +45,9 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor
                 postMessage({
                     buffer: buffer,
                     status: 'completed'
-                });
+                }, [buffer]);
             }
         });
-        processor.calculate();
     }
 
     postMessage({

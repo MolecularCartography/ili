@@ -104,18 +104,14 @@ define([
                     if (this._shapeTexture) {
                         this._shapeTexture.dispose();
                     }
-                    if (this._intensityTexture) {
-                        this._intensityTexture.dispose();
-                    }
-                    if (this._normalsTexture) {
-                        this._normalsTexture.dipose();
-                    }
                     if (this._geometry) {
                         this._geometry.dispose();
                     }
                     if (this._material) {
                         this._material.dispose();
                     }
+                    this._shapeColorMapRenderer.dispose();
+                    this._intensityColorMapRenderer.dispose();
                 }
             },
 
@@ -195,7 +191,7 @@ define([
                 },
                 set: function(value) {
                     this._lightingEnabled = value;
-                    this._setUniform('u_lighting_enabled', value ? 1 : 0);
+                    this._resetShadingEnabled();
                 }
             },
 
@@ -368,6 +364,13 @@ define([
                 }
             },
 
+            _resetShadingEnabled: {
+                value: function() {
+                    const value = this._lightingEnabled && this._normalsTexture;
+                    this._setUniform('u_lighting_enabled', value ? 1 : 0);
+                }
+            },
+
             normalsTexture: {
                 get: function() {
                     return this._normalsTexture;
@@ -375,6 +378,7 @@ define([
                 set: function(value) {
                     this._normalsTexture = value;
                     this._setUniform('u_normals_data', value);
+                    this._resetShadingEnabled();
                 },
             },
 
