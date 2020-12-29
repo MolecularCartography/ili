@@ -2,9 +2,10 @@
 
 define(['three', 'colormaps', 'eventsource', 'utils'],
 function (THREE, ColorMap, EventSource, Utils) {
-    function SpotsControllerBase() {
+    function SpotsControllerBase(additionalMetadataRequired) {
         EventSource.call(this, SpotsControllerBase.Events);
 
+        this._additionalMetadataRequired = additionalMetadataRequired;
         this._spots = [];
 
         this._spotBorder = 0.05;
@@ -126,11 +127,13 @@ function (THREE, ColorMap, EventSource, Utils) {
             },
             set: function (value) {
                 this._spots = value ? value : [];
-                for (var i = 0; i < this._spots.length; i++) {
-                    var spot = this._spots[i];
-                    spot.scale = 1.0;
-                    spot.color = new THREE.Color();
-                    spot.opacity = 1.0;
+                if (this._additionalMetadataRequired) {
+                    for (var i = 0; i < this._spots.length; i++) {
+                        var spot = this._spots[i];
+                        spot.scale = 1.0;
+                        spot.color = new THREE.Color();
+                        spot.opacity = 1.0;
+                    }
                 }
                 this._notify(SpotsControllerBase.Events.SPOTS_CHANGE);
             }
@@ -345,9 +348,11 @@ function (THREE, ColorMap, EventSource, Utils) {
                 var minOpacity = SpotsControllerBase.DataDependentOpacity.MIN;
                 var opacityRange = SpotsControllerBase.DataDependentOpacity.MAX - SpotsControllerBase.DataDependentOpacity.MIN;
 
-                for (var i = 0; i < this._spots.length; ++i) {
-                    var spot = this._spots[i];
-                    spot.opacity = enabled ? minOpacity + opacityRange * spot.intensity : 1;
+                if (this._additionalMetadataRequired) {
+                    for (var i = 0; i < this._spots.length; ++i) {
+                        var spot = this._spots[i];
+                        spot.opacity = enabled ? minOpacity + opacityRange * spot.intensity : 1;
+                    }
                 }
             }
         },
@@ -380,17 +385,18 @@ function (THREE, ColorMap, EventSource, Utils) {
                 if (!this._spots) {
                     return;
                 }
+                if (this._additionalMetadataRequired) {
+                    for (var i = 0; i < this._spots.length; i++) {
+                        var scaledValue = this._activeMeasure && this._scale.function(this._activeMeasure.values[i]);
+                        var intensity = NaN;
 
-                for (var i = 0; i < this._spots.length; i++) {
-                    var scaledValue = this._activeMeasure && this._scale.function(this._activeMeasure.values[i]);
-                    var intensity = NaN;
-
-                    if (scaledValue >= this._maxValue) {
-                        intensity = 1.0;
-                    } else if (scaledValue >= this._minValue) {
-                        intensity = (scaledValue - this._minValue) / (this._maxValue - this._minValue);
+                        if (scaledValue >= this._maxValue) {
+                            intensity = 1.0;
+                        } else if (scaledValue >= this._minValue) {
+                            intensity = (scaledValue - this._minValue) / (this._maxValue - this._minValue);
+                        }
+                        this._spots[i].intensity = intensity;
                     }
-                    this._spots[i].intensity = intensity;
                 }
                 this._updateDataDependentOpacity();
                 this._notify(SpotsControllerBase.Events.INTENSITIES_CHANGE);

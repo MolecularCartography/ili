@@ -28,8 +28,9 @@ define([
                 u_intensity_size: {value: new THREE.Vector3(0, 0, 0) },
                 u_intensity_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
                 u_intensity_cmdata: {value: new THREE.DataTexture(null, 1, 1) },
-                u_intensity_bounds: {value: new THREE.Vector2(0, 0) },
+                u_intensity_bounds_scaled: {value: new THREE.Vector2(0, 0) },
                 u_intensity_opacity: {value: 1.0},
+                u_intensity_enabled: {value: 0},
 
                 u_normals_size: {value: new THREE.Vector3(0, 0, 0) },
                 u_normals_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
@@ -71,6 +72,28 @@ define([
             this._geometry = new THREE.BoxBufferGeometry(1, 1, 1);
             this._mesh = new THREE.Mesh(this._geometry, this._material);
 
+            // Create border cube.
+            this._borderCubeMaterial = new THREE.MeshBasicMaterial( {
+                color: 0xffffff,
+                wireframe: true
+            });
+            this._borderCube = new THREE.Mesh(this._geometry, this._borderCubeMaterial);
+            this._borderCube.visible = false;
+
+            // Create slice border cube.
+            this._sliceBorderCubeMaterial = new THREE.MeshBasicMaterial( {
+                color: 0x00ff00,
+                wireframe: true
+            });
+            this._sliceBorderCube = new THREE.Mesh(this._geometry, this._sliceBorderCubeMaterial);
+            this._sliceBorderCube.visible = false;
+
+            // Create common container.
+            this._container = new THREE.Object3D();
+            this._container.add(this._mesh);
+            this._container.add(this._borderCube);
+            this._container.add(this._sliceBorderCube);
+
             return this;
         }
 
@@ -98,7 +121,28 @@ define([
 
             mesh: {
                 get: function() {
-                    return this._mesh;
+                    return this._container;
+                }
+            },
+
+            isBorderVisible: {
+                get: function() {
+                    return this._isBorderVisible;
+                },
+                set: function(value) {
+                    this._isBorderVisible = value;
+                    this._borderCube.visible = value;
+                }
+            },
+
+            isBorderVisible: {
+                get: function() {
+                    return this._isSliceBorderVisible;
+                },
+                set: function(value) {
+                    this._isSliceBorderVisible = value;
+                    this._sliceBorderCube.visible = value;
+                   
                 }
             },
 
@@ -132,7 +176,16 @@ define([
                 set: function(value) {
                     this._intensityOpacity = value;
                     this._setUniform('u_intensity_opacity', value);
-                    // TODO: implement the parameter.
+                }
+            },
+
+            scale: {
+                get: function() {
+                    return this._scale;
+                },
+                set: function(value) {
+                    this._scale = value;
+                    this._setUniform('u_scalemode', value);
                 }
             },
 
@@ -205,26 +258,42 @@ define([
                     if (this._shapeTexture) {
                         this._shapeTexture.dispose();
                     }
-
                     this._shapeData = value;
+                    if (this._shapeData) {
+                        const shapeSize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
 
-                    const shapeSize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
-                    this._setUniform('u_shape_size', shapeSize);
-                    this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max));
+                        this._borderCube.scale.x = value.sizeX;
+                        this._borderCube.scale.y = value.sizeY;
+                        this._borderCube.scale.z = value.sizeZ;
 
-                    this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
-                    this._setUniform('u_shape_data', this._shapeTexture);
+                        this._setUniform('u_shape_size', shapeSize);
+                        this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max)); 
+                        this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
+                        this._setUniform('u_shape_data', this._shapeTexture);
+                    }
+                }
+            },
+
+            intensityBoundsScaled: {
+                get: function() {
+                    return this._intensityBoundsScaled;
+                },
+                set: function(value) {
+                    this._intensityBoundsScaled = value;
+                    this._setUniform('u_intensity_bounds_scaled', new THREE.Vector2(value.min, value.max));
+                    this._resetIntensityEnabled();
                 }
             },
 
             intensityColorMap: {
                 get: function() {
-                    return this._intensityColormap;
+                    return this._intensityColorMap;
                 },
                 set: function(value) {
-                    this._intensityColormap = value;
+                    this._intensityColorMap = value;
                     this._intensityColorMapRenderer.update(value);
                     this._setUniform('u_intensity_cmdata', this._intensityColorMapRenderer.texture);
+                    this._resetIntensityEnabled();
                 }
             },
 
@@ -237,13 +306,24 @@ define([
                         this._intensityTexture.dispose();
                     }
                     this._intensityData = value;
-                    const intensitySize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
-                    this._setUniform('u_intensity_size', intensitySize);
-                    const bounds = new THREE.Vector2(value.bounds.min, value.bounds.max);
-                    this._setUniform('u_intensity_bounds', bounds);
-                    this._intensityTexture = ThreeUtils.createFloatTexture3D(value);
-                    this._setUniform('u_intensity_data', this._intensityTexture);
+                    if (this._intensityData) {
+                        const intensitySize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
+                        this._setUniform('u_intensity_size', intensitySize);
+                        this._intensityTexture = ThreeUtils.createFloatTexture3D(value);
+                        this._setUniform('u_intensity_data', this._intensityTexture);
+                    }
+                    this._resetIntensityEnabled();
                 },
+            },
+
+            _resetIntensityEnabled: {
+                value: function() {
+                    const value = 
+                        this._intensityData && 
+                        this._intensityColorMap && 
+                        this._intensityBoundsScaled ? 1 : 0;
+                    this._setUniform('u_intensity_enabled', value);
+                }
             },
 
             normalsData: {
@@ -268,7 +348,12 @@ define([
                 }
             },
 
-
+            reset: {
+                value: function() {
+                    this._shapeData = null;
+                    this._intensityData = null;
+                }
+            }
         });
 
         return VolumeRenderMesh;

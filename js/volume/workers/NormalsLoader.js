@@ -33,7 +33,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor
                 notify: function(progress, total) {
                     postMessage({
                         status: 'working',
-                        message: `Calculating normlas - ${progress} operation of ${total}`
+                        message: `Calculating normals - ${progress} operation of ${total}`
                     });
                 },
 

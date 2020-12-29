@@ -72,6 +72,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
          */
         loadShape: {
             value: function(blob) {
+                this._scene3d.reset();
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
                     this._shape = result.shape;

@@ -5,7 +5,7 @@ define([
 ],
 function(SpotsControllerBase) {
     function SpotsController() {
-        SpotsControllerBase.call(this);
+        SpotsControllerBase.call(this, true);
         return this;
     }
 
