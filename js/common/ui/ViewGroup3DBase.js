@@ -124,6 +124,9 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
 
                 var scene = this._scene.clone();
 
+                // The scene might not be clonable.
+                scene = scene ? scene : this._scene;
+
                 this._renderTo(renderer, scene);
 
                 var gl = renderer.context;

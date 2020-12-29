@@ -1,9 +1,10 @@
 'use strict';
 
 define([
-    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumerendermesh', 'bounds'
+=======
+    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
 ],
-function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRenderMesh, Bounds) {
+function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds, SpotsControllerBase) {
     function Scene3D(spotsController) {
         Scene3DBase.call(this, spotsController);
 
@@ -67,7 +68,11 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
         _onMappingChange: {
             value: function() {
                 this._volumeRenderMesh.intensityColorMap = this._spotsController.colorMap;
-                this._volumeRenderMesh.intensityBounds = new Bounds(this._spotsController.minValue, this._spotsController.maxValue);
+                this._volumeRenderMesh.intensityBoundsScaled = new Bounds(this._spotsController.minValue, this._spotsController.maxValue);
+                const realScale = 
+                    this._spotsController.scale == SpotsControllerBase.Scale.LINEAR ? 0 :
+                    this._spotsController.scale == SpotsControllerBase.Scale.LOG ? 2 : 0;
+                this._volumeRenderMesh.scale = realScale;
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
@@ -89,6 +94,26 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         _onIntensitiesChange: {
             value: function() {
+            }
+        },
+
+        isBorderVisible: {
+            get: function() {
+                return this._volumeRenderMesh.isBorderVisible;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.isBorderVisible = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+   
+        isSliceBorderVisible: {
+            get: function() {
+                return this._volumeRenderMesh.isSliceBorderVisible;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.isSliceBorderVisible = value;
+                this._notify(Scene3D.Events.CHANGE);
             }
         },
 
@@ -235,13 +260,11 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
-        _applySlicing: {
+        reset: {
             value: function() {
-                // TODO: update uniforms.
+                this._volumeRenderMesh.reset();
             }
-        },
-
-
+        }
     });
 
     return Scene3D;

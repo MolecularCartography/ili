@@ -9,7 +9,7 @@ define(
             this._count = lengthX * lengthY * lengthZ;
             this._cuboidsSizeScale = cuboidsSizeScale;
             const result = new Float32Array(this._count);
-            result.fill(Number.NaN); // Fake value that indicates that voxel should not be colored.
+            result.fill(Number.POSITIVE_INFINITY); // Fake value that indicates that voxel should not be colored.
             this._volume = new RawVolumeData.SizedRawVolumeData(
                 result,
                 lengthX, lengthY, lengthZ,
