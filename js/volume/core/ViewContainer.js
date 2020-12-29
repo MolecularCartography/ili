@@ -42,7 +42,7 @@ function(ViewContainerBase, ViewGroup3D, ViewLegend, Workspace) {
                         canvas.width = width;
                         canvas.height = height;
                         ctx.putImageData(imageData, 0, 0);
-                        this.legend.export(canvas, pixelRatio).then(this.makeCanvasBlob.bind(this, canvas)).catch(reject);
+                        this.legend.export(canvas, pixelRatio).then(this.makeCanvasBlob.bind(this, canvas, accept)).catch(reject);
                     } else {
                         reject();
                         return;

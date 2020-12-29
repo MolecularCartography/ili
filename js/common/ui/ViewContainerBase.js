@@ -49,7 +49,7 @@ function() {
         },
 
         makeCanvasBlob: {
-            value: function(canvas) {
+            value: function(canvas, accept) {
                 var data = canvas.toDataURL();
                 var byteString = atob(data.split(',')[1]);
                 var mimeString = data.split(',')[0].split(':')[1].split(';')[0]

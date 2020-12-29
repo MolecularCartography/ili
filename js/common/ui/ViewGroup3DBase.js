@@ -129,7 +129,7 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
 
                 this._renderTo(renderer, scene);
 
-                var gl = renderer.context;
+                var gl = renderer.getContext();
                 var pixels = new Uint8Array(imageData.width * imageData.height * 4);
                 gl.readPixels(0, 0, imageData.width, imageData.height,
                         gl.RGBA, gl.UNSIGNED_BYTE, pixels);

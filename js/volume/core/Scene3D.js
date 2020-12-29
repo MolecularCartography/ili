@@ -33,7 +33,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
     Scene3D.prototype = Object.create(EventSource.prototype, {
         clone: {
             value: function(eventName, listener) {
-                console.warn("Clone is bad now.");
                 return null;
             }
         },
