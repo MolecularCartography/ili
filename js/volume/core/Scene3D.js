@@ -1,10 +1,9 @@
 'use strict';
 
 define([
-=======
-    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
+    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
 ],
-function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds, SpotsControllerBase) {
+function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRenderMesh, Bounds, SpotsControllerBase) {
     function Scene3D(spotsController) {
         Scene3DBase.call(this, spotsController);
 
