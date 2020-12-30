@@ -121,13 +121,15 @@ define(
                 }
             },
 
-            _getEndPosition: function(startPosition, size, limit) {
-                const endPosition = startPosition + size;
-                if (endPosition > limit) {
-                    this._warnOutOfLimits(endPosition, limit);
-                    return limit;
-                } else {
-                    return endPosition;
+            _getEndPosition: {
+                value: function(startPosition, size, limit) {
+                    const endPosition = startPosition + size;
+                    if (endPosition > limit) {
+                        this._warnOutOfLimits(endPosition, limit);
+                        return limit;
+                    } else {
+                        return endPosition;
+                    }
                 }
             },
 

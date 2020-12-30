@@ -2,7 +2,7 @@
 
 define([
     'workspacebase', 'volumeinputfilesprocessor', 'volumescene3d', 'volumespotscontroller', 
-    'three', 'threejsutils', 'volumeremappingprocessor', 'volumedatacache, 'shaderloader'
+    'three', 'threejsutils', 'volumeremappingprocessor', 'volumedatacache', 'shaderloader',
 ],
 function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils, VolumeRemappingController, VolumeDataCache, ShaderLoader)
 {

@@ -11,8 +11,9 @@ uniform vec3 u_shape_slice_max;
 uniform vec3 u_intensity_size;
 uniform sampler3D u_intensity_data;
 uniform sampler2D u_intensity_cmdata;
-uniform vec2 u_intensity_bounds;
+uniform vec2 u_intensity_bounds_scaled;
 uniform float u_intensity_opacity;
+uniform int u_intensity_enabled;
 
 uniform vec3 u_normals_size;
 uniform sampler3D u_normals_data;
@@ -59,7 +60,6 @@ float shape_sample(vec3 texcoords);
 float intensity_sample(vec3 texcoords);
 vec3 normals_sample(vec3 texcoords);
 
-float calculate_distance(vec3 nearpos, vec3 farpos, vec3 view_ray, vec3 backPosition);
 void debug_steps(int nsteps, float range);
 void discard_transparent();
 
@@ -68,7 +68,7 @@ vec4 apply_intensity_colormap(float val);
 
 vec4 add_lighting(vec4 color, vec3 normal_vector, vec3 view_ray);
 float normalized_value(float intensity, vec2 bounds);
-float scale(float value);
+float scale(float value, int scaleMode);
 
 vec4 inverseBlend(vec4 base, vec4 blend);
 vec4 finish_inverse_blend(vec4 color);
@@ -164,7 +164,7 @@ vec4 apply_intensity_colormap(float normalized_value) {
 
 void raycast(vec3 start_loc, vec3 step, int nsteps, vec3 view_ray) {
     gl_FragColor = vec4(0.0);
-    vec4 final_color = vec4(0.0, 0.0, 0.0, 0.0);
+    vec4 final_color = vec4(0.0);
     vec3 loc = start_loc;
 
     // Enter the raycasting loop. In WebGL 1 the loop index cannot be compared with
@@ -181,17 +181,19 @@ void raycast(vec3 start_loc, vec3 step, int nsteps, vec3 view_ray) {
 
         vec4 current_color = shape_color; 
         
-        float intensity_value = intensity_sample(loc);
-        float normalized_intensity_value = normalized_value(
-            intensity_value, 
-            u_intensity_bounds);
-        if (!isnan(normalized_intensity_value)) {
-            vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
-            intensity_color.a *= u_intensity_opacity;
-            if (u_proportional_opacity_enabled == 1) {
-                intensity_color.a *= normalized_intensity_value; 
+        if (u_intensity_enabled == 1) {
+            float intensity_value = intensity_sample(loc);
+            if (!isinf(intensity_value)) {
+                float normalized_intensity_value = normalized_value(
+                    scale(intensity_value, u_scalemode), 
+                    u_intensity_bounds_scaled);
+                vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
+                intensity_color.a *= u_intensity_opacity;
+                if (u_proportional_opacity_enabled == 1) {
+                    intensity_color.a *= normalized_intensity_value; 
+                }
+                current_color.rgb = mix(current_color.rgb, intensity_color.rgb, intensity_color.a);
             }
-            current_color.rgb = mix(current_color.rgb, intensity_color.rgb, intensity_color.a);
         }
       
         if (u_lighting_enabled == 1) {
@@ -223,29 +225,23 @@ vec4 finish_inverse_blend(vec4 color) {
     }
 }
 
-float normalized_value(float value, vec2 bounds) {
-    // scale all values and calculate normalized value with it.
-    float scaled_value = scale(value);
-    float scaled_min = scale(bounds.x);
-    float scaled_max = scale(bounds.y);
-
-    return (scaled_value - scaled_min) / (scaled_max - scaled_min);
+float normalized_value(float scaledValue, vec2 scaledBounds) {
+    return (scaledValue - scaledBounds.x) / (scaledBounds.y - scaledBounds.x);
 }
 
-float scale(float value) {
-    if(u_scalemode == 1) {
-        value = max(0.0, value);
-        return sqrt(value);
+float scale(float value, int scaleMode) {
+    if(scaleMode == 1) {
+        return value < 0.0 ? 0.0 : sqrt(value);
     }
-    if (u_scalemode == 2) {
-        value = max(0.0001, value);
-        return log(value) / log(10.0);
+    if (scaleMode == 2) {
+        return value <= 0.0 ? 0.0 : log(value) / log(10.0);
     }
     return value;
 }
 
 vec4 add_lighting(vec4 color, vec3 normal_vector, vec3 view_ray) {
     // Calculate color by incorporating lighting
+    normal_vector = normalize(normal_vector);
 
     // View direction
     vec3 V = normalize(view_ray);
