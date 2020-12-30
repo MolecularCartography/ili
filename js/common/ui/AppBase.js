@@ -3,8 +3,8 @@
  */
 'use strict';
 
-define(['workspacebase', 'mainlayout', 'dragndrop', 'utils'],
-    function ( WorkspaceBase, appLayout, DragAndDrop, Utils)
+define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
+    function ( WorkspaceBase, appLayout, DragAndDrop, Utils, saveAs)
     {
         function AppBase(appEnvironment, appContainer, initializers, checker) {
             this._appEnvironment = appEnvironment;

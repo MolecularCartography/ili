@@ -28,9 +28,9 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
             visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 5);
-            visualizationGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);
-
+      
             const lightGroup = this.addGroupBox('Light');
+            lightGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);
             lightGroup.addNumeric(workspace.scene3d.light, 'ambient', 'Ambient', 0, 1);
             lightGroup.addNumeric(workspace.scene3d.light, 'diffuse', 'Diffuse', 0, 1);
             lightGroup.addNumeric(workspace.scene3d.light, 'specular', 'Specular', 0, 1);

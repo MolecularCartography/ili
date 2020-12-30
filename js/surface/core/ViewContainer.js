@@ -47,13 +47,13 @@ function(ViewContainerBase, View2D, ViewGroup3D, ViewLegend, Workspace) {
                         canvas.width = width;
                         canvas.height = height;
                         ctx.putImageData(imageData, 0, 0);
-                        this.legend.export(canvas, pixelRatio).then(this.makeCanvasBlob.bind(this, canvas)).catch(reject);
+                        this.legend.export(canvas, pixelRatio).then(this.makeCanvasBlob.bind(this, canvas, accept)).catch(reject);
                     } else if (this._workspace.mode == Workspace.Mode.MODE_2D) {
                         var canvas = document.createElement('canvas');
                         canvas.width = this._workspace.scene2d.width;
                         canvas.height = this._workspace.scene2d.width;
                         this.v2d.export(canvas).then(function() {
-                            this.legend.export(canvas, 1 / this.v2d.scale).then(this.makeCanvasBlob.bind(this, canvas)).catch(reject);
+                            this.legend.export(canvas, 1 / this.v2d.scale).then(this.makeCanvasBlob.bind(this, canvas, accept)).catch(reject);
                         }.bind(this)).catch(reject);
                     } else {
                         reject();

@@ -24,7 +24,7 @@ function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
         var file = e.data;
         try {
             var formatLoader = getFormatLoader(file.name.toLowerCase());
-            var mesh = formatLoader(file);
+            var volume = formatLoader(file);
         } catch (e) {
             console.info('Failure parsing volume file', e);
             postMessage({
@@ -33,16 +33,8 @@ function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
             });
             return;
         }
-
-        var resultMesh = new RawVolume.SizedRawVolumeData(
-            Float32Array.from(mesh.data),
-            mesh.xLength, mesh.yLength, mesh.zLength,
-            mesh.xLength, mesh.yLength, mesh.zLength,
-            new Bounds(mesh.min, mesh.max)
-        );
-
         postMessage({
-            shape: resultMesh,
+            shape: volume,
             status: 'completed'
         });
     }
@@ -55,7 +47,14 @@ function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
                 var reader = new FileReaderSync();
                 var contents = reader.readAsArrayBuffer(file.data);
                 var loader = new NRRDLoader();
-                return loader.parse(contents);
+                const mesh = loader.parse(contents);
+
+                return new RawVolume.SizedRawVolumeData(
+                    Float32Array.from(mesh.data),
+                    mesh.xLength, mesh.yLength, mesh.zLength,
+                    mesh.xLength, mesh.yLength, mesh.zLength,
+                    new Bounds(mesh.min, mesh.max)
+                );
             }
         },
     };

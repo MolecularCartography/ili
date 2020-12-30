@@ -1,94 +1,93 @@
 define(
-    ['rawvolumedata', 'indexer1d'],
-    function(RawVolumeData, Indexer1D) {
-        function VolumeNormalsProcessor(inputVolume, bounds, callback) {
-            this._inputVolume = inputVolume;
-            this._bounds = bounds;
-            this._callback = callback;
+    ['indexer1d', 'bounds'],
+    function(Indexer1D, Bounds) {
 
-            this._count =  inputVolume.lengthX * inputVolume.lengthY * inputVolume.lengthZ;
-            const totalByteSize = this._count * 3;
+        /**
+         * defines constants required for normals packing.
+         */
+        const Uint8Max = 255;
+        const minNormalized = -1;
+        const maxNormalized = 1;
+        const sizeNormalized = maxNormalized - minNormalized;
 
-            const result = new Uint8Array(totalByteSize);
-            this._volume = new RawVolumeData.RawVolumeData(
-                result,
-                inputVolume.lengthX,
-                inputVolume.lengthY,
-                inputVolume.lengthZ,
-                undefined);
-
+        function VolumeNormalsProcessor(normalizationBounds) {
             return this;
         }
 
-        VolumeNormalsProcessor.prototype = {
-            calculate: function() {
-                const callback = this._callback;
-                const inputVolume = this._inputVolume;
-                const xLength = inputVolume.xLength;
-                const yLength = inputVolume.yLength;
-                const zLength = inputVolume.zLength;
+        VolumeNormalsProcessor.prototype = Object.create(null, {
+            calculate: {
+                value: function(volume, buffer, callback) {
+                   
+                    this._zeroCounts = 0;
 
-                callback.setup(this._count);
+                    const result = new Uint8Array(buffer);
 
-                const inputIndexer = new Indexer1D(xLength, yLength, zLength);
+                    const inputVolume = volume;
+                    const data = volume.data;
+                    const xLength = inputVolume.lengthX;
+                    const yLength = inputVolume.lengthY;
+                    const zLength = inputVolume.lengthZ;
+                    const count = xLength * yLength * zLength;
+    
+                    callback.setup(count);
+    
+                    const inputIndexer = new Indexer1D(xLength, yLength, zLength);
 
-                const result = this._volume.data;
-                const resultIndexer = new Indexer1D(
-                    inputVolume.xLength,
-                    inputVolume.yLength,
-                    inputVolume.zLength * 3);
-
-                let computeIndex = 0;
-                for (let xIndex = 0; xIndex < xLength; ++xIndex) {
-                    for (let yIndex = 0; yIndex < yLength; ++yIndex) {
-                        for (let zIndex = 0; zIndex < zLength; ++zIndex) {
-                            const resultIndex = resultIndexer.get(xIndex, yIndex, zIndex * 3);
-                            _calculateNormal(
-                                inputVolume,
-                                inputIndexer,
-                                xIndex,
-                                yIndex,
-                                zIndex,
-                                result,
-                                resultIndex);
-                            computeIndex++;
-                            callback.notify(computeIndex);
+                    let computeIndex = 0;
+                    for (let xIndex = 0; xIndex < xLength; ++xIndex) {
+                        for (let yIndex = 0; yIndex < yLength; ++yIndex) {
+                            for (let zIndex = 0; zIndex < zLength; ++zIndex) {
+                                const resultIndex = inputIndexer.get(xIndex, yIndex, zIndex) * 3;
+                                this._calculateNormal(
+                                    data,
+                                    inputIndexer,
+                                    xIndex,
+                                    yIndex,
+                                    zIndex,
+                                    result,
+                                    resultIndex);
+                                computeIndex++;
+                                callback.notify(computeIndex, count);
+                            }
                         }
                     }
+                    callback.finished();
                 }
-
-                callback.finished();
             },
 
-            _calculateNormal: function(input, indexer, xIndex, yIndex, zIndex, output, outputIndex) {
-                const leftXValue = input[indexer.getXClipped(xIndex - 1, yIndex, zIndex)];
-                const rightXValue = input[indexer.getXClipped(xIndex + 1, yIndex, zIndex)];
+            _calculateNormal: {
+                value: function(input, indexer, xIndex, yIndex, zIndex, output, outputIndex) {
+                    const leftXValue = input[indexer.getXClipped(xIndex - 1, yIndex, zIndex)];
+                    const rightXValue = input[indexer.getXClipped(xIndex + 1, yIndex, zIndex)];
+    
+                    const leftYValue = input[indexer.getYClipped(xIndex, yIndex - 1, zIndex)];
+                    const rightYValue = input[indexer.getYClipped(xIndex, yIndex + 1, zIndex)];
+    
+                    const leftZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex - 1)];
+                    const rightZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex + 1)];
+    
+                    const xRange = rightXValue - leftXValue;
+                    const yRange = rightYValue - leftYValue;
+                    const zRange = rightZValue - leftZValue;
+                    
+                    const vectorLength = Math.sqrt(xRange * xRange + yRange * yRange + zRange * zRange);
 
-                const leftYValue = input[indexer.getYClipped(xIndex, yIndex - 1, zIndex)];
-                const rightYValue = input[indexer.getYClipped(xIndex, yIndex + 1, zIndex)];
+                    const xRangeNormalized = xRange / vectorLength;
+                    const yRangeNormalized = yRange / vectorLength;
+                    const zRangeNormalized = zRange / vectorLength;
 
-                const leftZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex - 1)];
-                const rightZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex + 1)];
-
-                const xRange = rightXValue - leftXValue;
-                const yRange = rightYValue - leftYValue;
-                const zRange = rightZValue - leftZValue;
-
-                const vectorLength = Math.sqrt(xRange * xRange + yRange * yRange + zRange * zRange);
-
-                output[outputIndex] = this._mapRange(xRange, vectorLength, this._bounds);
-                output[outputIndex + 1] = this._mapRange(yRange, vectorLength, this._bounds);
-                output[outputIndex + 2] = this._mapRange(zRange, vectorLength, this._bounds);
+                    output[outputIndex] = this._mapRange(xRangeNormalized);
+                    output[outputIndex + 1] = this._mapRange(yRangeNormalized);
+                    output[outputIndex + 2] = this._mapRange(zRangeNormalized);
+                }
             },
 
-            _mapRange: function(range, length, bounds) {
-                return this._map(range / length, 0, 1, bounds.min, bounds.max);
+            _mapRange: {
+                value: function(value) {
+                    return ((value - minNormalized) / sizeNormalized) * Uint8Max;
+                }
             },
-
-            _map: function(value, minFrom, maxFrom, minTo, maxTo) {
-                return minTo + (maxTo - minTo) * ((value - minFrom) / (maxFrom - minFrom));
-            }
-        };
+        });
 
         return VolumeNormalsProcessor;
     },

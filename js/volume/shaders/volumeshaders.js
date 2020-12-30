@@ -13,14 +13,12 @@ function() {
         uniform vec3 u_shape_slice_min;
         uniform vec3 u_shape_slice_max;
         
-        uniform vec3 u_intensity_size;
         uniform sampler3D u_intensity_data;
         uniform sampler2D u_intensity_cmdata;
         uniform vec2 u_intensity_bounds_scaled;
         uniform float u_intensity_opacity;
         uniform int u_intensity_enabled;
         
-        uniform vec3 u_normals_size;
         uniform sampler3D u_normals_data;
         
         uniform int u_renderstyle;
@@ -253,8 +251,8 @@ function() {
             normal_vector = normalize(normal_vector);
         
             // Flip normal so it points towards viewer
-            //float Nselect = float(dot(normal_vector, V) > 0.0);
-            //normal_vector = (2.0 * Nselect - 1.0) * normal_vector;
+            float Nselect = float(dot(normal_vector, V) > 0.0);
+            normal_vector = (2.0 * Nselect - 1.0) * normal_vector;
         
             float dd = 0.0;
             vec4 final_color = color * u_ambient_intensity;
