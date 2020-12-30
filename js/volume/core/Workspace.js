@@ -2,9 +2,9 @@
 
 define([
     'workspacebase', 'volumeinputfilesprocessor', 'volumescene3d', 'volumespotscontroller', 
-    'three', 'threejsutils', 'volumeremappingprocessor', 'volumedatacache'
+    'three', 'threejsutils', 'volumeremappingprocessor', 'volumedatacache, 'shaderloader'
 ],
-function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils, VolumeRemappingController, VolumeDataCache)
+function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, ThreeJsUtils, VolumeRemappingController, VolumeDataCache, ShaderLoader)
 {
     /**
      * Main application workspace. It works in 3 modes:
@@ -41,6 +41,21 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         this._scene3d = new Scene3D(this, spotsController);
 
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
+        this.spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._mapVolume.bind(this));
+
+        const shaderLoader = new ShaderLoader();
+        shaderLoader.load(
+            'js/volume/shaders/volumeshader_vs.glsl',
+            this._onVertexShaderLoaded.bind(this),
+            (progress) => this._onShaderLoadProgress('vertex', progress),
+            (error) => this._onShaderLoadError('vertex', error),
+        );
+        shaderLoader.load(
+            'js/volume/shaders/volumeshader_fs.glsl',
+            this._onFragmentShaderLoaded.bind(this),
+            (progress) => this._onShaderLoadProgress('fragment', progress),
+            (error) => this._onShaderLoadError('fragment', error),
+        );
         return this;
     }
 
@@ -75,6 +90,10 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         LOAD_NORMALS: {
             key: 'load_normals',
             worker: 'js/volume/workers/NormalsLoader.js'
+        },
+        LOAD_SHADERS: {
+            key: 'load_shaders',
+            worker: 'js/common/utility/ShaderLoader.js'
         }
     }, WorkspaceBase.TaskType);
 
@@ -214,7 +233,33 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             get: function() {
                 return this._scene3d;
             }
-        }
+        },
+
+        _onVertexShaderLoaded: {
+            value: function(shader) {
+                this._scene3d.vertexShader = shader;
+            }
+        },
+
+        _onFragmentShaderLoaded: {
+            value: function(shader) {
+                this._scene3d.fragmentShader = shader;
+            }
+        },
+
+        _onShaderLoadProgress: {
+            value: function(shaderName, progress) {
+                const message = 'Performing ' + shaderName + ' shader' + ' loading:';
+                console.log(message, progress);
+            }
+        },
+
+        _onShaderLoadError: {
+            value: function(shaderName, error) {
+                const message = 'Failed to load ' + shaderName + ': ';
+                console.error(message, error);
+            }
+        },
     });
 
     return Workspace;

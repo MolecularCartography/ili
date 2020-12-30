@@ -89,6 +89,18 @@ define(
                     callback.finished();
                 }
             },
+  
+            _warnLossOfData: function(xIndex, yIndex, zIndex) {
+                if (this.lossOfDataLogged) {
+                    return;
+                }
+                console.warn(
+                    'Loss of data. Rewriting non-empty intensity value at',
+                    xIndex,
+                    yIndex,
+                    zIndex);
+                this.lossOfDataLogged = true;
+            },
 
             _getPivot: {
                 value: function(center, size) {
@@ -109,26 +121,26 @@ define(
                 }
             },
 
-            _getEndPosition: {
-                value: function(startPosition, size, limit) {
-                    const endPosition = startPosition + size;
-                    if (endPosition > limit) {
-                        console.warn(
-                            'Cuboid is out of volume limits. Cuboid\'s end position: ' +
-                            endPosition +
-                            ' , Limit: ' +
-                            limit);
-                        return limit;
-                    } else {
-                        return endPosition;
-                    }
+            _getEndPosition: function(startPosition, size, limit) {
+                const endPosition = startPosition + size;
+                if (endPosition > limit) {
+                    this._warnOutOfLimits(endPosition, limit);
+                    return limit;
+                } else {
+                    return endPosition;
                 }
             },
 
-            _map: {
-                value: function (value, minFrom, maxFrom, minTo, maxTo) {
-                    return minTo + (maxTo - minTo) * ((value - minFrom) / (maxFrom - minFrom));
+            _warnOutOfLimits: function(endPosition, limit) {
+                if (this.outOfLimitsLogged) {
+                    return;
                 }
+                console.warn(
+                    'Cuboid is out of volume limits. Cuboid\'s end position: ' +
+                    endPosition +
+                    ' , Limit: ' +
+                    limit);
+                this.outOfLimitsLogged = true;
             }
         });
 

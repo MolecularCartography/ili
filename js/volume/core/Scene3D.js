@@ -1,15 +1,14 @@
 'use strict';
 
 define([
-    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumeshaders', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
+    'eventsource', 'scene3dbase', 'three', 'threejsutils', 'utils', 'colormaps', 'volumerendermesh', 'bounds', 'spotscontrollerbase'
 ],
-function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeShaders, VolumeRenderMesh, Bounds, SpotsControllerBase) {
-
+function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRenderMesh, Bounds, SpotsControllerBase) {
     function Scene3D(workspace, spotsController) {
         Scene3DBase.call(this, spotsController);
 
         this._workspace = workspace;
-        this._volumeRenderMesh = new VolumeRenderMesh(VolumeShaders);
+        this._volumeRenderMesh = new VolumeRenderMesh();
 
         this._shapeColorMapId = 'GC';
 
@@ -36,6 +35,32 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
         clone: {
             value: function(eventName, listener) {
                 return null;
+            }
+        },
+
+        vertexShader: {
+            get: function() {
+                return this._volumeRenderMesh.vertexShader;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.vertexShader = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        fragmentShader: {
+            get: function() {
+                return this._volumeRenderMesh.fragmentShader;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.fragmentShader = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        _manageMeshVisibility: {
+            value: function() {
+                this._volumeRenderMesh.visible = this.vertexShader && this.fragmentShader;
             }
         },
 
@@ -67,7 +92,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeSh
 
         _onIntensitiesChange: {
             value: function() {
-                
             }
         },
 
