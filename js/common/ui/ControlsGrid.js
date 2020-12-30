@@ -46,9 +46,21 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     step: 0.01,
                     value: object[key]
                 });
+
+                const timeIntervalDelay = 125;
+                let timeIntervalId = -1;
+                let currentValue = null;
                 slider.on('change', function (event) {
-                    object[key] = event.value.newValue;
-                    paramValue.innerText = event.value.newValue;
+                    // added delay to avoid multiple calls.
+                    currentValue = event.value.newValue;
+                    paramValue.innerText = currentValue;
+                    if (timeIntervalId != -1) {
+                        clearTimeout(timeIntervalId);
+                    }
+                    timeIntervalId = setTimeout(() => {
+                        object[key] = currentValue;
+                        timeIntervalId = -1;
+                    }, timeIntervalDelay);
                 });
 
                 return {

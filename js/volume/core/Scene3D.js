@@ -86,7 +86,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         _onSpotsChange: {
             value: function() {
-
             }
         },
 

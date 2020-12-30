@@ -167,9 +167,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
 
         _onSpotScaleChange: {
             value: function () {
-                if (this.mode == Workspace.Mode.MODE_3D) {
-                    this._mapVolume(Scene3D.RecoloringMode.NO_COLORMAP);
-                }
+                this._mapVolume();
             }
         },  
 
@@ -188,7 +186,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     shape.lengthX, shape.lengthY, shape.lengthZ,
                     shape.sizeX, shape.sizeY, shape.sizeZ
                 );
-                
                 const transferBuffer = this._intensityVolumeDataCache.buffer;
                 const data = {
                     volume: this._intensityVolumeDataCache.volume,
@@ -216,9 +213,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     return;
                 }
                 this._mode = value;
-
-                // TODO: implement.
-
                 this._notify(Workspace.Events.MODE_CHANGE);
             }
         },
