@@ -160,13 +160,13 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
             }
         },
 
-        _noModeChange: {
+        _onModeChange: {
             value: function(mode) {
-                if (mode == WorkspaceBase.Mode.MODE_3D) {
+                if (mode == Workspace.Mode.MODE_3D) {
                     this._scene2d.resetImage();
                     this._cancelTask(WorkspaceBase.TaskType.LOAD_IMAGE);
                 }
-                if (mode == WorkspaceBase.Mode.MODE_2D) {
+                if (mode == Workspace.Mode.MODE_2D) {
                     this._scene3d.geometry = null;
                     this._cancelTask(WorkspaceBase.TaskType.LOAD_MESH);
                 }

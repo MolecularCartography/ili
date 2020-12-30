@@ -23,6 +23,10 @@ function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
     onmessage = function(e) {
         var file = e.data;
         try {
+            postMessage({
+                status: 'working',
+                message: 'Decoding the volume shape file...',
+            });
             var formatLoader = getFormatLoader(file.name.toLowerCase());
             var volume = formatLoader(file);
         } catch (e) {

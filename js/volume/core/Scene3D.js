@@ -124,6 +124,16 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
+        intensityOpacityTexture: {
+            get: function() {
+                return this._volumeRenderMesh.intensityOpacityTexture;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.intensityOpacityTexture = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
         normalsTexture: {
             get: function() {
                 return this._volumeRenderMesh.normalsTexture;

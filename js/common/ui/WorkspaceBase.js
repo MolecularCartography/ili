@@ -29,6 +29,7 @@ function (EventSource)
         this._spotsController = spotsController;
         this._loadedSettings = null;
         this._inputFilesProcessor = inputFilesProcessor;
+        this._workerCache = new Map();
 
         this._status = '';
         this._tasks = {};
@@ -239,6 +240,8 @@ function (EventSource)
                 var setStatus = this._setStatus.bind(this);
                 var addError = this._addError.bind(this);
 
+                setStatus('Initializing runtime for task [' + taskType.key + ']...');
+
                 if (typeof taskType.worker == 'function') {
                     task.worker.postMessage(args, transfer);
                 }
@@ -263,6 +266,7 @@ function (EventSource)
                                 setStatus(event.data.message);
                                 break;
                             case 'ready':
+                                setStatus('[' + taskType.key + '] task is ready to work');
                                 this.postMessage(args);
                                 break;
                         };

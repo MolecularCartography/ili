@@ -39,6 +39,10 @@ function(THREE) {
             return ThreeJsUtils.createTexture3D(volumeData, THREE.FloatType, THREE.RedFormat);
         },
 
+        createByteTexture3D: function(volumeData) {
+            return ThreeJsUtils.createTexture3D(volumeData, THREE.UnsignedByteType, THREE.RedFormat);
+        },
+
         createNormalTexture3D: function(volumeData) {
             return ThreeJsUtils.createTexture3D(volumeData, THREE.UnsignedByteType, THREE.RGBFormat);
         }

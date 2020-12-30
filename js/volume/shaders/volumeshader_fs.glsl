@@ -9,6 +9,7 @@ uniform vec3 u_shape_slice_min;
 uniform vec3 u_shape_slice_max;
 
 uniform sampler3D u_intensity_data;
+uniform sampler3D u_intensity_opacity_data;
 uniform sampler2D u_intensity_cmdata;
 uniform vec2 u_intensity_bounds_scaled;
 uniform float u_intensity_opacity;
@@ -54,6 +55,7 @@ const bool debug_mode = false;
 
 void raycast(vec3 start_loc, vec3 step, int nsteps, vec3 view_ray);
 
+float intensity_opacity_sample(vec3 texcoords);
 float shape_sample(vec3 texcoords);
 float intensity_sample(vec3 texcoords);
 vec3 normals_sample(vec3 texcoords);
@@ -71,19 +73,7 @@ float scale(float value, int scaleMode);
 vec4 inverseBlend(vec4 base, vec4 blend);
 vec4 finish_inverse_blend(vec4 color);
 
-bool ray_box_intersection(vec3 view_ray_start, vec3 view_ray_direction, vec3 top, vec3 bottom, out float t_0, out float t_1)
-{
-    vec3 direction_inv = 1.0 / view_ray_direction;
-    vec3 t_top = direction_inv * (top - view_ray_start);
-    vec3 t_bottom = direction_inv * (bottom - view_ray_start);
-    vec3 t_min = min(t_top, t_bottom);
-    vec2 t = max(t_min.xx, t_min.yz);
-    t_0 = max(0.0, max(t.x, t.y));
-    vec3 t_max = max(t_top, t_bottom);
-    t = min(t_max.xx, t_max.yz);
-    t_1 = min(t.x, t.y);
-    return !(t_0 < 0.0 || t_0 > t_1);
-}
+bool ray_box_intersection(vec3 view_ray_start, vec3 view_ray_direction, vec3 top, vec3 bottom, out float t_0, out float t_1);
 
 void main() {
     // Normalize clipping plane info
@@ -138,6 +128,20 @@ void main() {
     }
 }
 
+bool ray_box_intersection(vec3 view_ray_start, vec3 view_ray_direction, vec3 top, vec3 bottom, out float t_0, out float t_1)
+{
+    vec3 direction_inv = 1.0 / view_ray_direction;
+    vec3 t_top = direction_inv * (top - view_ray_start);
+    vec3 t_bottom = direction_inv * (bottom - view_ray_start);
+    vec3 t_min = min(t_top, t_bottom);
+    vec2 t = max(t_min.xx, t_min.yz);
+    t_0 = max(0.0, max(t.x, t.y));
+    vec3 t_max = max(t_top, t_bottom);
+    t = min(t_max.xx, t_max.yz);
+    t_1 = min(t.x, t.y);
+    return !(t_0 < 0.0 || t_0 > t_1);
+}
+
 float shape_sample(vec3 texcoords) {
     // Sample float value from a 3D texture. Assumes intensity data.
     return texture(u_shape_data, texcoords.xyz).r;
@@ -146,6 +150,11 @@ float shape_sample(vec3 texcoords) {
 float intensity_sample(vec3 texcoords) {
     // Sample float value from a 3D texture. Assumes intensity data.
     return texture(u_intensity_data, texcoords.xyz).r;
+}
+
+float intensity_opacity_sample(vec3 texcoords) {
+        // Sample float value from a 3D texture. Assumes intensity data.
+    return texture(u_intensity_opacity_data, texcoords.xyz).r;
 }
 
 vec3 normals_sample(vec3 texcoords) {
@@ -187,6 +196,7 @@ void raycast(vec3 start_loc, vec3 step, int nsteps, vec3 view_ray) {
                     u_intensity_bounds_scaled);
                 vec4 intensity_color = apply_intensity_colormap(normalized_intensity_value);
                 intensity_color.a *= u_intensity_opacity;
+                intensity_color.a *= intensity_opacity_sample(loc);
                 if (u_proportional_opacity_enabled == 1) {
                     intensity_color.a *= normalized_intensity_value; 
                 }
