@@ -69,6 +69,9 @@ define(
                                     const rawIndex = resultIndexer.get(xIndex, yIndex, zIndex);
     
                                     const intensity = intensities[index];
+                                    if (Number.isFinite(result[rawIndex])) {
+                                        this._warnLossOfData(xIndex, yIndex, zIndex);
+                                    }
                                     result[rawIndex] = intensity;
     
                                     const distanceXIndex = Math.abs(xIndex - xPivot);
@@ -90,16 +93,18 @@ define(
                 }
             },
   
-            _warnLossOfData: function(xIndex, yIndex, zIndex) {
-                if (this.lossOfDataLogged) {
-                    return;
+            _warnLossOfData: {
+                value: function(xIndex, yIndex, zIndex) {
+                    if (this.lossOfDataLogged) {
+                        return;
+                    }
+                    console.warn(
+                        'Loss of data. Rewriting non-empty intensity value at',
+                        xIndex,
+                        yIndex,
+                        zIndex);
+                    this.lossOfDataLogged = true;
                 }
-                console.warn(
-                    'Loss of data. Rewriting non-empty intensity value at',
-                    xIndex,
-                    yIndex,
-                    zIndex);
-                this.lossOfDataLogged = true;
             },
 
             _getPivot: {
@@ -121,26 +126,30 @@ define(
                 }
             },
 
-            _getEndPosition: function(startPosition, size, limit) {
-                const endPosition = startPosition + size;
-                if (endPosition > limit) {
-                    this._warnOutOfLimits(endPosition, limit);
-                    return limit;
-                } else {
-                    return endPosition;
+            _getEndPosition: {
+                value: function(startPosition, size, limit) {
+                    const endPosition = startPosition + size;
+                    if (endPosition > limit) {
+                        this._warnOutOfLimits(endPosition, limit);
+                        return limit;
+                    } else {
+                        return endPosition;
+                    }
                 }
             },
 
-            _warnOutOfLimits: function(endPosition, limit) {
-                if (this.outOfLimitsLogged) {
-                    return;
+            _warnOutOfLimits: {
+                value: function(endPosition, limit) {
+                    if (this.outOfLimitsLogged) {
+                        return;
+                    }
+                    console.warn(
+                        'Cuboid is out of volume limits. Cuboid\'s end position: ' +
+                        endPosition +
+                        ' , Limit: ' +
+                        limit);
+                    this.outOfLimitsLogged = true;
                 }
-                console.warn(
-                    'Cuboid is out of volume limits. Cuboid\'s end position: ' +
-                    endPosition +
-                    ' , Limit: ' +
-                    limit);
-                this.outOfLimitsLogged = true;
             }
         });
 

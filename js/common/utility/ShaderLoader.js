@@ -7,9 +7,6 @@ define(['three'], function(three) {
     ShaderLoader.prototype = Object.create(three.Loader.prototype, {
         load: {
             value: function(url, onLoad, onProgress, onError) {
-                console.log('onLoad', onLoad);
-                console.log('onProgress', onProgress);
-                console.log('onError', onError);
                 const loader = new three.FileLoader(this.manager);
                 loader.setPath(this.path);
                 loader.setRequestHeader(this.requestHeader);
