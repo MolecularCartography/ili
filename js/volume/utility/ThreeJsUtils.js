@@ -35,6 +35,33 @@ function(THREE) {
             return texture;
         },
 
+        createGenericTexture3D: function(volumeData) {
+            const data = volumeData.data;
+            let format = THREE.RedFormat;
+            let type = THREE.FloatType;
+            if (data) {
+                if (data instanceof Float32Array) {
+                    type = THREE.FloatType;
+                } 
+                else {
+                    console.warn("The texture format is not supported yet.");
+                    if (data instanceof Uint16Array) { 
+                        type = THREE.UnsignedShortType;
+                    } 
+                    else if (data instanceof Int16Array) {
+                        type = THREE.ShortType;
+                    } 
+                    else if (data instanceof Uint8Array) {
+                        type = THREE.UnsignedByteType;
+                    }
+                    else if (data instanceof Int8Array) {
+                        type = THREE.ByteType;
+                    }
+                }
+            }   
+            return ThreeJsUtils.createTexture3D(volumeData, type, format);
+        },
+
         createFloatTexture3D: function(volumeData) {
             return ThreeJsUtils.createTexture3D(volumeData, THREE.FloatType, THREE.RedFormat);
         },

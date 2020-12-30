@@ -45,7 +45,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor
                 postMessage({
                     buffer: buffer,
                     status: 'completed'
-                }, [buffe]);
+                }, [buffer]);
             }
         });
     }

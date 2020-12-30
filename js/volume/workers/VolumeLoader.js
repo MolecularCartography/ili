@@ -25,7 +25,7 @@ function (Utils, THREE, NRRDLoader, RawVolume, Bounds) {
         try {
             postMessage({
                 status: 'working',
-                message: 'Decoding the volume shape file...',
+                message: 'Decoding the volume shape file.',
             });
             var formatLoader = getFormatLoader(file.name.toLowerCase());
             var volume = formatLoader(file);

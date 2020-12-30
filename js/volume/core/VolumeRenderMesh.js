@@ -333,7 +333,7 @@ define([
 
                         this._setUniform('u_shape_size', shapeSize);
                         this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max)); 
-                        this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
+                        this._shapeTexture = ThreeUtils.createGenericTexture3D(value);
                         this._setUniform('u_shape_data', this._shapeTexture);
                     }
                 }

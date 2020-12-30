@@ -23,8 +23,6 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, ThreeUtils, RemappingP
     onmessage = function(e) {
         const data = e.data;
 
-        console.log(config);
-
         const cuboids = data.cuboids;
         const intensities = data.intensities;
         const cuboidsSizeScale = data.cuboidsSizeScale;

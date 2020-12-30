@@ -215,7 +215,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     cuboidsSizeScale: this._spotsController.globalSpotScale,
                     cuboidsBorderOpacity: this._spotsController.spotBorder
                 };
-                this._doTask(Workspace.TaskType.MAP, data, [transferBuffer]).
+                this._doTask(Workspace.TaskType.MAP, data, [transferBuffer, opacityTransferBuffer, shape.data.buffer]).
                     then(function (result) {          
                         this._intensityVolumeDataCache.updateBuffer(result.buffer);
                         this._intensityOpacityVolumeDataCache.updateBuffer(result.opacityBuffer);
