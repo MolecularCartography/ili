@@ -324,6 +324,7 @@ define([
                         this._shapeTexture.dispose();
                     }
                     this._shapeData = value;
+                    this._mesh.visible = value != null;
                     if (this._shapeData) {
                         const shapeSize = new THREE.Vector3(value.sizeX, value.sizeY, value.sizeZ);
 
@@ -383,11 +384,22 @@ define([
                 }
             },
 
+            isIntensityEnabled: {
+                get: function() {
+                    return this._isIntensityEnabled;
+                },
+                set: function(value) {
+                    this._isIntensityEnabled = value;
+                    this._resetIntensityEnabled();
+                }
+            },
+
             _resetIntensityEnabled: {
                 value: function() {
                     const value = 
                         this._intensityTexture && 
                         this._intensityColorMap && 
+                        this._isIntensityEnabled &&
                         this._intensityBoundsScaled ? 1 : 0;
                     this._setUniform('u_intensity_enabled', value);
                 }
@@ -420,8 +432,8 @@ define([
 
             reset: {
                 value: function() {
-                    this._shapeData = null;
-                    this._intensityData = null;
+                    this.shapeData = null;
+                    this.intensityTexture = null;
                 }
             }
         });

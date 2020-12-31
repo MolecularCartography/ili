@@ -12,8 +12,13 @@ define([
             const wwwUrl = document.location.origin + '/';
             var items = [
                 {
-                    name: 'Demo NRRD Data',
-                    files: ['data/stent.nrrd', 'data/ili.csv'],
+                    name: 'Stent NRRD Data',
+                    files: ['data/stent.nrrd', 'data/seed.csv'],
+                    prefix: wwwUrl
+                },
+                {
+                    name: 'Bonsai NRRD Data',
+                    files: ['data/bonsai.nrrd', 'data/bonsai.csv'],
                     prefix: wwwUrl
                 }
             ];

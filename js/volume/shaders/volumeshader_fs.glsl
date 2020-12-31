@@ -37,7 +37,7 @@ varying vec4 v_farpos;
 
 
 // The maximum distance through our rendering volume is sqrt(3).
-const int MAX_STEPS = 887;      // 887 for 512^3, 1774 for 1024^3
+const int MAX_STEPS = 2000;      // 887 for 512^3, 1774 for 1024^3
 
 const vec3 viewVec = vec3(0.0, 0.0, 1.0);
 

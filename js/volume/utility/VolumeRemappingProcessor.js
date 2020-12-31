@@ -8,7 +8,7 @@ define(
 
         VolumeRemappingProcessor.prototype = Object.create(null, {
             calculate: {
-                value: function(volume, buffer, opacityBuffer, cuboids, intensities, sizeScale, borderOpacity, callback) {
+                value: function(volume, buffer, opacityBuffer, cuboids, intensities, sizeScale, borderOpacity, isEllipsoidMode, callback) {
                     const result = new Float32Array(buffer);
                     result.fill(Number.POSITIVE_INFINITY); // Fake value that indicates that voxel should not be colored.
 
@@ -24,17 +24,19 @@ define(
                     const sizeY = volume.sizeY;
                     const sizeZ = volume.sizeZ;
     
-                    const totalCount = count * cuboids.length;
-                    callback.setup(totalCount);
-    
                     const xStep = this._getStep(lengthX, sizeX);
                     const yStep = this._getStep(lengthY, sizeY);
                     const zStep = this._getStep(lengthZ, sizeZ);
     
                     const resultIndexer = new Indexer1D(lengthX, lengthY, lengthZ);
-          
-                    let progressIndex = 0;
-                    cuboids.forEach((cuboid, index) => {
+
+                    let totalIterationCount = 0;
+
+                    // accumulate cuboids data.
+                    const computedCuboids = cuboids.map((cuboid) => {
+                        const result = Object.create(null);
+                        result.cuboid = cuboid;
+
                         const cuboidXSize = cuboid.sizeX * sizeScale;
                         const cuboidYSize = cuboid.sizeY * sizeScale;
                         const cuboidZSize = cuboid.sizeZ * sizeScale;
@@ -43,67 +45,101 @@ define(
                         const yPivot = this._getPivot(cuboid.centerY, cuboidYSize);
                         const zPivot = this._getPivot(cuboid.centerZ, cuboidZSize);
     
-                        const xStartIndex = Math.floor(this._getIndex(xPivot, xStep, lengthX));
-                        const yStartIndex = Math.floor(this._getIndex(yPivot, yStep, lengthY));
-                        const zStartIndex = Math.floor(this._getIndex(zPivot, zStep, lengthZ));
+                        result.xStartIndex = Math.floor(this._getIndex(xPivot, xStep, lengthX));
+                        result.yStartIndex = Math.floor(this._getIndex(yPivot, yStep, lengthY));
+                        result.zStartIndex = Math.floor(this._getIndex(zPivot, zStep, lengthZ));
     
-                        const xEndIndex = Math.floor(this._getIndex(
+                        result.xEndIndex = Math.floor(this._getIndex(
                             this._getEndPosition(xPivot, cuboidXSize, sizeX),
                             xStep,
                             lengthX));
-                        const yEndIndex = Math.floor(this._getIndex(
+                        result.yEndIndex = Math.floor(this._getIndex(
                             this._getEndPosition(yPivot, cuboidYSize, sizeY),
                             yStep,
                             lengthY));
-                        const zEndIndex = Math.floor(this._getIndex(
+                        result.zEndIndex = Math.floor(this._getIndex(
                             this._getEndPosition(zPivot, cuboidZSize, sizeZ),
                             zStep,
                             lengthZ));
 
-                        const xCenterIndex = (xStartIndex + xEndIndex) / 2;
-                        const yCenterIndex = (yStartIndex + yEndIndex) / 2;
-                        const zCenterIndex = (zStartIndex + zEndIndex) / 2;
+                        result.xCenterIndex = (result.xStartIndex + result.xEndIndex) / 2;
+                        result.yCenterIndex = (result.yStartIndex + result.yEndIndex) / 2;
+                        result.zCenterIndex = (result.zStartIndex + result.zEndIndex) / 2;
     
-                        const xSizeIndex = Math.abs(xEndIndex - xStartIndex);
-                        const ySizeIndex = Math.abs(yEndIndex - yStartIndex);
-                        const zSizeIndex = Math.abs(zEndIndex - zStartIndex);
-                        const sizeIndex = Math.sqrt(xSizeIndex * xSizeIndex + ySizeIndex * ySizeIndex + zSizeIndex * zSizeIndex) / 2;
-                        
-                        for (let xIndex = xStartIndex; xIndex <= xEndIndex; ++xIndex) {
-                            for (let yIndex = yStartIndex; yIndex <= yEndIndex; ++yIndex) {
-                                for (let zIndex = zStartIndex; zIndex <= zEndIndex; ++zIndex) {  
+                        result.xSizeIndex = Math.abs(result.xEndIndex - result.xStartIndex);
+                        result.ySizeIndex = Math.abs(result.yEndIndex - result.yStartIndex);
+                        result.zSizeIndex = Math.abs(result.zEndIndex - result.zStartIndex);
+
+                      
+                       
+
+                        if (isEllipsoidMode) {
+                            result.xSizeIndexHalf = result.xSizeIndex / 2;
+                            result.ySizeIndexHalf = result.ySizeIndex / 2;
+                            result.zSizeIndexHalf = result.zSizeIndex / 2;
+
+                            result.squaredRadiusX = result.xSizeIndexHalf * result.xSizeIndexHalf;
+                            result.squaredRadiusY = result.ySizeIndexHalf * result.ySizeIndexHalf;
+                            result.squaredRadiusZ = result.zSizeIndexHalf * result.zSizeIndexHalf;
+
+                            result.volume = Math.floor(result.xSizeIndexHalf * result.ySizeIndexHalf * result.zSizeIndexHalf * Math.PI * (4 / 3)) * 2;
+                        }
+                        else {
+                            result.volume = result.xSizeIndex * result.ySizeIndex * result.zSizeIndex;
+                        }
+
+                        totalIterationCount += result.volume;
+
+                        result.halfSizeIndex = Math.sqrt(
+                            result.xSizeIndex * result.xSizeIndex + 
+                            result.ySizeIndex * result.ySizeIndex + 
+                            result.zSizeIndex * result.zSizeIndex) / 2;
+                        return result;
+                    });
+
+                    callback.setup(totalIterationCount);
+
+                    let progressIndex = 0;
+                    computedCuboids.forEach((computedCuboid, index) => {
+                        for (let xIndex = computedCuboid.xStartIndex; xIndex <= computedCuboid.xEndIndex; ++xIndex) {
+                            for (let yIndex = computedCuboid.yStartIndex; yIndex <= computedCuboid.yEndIndex; ++yIndex) {
+                                for (let zIndex = computedCuboid.zStartIndex; zIndex <= computedCuboid.zEndIndex; ++zIndex) {  
                                     const rawIndex = resultIndexer.get(xIndex, yIndex, zIndex);
-    
-                                    const intensity = intensities[index];
-                                    if (Number.isFinite(result[rawIndex])) {
-                                        this._warnLossOfData(xIndex, yIndex, zIndex);
+
+                                    const distanceXIndex = Math.abs(xIndex - computedCuboid.xCenterIndex);
+                                    const distanceYIndex = Math.abs(yIndex - computedCuboid.yCenterIndex);
+                                    const distanceZIndex = Math.abs(zIndex - computedCuboid.zCenterIndex);
+
+                                    const squaredDistanceXIndex = distanceXIndex * distanceXIndex;
+                                    const squaredDistanceYIndex = distanceYIndex * distanceYIndex;
+                                    const squaredDistanceZIndex = distanceZIndex * distanceZIndex;
+                                    
+                                    let relativeDistance = null;
+                                    if (isEllipsoidMode) {
+                                        relativeDistance = 
+                                            squaredDistanceXIndex / computedCuboid.squaredRadiusX + 
+                                            squaredDistanceYIndex / computedCuboid.squaredRadiusY + 
+                                            squaredDistanceZIndex / computedCuboid.squaredRadiusZ;  
+                                    } else {
+                                        const distance = Math.sqrt(squaredDistanceXIndex + squaredDistanceYIndex + squaredDistanceZIndex);
+                                        relativeDistance = distance / computedCuboid.halfSizeIndex;
                                     }
-                                    result[rawIndex] = intensity;
+
+                                    if (relativeDistance <= 1) {
+                                        if (Number.isFinite(result[rawIndex])) {
+                                            this._warnLossOfData(xIndex, yIndex, zIndex);
+                                        }
+                                        const intensity = intensities[index];
+                                        result[rawIndex] = intensity;
+                                        opacityResult[rawIndex] = (borderOpacity + (1 - relativeDistance) * inverseBorderOpacity) * 255.0;   
+                                    }                                                     
     
-                                    const distanceXIndex = Math.abs(xIndex - xCenterIndex);
-                                    const distanceYIndex = Math.abs(yIndex - yCenterIndex);
-                                    const distanceZIndex = Math.abs(zIndex - zCenterIndex);
-                                    const distance = Math.sqrt(
-                                        distanceXIndex * distanceXIndex + 
-                                        distanceYIndex * distanceYIndex + 
-                                        distanceZIndex * distanceZIndex);
-                                    const relativeDistance = distance / sizeIndex;
-                                    opacityResult[rawIndex] = (borderOpacity + (1 - relativeDistance) * inverseBorderOpacity) * 255.0;
-    
-                                    callback.notify(progressIndex++, totalCount);
+                                    callback.notify(progressIndex++, totalIterationCount);
                                 }
                             }
                         }            
                     });
                     callback.finished();
-                }
-            },
-  
-            _getRelativeOpacity: {
-                value: function(borderOpacity, inverseBorderOpacity, position, center, size) {
-                    const distance = Math.abs(position - center);
-                    const relativeDistance = distance / size;
-                    return (borderOpacity + (1 - relativeDistance) * inverseBorderOpacity) * 255.0;
                 }
             },
 

@@ -15,16 +15,10 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
         this._slicing = { minX: 0, maxX: 1, minY: 0, maxY: 1, minZ: 0, maxZ: 1 };
         this._light = { ambient: 0.3, diffuse: 0.6, specular: 0.3 };
 
-        this._mapping = null;
-
         this.slicing = this._slicing;
         this.light = this._light;
-        this.opacity = 1.0;
-        this.filling = 0.5;
-        this.spacing = 1.0;
-        this.proportionalOpacityEnabled = false;
-        this.intensityOpacity = 1.0;
-        this.shadingEnabled = false;
+
+        this.reset();
 
         this._meshContainer.add(this._volumeRenderMesh.mesh);
     };
@@ -207,6 +201,16 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
+        isIntensityEnabled: {
+            get: function() {
+                return this._volumeRenderMesh.isIntensityEnabled;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.isIntensityEnabled = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
         proportionalOpacityEnabled: {
             get: function() {
                 return this._volumeRenderMesh.proportionalOpacityEnabled;
@@ -250,13 +254,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
-        refreshSpots: {
-            value: function () {
-                //this._recolor(Scene3D.RecoloringMode.NO_COLORMAP);
-                this._notify(Scene3D.Events.CHANGE);
-            }
-        },
-
         position: {
             get: function() {
                 return this._scene.position.clone();
@@ -273,6 +270,13 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
         reset: {
             value: function() {
                 this._volumeRenderMesh.reset();
+                this.opacity = 1.0;
+                this.filling = 0.5;
+                this.spacing = 1.0;
+                this.proportionalOpacityEnabled = false;
+                this.isIntensityEnabled = true;
+                this._onAttrChange();
+                this.shadingEnabled = false;
             }
         }
     });
