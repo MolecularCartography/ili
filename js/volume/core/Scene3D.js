@@ -86,7 +86,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         _onSpotsChange: {
             value: function() {
-
             }
         },
 
@@ -121,6 +120,16 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             },
             set: function(value) {
                 this._volumeRenderMesh.intensityTexture = value;
+                this._notify(Scene3D.Events.CHANGE);
+            }
+        },
+
+        intensityOpacityTexture: {
+            get: function() {
+                return this._volumeRenderMesh.intensityOpacityTexture;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.intensityOpacityTexture = value;
                 this._notify(Scene3D.Events.CHANGE);
             }
         },

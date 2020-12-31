@@ -25,22 +25,22 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
         this._spotLabel = new SpotLabel2D(this);
 
         this._uniforms = {
-            imageSize: { type: 'v2', value: new THREE.Vector2() },
-            canvasSize: { type: 'v2', value: new THREE.Vector2() },
-            offset: { type: 'v2', value: new THREE.Vector2() },
-            scale: { type: 'f', value: 1 },
-            opacityDecay: { type: 'f', value: 1 },
+            imageSize: { type: 'v2', value: new THREE.Vector2(1, 1) },
+            canvasSize: { type: 'v2', value: new THREE.Vector2(1, 1) },
+            offset: { type: 'v2', value: new THREE.Vector2(1, 1) },
+            scale: { type: 'f', value: 1.0 },
+            opacityDecay: { type: 'f', value: 1.0 },
         };
         this._material = new THREE.ShaderMaterial({
             uniforms: this._uniforms,
             vertexShader: View2D.VERTEX_SHADER,
             fragmentShader: View2D.FRAGMENT_SHADER,
-            vertexColors: THREE.VertexColors,
+            vertexColors: true,
             depthTest: true,
-            transparent: true,
+            transparent: true
         });
         this._scene3js = new THREE.Scene();
-        this._dummyCamera = new THREE.OrthographicCamera();
+        this._dummyCamera = new THREE.OrthographicCamera(-100, 100, -100, 100, -100, 100);
 
         this._scene.addEventListener(Scene2D.Events.IMAGE_CHANGE, this._onImageChange.bind(this));
         this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onSpotsAttrChange.bind(this));
@@ -152,8 +152,9 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
                 }
 
                 spots = spots.filter(function(s) {
-                    return !isNaN(s.intensity);
+                    return !Number.isNaN(s.intensity);
                 });
+
                 var spotsCount = spots.length;
                 var positions = new Float32Array(spotsCount * 6 * 3);
                 var uvs = new Float32Array(spotsCount * 6 * 2);
@@ -349,6 +350,7 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
                 u.offset.value.copy(this._offset);
                 u.scale.value = this._scale;
                 u.opacityDecay.value = 1 - this._spotsController.spotBorder;
+                this._material.uniformsNeedUpdate = true;
                 this._renderer.render(this._scene3js, this._dummyCamera);
             }
         },

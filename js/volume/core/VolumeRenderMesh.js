@@ -27,6 +27,7 @@ define([
 
                 u_intensity_size: {value: new THREE.Vector3(0, 0, 0) },
                 u_intensity_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
+                u_intensity_opacity_data: {value: new THREE.DataTexture3D(null, 1, 1, 1) },
                 u_intensity_cmdata: {value: new THREE.DataTexture(null, 1, 1) },
                 u_intensity_bounds_scaled: {value: new THREE.Vector2(0, 0) },
                 u_intensity_opacity: {value: 1.0},
@@ -332,7 +333,7 @@ define([
 
                         this._setUniform('u_shape_size', shapeSize);
                         this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max)); 
-                        this._shapeTexture = ThreeUtils.createFloatTexture3D(value);
+                        this._shapeTexture = ThreeUtils.createGenericTexture3D(value);
                         this._setUniform('u_shape_data', this._shapeTexture);
                     }
                 }
@@ -369,6 +370,16 @@ define([
                     this._intensityTexture = value;
                     this._setUniform('u_intensity_data', this._intensityTexture);
                     this._resetIntensityEnabled();
+                }
+            },
+
+            intensityOpacityTexture: {
+                get: function() {
+                    return this._intensityOpacityTexture;
+                },
+                set: function(value) {
+                    this._intensityOpacityTexture = value;
+                    this._setUniform('u_intensity_opacity_data', this._intensityOpacityTexture);
                 }
             },
 

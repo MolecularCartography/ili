@@ -7,13 +7,15 @@ define(
         }
 
         VolumeRemappingProcessor.prototype = Object.create(null, {
-
             calculate: {
-                value: function(volume, buffer, cuboids, intensities, sizeScale, callback) {
-                    //const opacityResult = this._borderVolume.data;
+                value: function(volume, buffer, opacityBuffer, cuboids, intensities, sizeScale, borderOpacity, callback) {
                     const result = new Float32Array(buffer);
                     result.fill(Number.POSITIVE_INFINITY); // Fake value that indicates that voxel should not be colored.
 
+                    const opacityResult = new Uint8Array(opacityBuffer);
+                    opacityResult.fill(0);
+
+                    const inverseBorderOpacity = (1 - borderOpacity);
                     const lengthX = volume.lengthX;
                     const lengthY = volume.lengthY;
                     const lengthZ = volume.lengthZ;
@@ -57,11 +59,15 @@ define(
                             this._getEndPosition(zPivot, cuboidZSize, sizeZ),
                             zStep,
                             lengthZ));
+
+                        const xCenterIndex = (xStartIndex + xEndIndex) / 2;
+                        const yCenterIndex = (yStartIndex + yEndIndex) / 2;
+                        const zCenterIndex = (zStartIndex + zEndIndex) / 2;
     
                         const xSizeIndex = Math.abs(xEndIndex - xStartIndex);
                         const ySizeIndex = Math.abs(yEndIndex - yStartIndex);
                         const zSizeIndex = Math.abs(zEndIndex - zStartIndex);
-                        const sizeIndex = Math.sqrt(xSizeIndex * xSizeIndex + ySizeIndex * ySizeIndex + zSizeIndex * zSizeIndex);
+                        const sizeIndex = Math.sqrt(xSizeIndex * xSizeIndex + ySizeIndex * ySizeIndex + zSizeIndex * zSizeIndex) / 2;
                         
                         for (let xIndex = xStartIndex; xIndex <= xEndIndex; ++xIndex) {
                             for (let yIndex = yStartIndex; yIndex <= yEndIndex; ++yIndex) {
@@ -69,17 +75,20 @@ define(
                                     const rawIndex = resultIndexer.get(xIndex, yIndex, zIndex);
     
                                     const intensity = intensities[index];
+                                    if (Number.isFinite(result[rawIndex])) {
+                                        this._warnLossOfData(xIndex, yIndex, zIndex);
+                                    }
                                     result[rawIndex] = intensity;
     
-                                    const distanceXIndex = Math.abs(xIndex - xPivot);
-                                    const distanceYIndex = Math.abs(yIndex - yPivot);
-                                    const distanceZIndex = Math.abs(zIndex - zPivot);
+                                    const distanceXIndex = Math.abs(xIndex - xCenterIndex);
+                                    const distanceYIndex = Math.abs(yIndex - yCenterIndex);
+                                    const distanceZIndex = Math.abs(zIndex - zCenterIndex);
                                     const distance = Math.sqrt(
                                         distanceXIndex * distanceXIndex + 
                                         distanceYIndex * distanceYIndex + 
                                         distanceZIndex * distanceZIndex);
                                     const relativeDistance = distance / sizeIndex;
-                                    //opacityResult[rawIndex] = relativeDistance * 255.0;
+                                    opacityResult[rawIndex] = (borderOpacity + (1 - relativeDistance) * inverseBorderOpacity) * 255.0;
     
                                     callback.notify(progressIndex++, totalCount);
                                 }
@@ -90,16 +99,26 @@ define(
                 }
             },
   
-            _warnLossOfData: function(xIndex, yIndex, zIndex) {
-                if (this.lossOfDataLogged) {
-                    return;
+            _getRelativeOpacity: {
+                value: function(borderOpacity, inverseBorderOpacity, position, center, size) {
+                    const distance = Math.abs(position - center);
+                    const relativeDistance = distance / size;
+                    return (borderOpacity + (1 - relativeDistance) * inverseBorderOpacity) * 255.0;
                 }
-                console.warn(
-                    'Loss of data. Rewriting non-empty intensity value at',
-                    xIndex,
-                    yIndex,
-                    zIndex);
-                this.lossOfDataLogged = true;
+            },
+
+            _warnLossOfData: {
+                value: function(xIndex, yIndex, zIndex) {
+                    if (this.lossOfDataLogged) {
+                        return;
+                    }
+                    console.warn(
+                        'Loss of data. Rewriting non-empty intensity value at',
+                        xIndex,
+                        yIndex,
+                        zIndex);
+                    this.lossOfDataLogged = true;
+                }
             },
 
             _getPivot: {
@@ -133,16 +152,18 @@ define(
                 }
             },
 
-            _warnOutOfLimits: function(endPosition, limit) {
-                if (this.outOfLimitsLogged) {
-                    return;
+            _warnOutOfLimits: {
+                value: function(endPosition, limit) {
+                    if (this.outOfLimitsLogged) {
+                        return;
+                    }
+                    console.warn(
+                        'Cuboid is out of volume limits. Cuboid\'s end position: ' +
+                        endPosition +
+                        ' , Limit: ' +
+                        limit);
+                    this.outOfLimitsLogged = true;
                 }
-                console.warn(
-                    'Cuboid is out of volume limits. Cuboid\'s end position: ' +
-                    endPosition +
-                    ' , Limit: ' +
-                    limit);
-                this.outOfLimitsLogged = true;
             }
         });
 

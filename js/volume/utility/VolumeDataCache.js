@@ -16,7 +16,7 @@ define(
             },
 
             setup: {
-                value: function(volume) {
+                value: function(volume, buffer) {
                     if (this._volume != volume) 
                     {
                         if (this._texture) {
@@ -25,7 +25,10 @@ define(
                         this._volume = volume;
                         this._texture = this._activator(volume);
                     }
-                    this._texture.needsUpdate = true;
+                    else if (volume.data) {
+                        this._texture.image.data = volume.data;
+                        this._texture.needsUpdate = true;
+                    }   
                 }
             }
 

@@ -33,6 +33,11 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             (buffer) => new Float32Array(buffer));
         this._intensityVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createFloatTexture3D(volume));
 
+        this._intensityOpacityVolumeDataCache = new VolumeDataCache.VolumeDataCache(
+            (size) => new Uint8Array(size),
+            (buffer) => new Uint8Array(buffer));
+        this._intensityOpacityVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createByteTexture3D(volume));
+
         this._normalsVolumeDataCache = new VolumeDataCache.VolumeDataCache(
             (size) => new Uint8Array(size * 3),
             (buffer) => new Uint8Array(buffer));
@@ -41,6 +46,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
         this._scene3d = new Scene3D(this, spotsController);
 
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
+        this.spotsController.addEventListener(SpotsController.Events.BORDER_CHANGE, this._onBorderOpacityChange.bind(this));
         this.spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._mapVolume.bind(this));
 
         const shaderLoader = new ShaderLoader();
@@ -167,9 +173,13 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
 
         _onSpotScaleChange: {
             value: function () {
-                if (this.mode == Workspace.Mode.MODE_3D) {
-                    this._mapVolume(Scene3D.RecoloringMode.NO_COLORMAP);
-                }
+                this._mapVolume();
+            }
+        },  
+
+        _onBorderOpacityChange: {
+            value: function () {
+                this._mapVolume();
             }
         },  
 
@@ -188,20 +198,33 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     shape.lengthX, shape.lengthY, shape.lengthZ,
                     shape.sizeX, shape.sizeY, shape.sizeZ
                 );
-                
+                this._intensityOpacityVolumeDataCache.tryResize(
+                    shape.lengthX, shape.lengthY, shape.lengthZ,
+                    shape.sizeX, shape.sizeY, shape.sizeZ
+                );
+
                 const transferBuffer = this._intensityVolumeDataCache.buffer;
+                const opacityTransferBuffer =  this._intensityOpacityVolumeDataCache.buffer;
+
                 const data = {
                     volume: this._intensityVolumeDataCache.volume,
                     buffer: transferBuffer,
+                    opacityBuffer: opacityTransferBuffer,
                     cuboids: spots,
                     intensities: activeMeasure.values,
                     cuboidsSizeScale: this._spotsController.globalSpotScale,
+                    cuboidsBorderOpacity: this._spotsController.spotBorder
                 };
-                this._doTask(Workspace.TaskType.MAP, data, [transferBuffer]).
-                    then(function (result) {
+                this._doTask(Workspace.TaskType.MAP, data, [transferBuffer, opacityTransferBuffer, shape.data.buffer]).
+                    then(function (result) {          
                         this._intensityVolumeDataCache.updateBuffer(result.buffer);
+                        this._intensityOpacityVolumeDataCache.updateBuffer(result.opacityBuffer);
+
                         this._intensityVolumeTextureCache.setup(this._intensityVolumeDataCache.volume);
+                        this._intensityOpacityVolumeTextureCache.setup(this._intensityOpacityVolumeDataCache.volume);
+
                         this._scene3d.intensityTexture = this._intensityVolumeTextureCache.texture;
+                        this._scene3d.intensityOpacityTexture = this._intensityOpacityVolumeTextureCache.texture;
                     }.bind(this));
             }
         }, 
@@ -216,9 +239,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     return;
                 }
                 this._mode = value;
-
-                // TODO: implement.
-
                 this._notify(Workspace.Events.MODE_CHANGE);
             }
         },

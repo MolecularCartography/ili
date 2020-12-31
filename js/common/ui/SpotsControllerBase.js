@@ -35,7 +35,8 @@ function (THREE, ColorMap, EventSource, Utils) {
         MAPPING_CHANGE: 'mapping-change',
         AUTO_MAPPING_CHANGE: 'auto-mapping-change',
         INTENSITIES_LOADED: 'intensities-loaded',
-        INTENSITIES_CHANGE: 'intensities-change'
+        INTENSITIES_CHANGE: 'intensities-change',
+        BORDER_CHANGE: 'border-change'
     };
 
     SpotsControllerBase.Scale = {
@@ -184,6 +185,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                     return;
                 }
                 this._spotBorder = Utils.boundNumber(0.0, value, 1.0);
+                this._notify(SpotsControllerBase.Events.BORDER_CHANGE);
                 this._notify(SpotsControllerBase.Events.ATTR_CHANGE);
             }
         },

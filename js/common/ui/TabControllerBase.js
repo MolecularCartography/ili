@@ -15,8 +15,8 @@ function (EmperorViewControllerABC, ControlGrid) {
 
     TabControllerBase.prototype = Object.create(EmperorViewControllerABC['EmperorViewControllerABC'].prototype, {
         addNumeric: {
-            value: function (object, key, name, min, max) {
-                return this._controlGrid.addNumeric(object, key, name, min, max);
+            value: function (object, key, name, min, max, delay) {
+                return this._controlGrid.addNumeric(object, key, name, min, max, delay);
             }
         },
 

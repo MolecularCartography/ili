@@ -11,9 +11,9 @@ define([
 
             var spotsController = volumeWorkspace.spotsController;
             this.addNumeric(spotsController, 'globalSpotOpacity', 'Opacity', 0, 1);
-            this.addNumeric(spotsController, 'spotBorder', 'Border opacity', 0, 1);
+            this.addNumeric(spotsController, 'spotBorder', 'Border opacity', 0, 1, 250);
             this.addFlag(spotsController, 'dataDependentOpacity', 'Proportional opacity');
-            this.addNumeric(spotsController, 'globalSpotScale', 'Size factor', 0, 10);
+            this.addNumeric(spotsController, 'globalSpotScale', 'Size factor', 0, 5, 250);
             return this;
         }
 

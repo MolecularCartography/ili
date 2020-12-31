@@ -15,17 +15,18 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
 
     ControlGrid.prototype = Object.create(null, {
         addNumeric: {
-            value: function (object, key, name, min, max) {
+            value: function (object, key, name, min, max, delay) {
+                delay = delay === undefined ? 0 : delay;
                 var result = (min === undefined || max === undefined)
                     ? this._addUnlimitedNumeric(object, key, name)
-                    : this._addRestrictedNumeric(object, key, name, min, max);
+                    : this._addRestrictedNumeric(object, key, name, min, max, delay);
                 this._params[this._toKey(name)] = result;
                 return result;
             }
         },
 
         _addRestrictedNumeric: {
-            value: function (object, key, name, min, max) {
+            value: function (object, key, name, min, max, delay) {
                 var controlIds = this._generateControlId();
                 var controlId = controlIds['control-id'];
                 var valueId = controlIds['value-id'];
@@ -46,9 +47,25 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                     step: 0.01,
                     value: object[key]
                 });
+
+                let timeIntervalId = -1;
+                let currentValue = null;
                 slider.on('change', function (event) {
-                    object[key] = event.value.newValue;
-                    paramValue.innerText = event.value.newValue;
+                    // added delay to avoid multiple calls.
+                    currentValue = event.value.newValue;
+                    paramValue.innerText = currentValue;
+
+                    if (delay == 0) {
+                        object[key] = currentValue;
+                    } else {
+                        if (timeIntervalId != -1) {
+                            clearTimeout(timeIntervalId);
+                        }
+                        timeIntervalId = setTimeout(() => {
+                            object[key] = currentValue;
+                            timeIntervalId = -1;
+                        }, delay);
+                    }
                 });
 
                 return {

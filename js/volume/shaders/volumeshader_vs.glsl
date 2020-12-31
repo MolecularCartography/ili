@@ -35,4 +35,4 @@ void main() {
     // Set varyings and output pos
     v_position = position;
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * shiftPosition4;
-}           
+}       
