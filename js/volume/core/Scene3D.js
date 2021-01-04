@@ -267,6 +267,17 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
+        resetSlicing: {
+            value: function() {
+                this.slicing.minX = 0; 
+                this.slicing.maxX = 1; 
+                this.slicing.minY = 0; 
+                this.slicing.maxY = 1;
+                this.slicing.minZ = 0; 
+                this.slicing.maxZ = 1; 
+            }
+        },
+
         reset: {
             value: function() {
                 this._volumeRenderMesh.reset();
@@ -275,6 +286,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
                 this.spacing = 1.0;
                 this.proportionalOpacityEnabled = false;
                 this.isIntensityEnabled = true;
+                this.resetSlicing();
                 this._onAttrChange();
                 this.shadingEnabled = false;
             }

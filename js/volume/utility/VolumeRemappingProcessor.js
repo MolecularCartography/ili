@@ -70,9 +70,6 @@ define(
                         result.ySizeIndex = Math.abs(result.yEndIndex - result.yStartIndex);
                         result.zSizeIndex = Math.abs(result.zEndIndex - result.zStartIndex);
 
-                      
-                       
-
                         if (isEllipsoidMode) {
                             result.xSizeIndexHalf = result.xSizeIndex / 2;
                             result.ySizeIndexHalf = result.ySizeIndex / 2;
