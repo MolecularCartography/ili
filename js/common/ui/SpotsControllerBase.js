@@ -227,7 +227,6 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function (value) {
                 if (value in ColorMap.Maps) {
                     this._colorMap = ColorMap.Maps[value];
-                    console.log('color map id change');
                     this._notify(SpotsControllerBase.Events.MAPPING_CHANGE);
                 }
             }
@@ -268,7 +267,6 @@ function (THREE, ColorMap, EventSource, Utils) {
         }, SpotsControllerBase.Events.ATTR_CHANGE),
 
         spotScale: SpotsControllerBase._createSpotsProperty('scale', function (spot, scale) {
-            console.log('spot scale change');
             var s = scale[spot.name];
             s = s < 0 ? 0 : s;
             spot.scale = s;
@@ -338,7 +336,6 @@ function (THREE, ColorMap, EventSource, Utils) {
             },
 
             set: function(value) {
-                console.log('update spot scale id');
                 if (this._scale.id == value) return;
                 this._scale = SpotsControllerBase.getScaleById(value);
                 if (this._autoMinMax) this._updateMinMaxValues();
