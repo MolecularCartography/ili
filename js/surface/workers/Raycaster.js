@@ -10,7 +10,11 @@ require({
     'three'
 ],
 function(THREE) {
+
+    let isCanceled = false;
+
     onmessage = function(e) {
+        isCanceled = true;
         var startTime = new Date();
 
         var origin = new THREE.Vector3().copy(e.data.origin);
@@ -29,7 +33,8 @@ function(THREE) {
 
         var result = null;
 
-        for (var i = 0, j = 0, il = positions.length; i < il; i += 3, j += 9) {
+        isCanceled = false;
+        for (var i = 0, j = 0, il = positions.length; i < il, !isCanceled; i += 3, j += 9) {
             var a = i;
             var b = i + 1;
             var c = i + 2;

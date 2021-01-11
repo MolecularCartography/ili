@@ -27,6 +27,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, ThreeUtils, RemappingP
         const intensities = data.intensities;
         const cuboidsSizeScale = data.cuboidsSizeScale;
         const cuboidsBorderOpacity = data.cuboidsBorderOpacity;
+        const isEllipsoidModeEnabled = data.isEllipsoidModeEnabled;
 
         let progressReportTime = new Date().valueOf();
 
@@ -34,7 +35,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, ThreeUtils, RemappingP
         const opacityBuffer = data.opacityBuffer;
 
         const processor = new RemappingProcessor();
-        processor.calculate(data.volume, buffer, opacityBuffer, cuboids, intensities, cuboidsSizeScale, cuboidsBorderOpacity, {
+        processor.calculate(data.volume, buffer, opacityBuffer, cuboids, intensities, cuboidsSizeScale, cuboidsBorderOpacity, isEllipsoidModeEnabled, {
             setup: function(count) {
                 postMessage({
                     status: 'working',

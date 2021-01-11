@@ -7,6 +7,7 @@ function(SpotsControllerBase) {
     function SpotsController() {
         SpotsControllerBase.call(this, false);
         this.spotBorder = 1.0;
+        this.globalSpotOpacity = 0.5;
         return this;
     }
 

@@ -40,7 +40,9 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
             transparent: true
         });
         this._scene3js = new THREE.Scene();
-        this._dummyCamera = new THREE.OrthographicCamera(-100, 100, -100, 100, -100, 100);
+
+        const cameraConstant = 10000; // TODO: why this affect render while camera is not used at the shader at all...
+        this._dummyCamera = new THREE.OrthographicCamera(-cameraConstant, cameraConstant, -cameraConstant, cameraConstant, -cameraConstant, cameraConstant);
 
         this._scene.addEventListener(Scene2D.Events.IMAGE_CHANGE, this._onImageChange.bind(this));
         this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onSpotsAttrChange.bind(this));

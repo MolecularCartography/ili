@@ -44,13 +44,7 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
             slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'minZ', 'Z min', 0, 1));
             slicingControls.push(slicingGroup.addNumeric(workspace.scene3d.slicing, 'maxZ', 'Z max', 0, 1));
             slicingGroup.addAction('Reset', () => {
-                const slicing = workspace.scene3d.slicing;
-                slicing.minX = 0; 
-                slicing.maxX = 1; 
-                slicing.minY = 0; 
-                slicing.maxY = 1;
-                slicing.minZ = 0; 
-                slicing.maxZ = 1; 
+                workspace.scene3d.resetSlicing();
                 slicingControls.forEach((v) => v.refresh());
             });
             return this;

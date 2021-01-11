@@ -27,6 +27,8 @@ function(Scene3DBase, THREE, Utils) {
 
         this._mapping = null;
 
+        this._raycastWorker = new Worker(require.toUrl('js/surface/workers/Raycaster.js'));
+
         this._axisHelper = new THREE.AxesHelper(20);
         this._scene.add(this._axisHelper);
         this._scene.add(this._frontLight);
@@ -230,17 +232,13 @@ function(Scene3DBase, THREE, Utils) {
                 };
                 var closestSpotIndeces = this._mapping.closestSpotIndeces;
                 var spots = this._spotsController.spots;
-                var worker = new Worker(require.toUrl('js/surface/workers/Raycaster.js'));
 
                 var promise = new Promise(function(accept, reject) {
-                    worker.onmessage = function(event) {
+                    this._raycastWorker.onmessage = function(event) {
                         if (!event.data) {
                             return;
                         }
-                        if (event.data.status == 'ready') {
-                            worker.postMessage(message);
-                        } else if (event.data.status == 'completed') {
-                            worker.terminate();
+                        if (event.data.status == 'completed') {
                             var face = event.data;
                             var spotIndex = -1;
                             for (var i in (face || {})) {
@@ -252,23 +250,24 @@ function(Scene3DBase, THREE, Utils) {
                             accept(spots[spotIndex]);
                         }
                     };
-                    worker.onerror = function(event) {
-                        console.log('Reycasting failed', event);
-                        worker.terminate();
+                    this._raycastWorker.onerror = function(event) {
+                        console.log('Raycasting failed', event);
                         reject();
                     };
-                });
+                }.bind(this));
 
                 Object.defineProperty(promise, 'cancel', {
                     value: function() {
-                        worker.terminate();
+                        // TODO:
                     }
                 });
+
+                this._raycastWorker.postMessage(message);
 
                 return promise;
             }
         },
-
+        
         spotToWorld: {
             value: function(spot) {
                 if (!this._mesh) {

@@ -62,6 +62,10 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             (progress) => this._onShaderLoadProgress('fragment', progress),
             (error) => this._onShaderLoadError('fragment', error),
         );
+
+        this.isEllipsoidModeEnabled = false;
+        this.isIntensityEnabled = true;
+
         return this;
     }
 
@@ -109,10 +113,7 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
          */
         loadShape: {
             value: function(blob) {
-                this._scene3d.reset();
-                this._normalsTexture = null;
-                this._shape = null;
-
+                this._reset();
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_SHAPE, blob[0]).then(function(result) {
                     this._shape = result.shape;
@@ -183,6 +184,14 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             }
         },  
 
+        _reset: {
+            value: function() {
+                this._scene3d.reset();
+                this._normalsTexture = null;
+                this._shape = null;
+            }
+        },
+
         _mapVolume: {
             value: function() {
                 const spots = this._spotsController.spots;
@@ -213,7 +222,8 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     cuboids: spots,
                     intensities: activeMeasure.values,
                     cuboidsSizeScale: this._spotsController.globalSpotScale,
-                    cuboidsBorderOpacity: this._spotsController.spotBorder
+                    cuboidsBorderOpacity: this._spotsController.spotBorder,
+                    isEllipsoidModeEnabled: this.isEllipsoidModeEnabled
                 };
                 this._doTask(Workspace.TaskType.MAP, data, [transferBuffer, opacityTransferBuffer, shape.data.buffer]).
                     then(function (result) {          
@@ -240,6 +250,26 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                 }
                 this._mode = value;
                 this._notify(Workspace.Events.MODE_CHANGE);
+            }
+        },
+
+        isIntensityEnabled: {
+            get: function() {
+                return this._isIntensityEnabled;
+            },
+            set: function(value) {
+                this._isIntensityEnabled = value;
+                this._scene3d.isIntensityEnabled = value;
+            }
+        },
+
+        isEllipsoidModeEnabled: {
+            get: function() {
+                return this._isEllipsoidModeEnabled;
+            },
+            set: function(value) {
+                this._isEllipsoidModeEnabled = value;
+                this._mapVolume();
             }
         },
 
