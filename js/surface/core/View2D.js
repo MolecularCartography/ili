@@ -168,8 +168,10 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
 
                 function setPoint(index, dx, dy) {
                     var idx = i * 6 + index;
-                    positions[idx * 3 + 0] = s.x + s.r * s.scale * dx * globalSpotsScale;
-                    positions[idx * 3 + 1] = s.y + s.r * s.scale * dy * globalSpotsScale;
+                    const positionX = s.x + s.r * s.scale * dx * globalSpotsScale;
+                    const positionY = s.y + s.r * s.scale * dy * globalSpotsScale;
+                    positions[idx * 3 + 0] = positionX;
+                    positions[idx * 3 + 1] = positionY;
                     positions[idx * 3 + 2] = 0;
                     uvs[idx * 2 + 0] = dx * s.scale * globalSpotsScale;
                     uvs[idx * 2 + 1] = dy * s.scale * globalSpotsScale;
@@ -343,6 +345,7 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
 
         _renderSpots: {
             value: function() {
+                console.log('render spots');
                 var u = this._uniforms;
                 u.canvasSize.value.set(this._width, this._height);
                 u.imageSize.value.set(this._scene.width, this._scene.height);

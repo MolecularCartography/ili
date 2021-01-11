@@ -346,13 +346,12 @@ function (THREE, ColorMap, EventSource, Utils) {
 
         _updateDataDependentOpacity: {
             value: function () {
-                var enabled = this._dataDependentOpacity;
-                var minOpacity = SpotsControllerBase.DataDependentOpacity.MIN;
-                var opacityRange = SpotsControllerBase.DataDependentOpacity.MAX - SpotsControllerBase.DataDependentOpacity.MIN;
-
                 if (this._additionalMetadataRequired) {
-                    for (var i = 0; i < this._spots.length; ++i) {
-                        var spot = this._spots[i];
+                    const enabled = this._dataDependentOpacity;
+                    const minOpacity = SpotsControllerBase.DataDependentOpacity.MIN;
+                    const opacityRange = SpotsControllerBase.DataDependentOpacity.MAX - SpotsControllerBase.DataDependentOpacity.MIN;
+                    for (let i = 0; i < this._spots.length; ++i) {
+                        const spot = this._spots[i];
                         spot.opacity = enabled ? minOpacity + opacityRange * spot.intensity : 1;
                     }
                 }

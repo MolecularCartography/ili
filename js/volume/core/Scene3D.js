@@ -74,6 +74,9 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             value: function() {
                 this._volumeRenderMesh.proportionalOpacityEnabled = this._spotsController.dataDependentOpacity;
                 this._volumeRenderMesh.intensityOpacity = this._spotsController.globalSpotOpacity;
+                this._volumeRenderMesh.intensityBoundsScaled = new Bounds(
+                    this._spotsController.minValue,
+                    this._spotsController.maxValue);
                 this._notify(Scene3D.Events.CHANGE);
             }
         },
