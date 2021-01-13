@@ -3,10 +3,10 @@
  */
 'use strict';
 
-define(['mainlayout'],
-    function (appLayout)
+define(['modulebootstrap', 'mainlayout'],
+    function (moduleBootstrap, appLayout)
     {
-        function AppCore(appContainer) {
+        function AppEnvironment(appContainer) {
             this._appContainer = document.createElement('div');
             this._appContainer.id = 'ili-container';
             this._appContainer.innerHTML = appLayout;
@@ -14,7 +14,7 @@ define(['mainlayout'],
             return this;
         };
 
-        AppCore.prototype = Object.create(null, {
+        AppEnvironment.prototype = Object.create(null, {
 
             appContainer: {
                 get: function() {
@@ -55,5 +55,5 @@ define(['mainlayout'],
 
         });
 
-        return AppCore;
+        return AppEnvironment;
 });
