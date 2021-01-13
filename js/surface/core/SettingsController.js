@@ -23,8 +23,6 @@ function (SettingsControllerBase, Workspace, TabControllerSpots, TabController3D
                 tab3D.activate();
             }
         }.bind(this));
-        this._workspace.addEventListener(Workspace.Events.SETTINGS_CHANGE, this.restore.bind(this));
-        this._workspace.addEventListener(Workspace.Events.REQUEST_SETTINGS, this._onSettingsRequest.bind(this));
 
         return this;
     }

@@ -14,7 +14,13 @@ function(SpotsControllerBase) {
     SpotsController.Events = SpotsControllerBase.Events;
     SpotsController.Scale = SpotsControllerBase.Scale;
 
-    SpotsController.prototype = Object.create(SpotsControllerBase.prototype);
+    SpotsController.prototype = Object.create(SpotsControllerBase.prototype, {
+        _updateIntensities: {
+            value: function () {
+                this._notify(SpotsControllerBase.Events.ATTR_CHANGE);
+            }
+        },
+    });
 
     return SpotsController;
 });
