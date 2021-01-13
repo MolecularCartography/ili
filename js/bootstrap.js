@@ -44,7 +44,7 @@ define(['initiallayout'], function(initialTemplate) {
                     this.initialContainer.className = 'main';
                     
                     this.initialContainer.innerHTML = initialTemplate;
-                    this.parentContainer.appendChild(initialContainer);
+                    this.parentContainer.appendChild(this.initialContainer);
                     return true;
                 }
                 else {

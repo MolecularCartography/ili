@@ -22,7 +22,13 @@ function(THREE, View3DBase) {
         return this;
     }
 
-    View3D.prototype = Object.create(View3DBase.prototype);
+    View3D.prototype = Object.create(View3DBase.prototype, {
+        _requestDefaultView: {
+            value: function() {
+                
+            }
+        },
+    });
 
     return View3D;
 });

@@ -16,6 +16,24 @@ define(['modulebootstrap', 'mainlayout'],
 
         AppEnvironment.prototype = Object.create(null, {
 
+
+            /* Property used to show/hide the sidebar
+             */
+            controlsVisible: {
+                get: function() {
+                    return this._controlsVisible;
+                },
+                set: function (visible) {
+                    visible = !!visible;
+                    if (visible !== this._controlsVisible) {
+                        var controlsSwitcher = this._appContainer.querySelector('#controls-switcher');
+                        controlsSwitcher.click();
+                        controlsSwitcher.style.visibility = visible ? 'visible' : 'hidden';
+                        this._controlsVisible = visible;
+                    }
+                }
+            },
+
             appContainer: {
                 get: function() {
                     return this._appContainer;
@@ -52,7 +70,6 @@ define(['modulebootstrap', 'mainlayout'],
                     }
                 }
             },
-
         });
 
         return AppEnvironment;

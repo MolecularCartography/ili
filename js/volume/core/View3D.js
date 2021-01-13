@@ -38,6 +38,12 @@ function(THREE, View3DBase, Workspace) {
 
         _onShapeChange: {
             value: function(shape) {
+                this._requestDefaultView();
+            }
+        },
+
+        _requestDefaultView: {
+            value: function() {
                 const shapeSize = this._shapeSize;
                 if (!shapeSize) {
                     return;

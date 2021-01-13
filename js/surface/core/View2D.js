@@ -345,7 +345,6 @@ function(THREE, Scene2D, SpotLabel2D, SpotsController) {
 
         _renderSpots: {
             value: function() {
-                console.log('render spots');
                 var u = this._uniforms;
                 u.canvasSize.value.set(this._width, this._height);
                 u.imageSize.value.set(this._scene.width, this._scene.height);
