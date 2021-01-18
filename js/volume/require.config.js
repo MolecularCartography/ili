@@ -2,12 +2,12 @@ const volumePathPrefix = 'js/volume/';
 requirejs.config({
     paths: {
         // Utilities
-        'rawvolumedata': volumePathPrefix + 'utility/RawVolumeData',
-        'threejsutils': volumePathPrefix + 'utility/ThreeJsUtils',
-        'volumenormalsprocessor': volumePathPrefix + 'utility/VolumeNormalsProcessor',
-        'volumeremappingprocessor':  volumePathPrefix + 'utility/VolumeRemappingProcessor',
-        'colormaptexturerenderer': volumePathPrefix + 'utility/ColorMapTextureRenderer',
-        'volumedatacache': volumePathPrefix + 'utility/volumedatacache',
+        'rawvolumedata': 'js/volume/utility/RawVolumeData',
+        'threejsutils': 'js/volume/utility/ThreeJsUtils',
+        'volumenormalsprocessor': 'js/volume/utility/VolumeNormalsProcessor',
+        'volumeremappingprocessor':  'js/volume/utility/VolumeRemappingProcessor',
+        'colormaptexturerenderer': 'js/volume/utility/ColorMapTextureRenderer',
+        'volumedatacache': 'js/volume/utility/VolumeDataCache',
 
         // Core
         'volumerendermesh': volumePathPrefix + 'core/VolumeRenderMesh',

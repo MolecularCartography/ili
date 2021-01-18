@@ -12,9 +12,9 @@ require({
         'three': '../../lib/three.min',
         'nrrdloader': '../../lib/NRRDLoader',
         'gunzip': '../../lib/gunzip.min',
-        'volume': '../../lib/volume',
+        'volume': '../../lib/Volume',
         'rawvolume': '../utility/RawVolumeData',
-        'bounds': '../../common/utility/bounds'
+        'bounds': '../../common/utility/Bounds'
     }
 }, [
     'utils', 'three', 'nrrdloader', 'rawvolume', 'bounds'
