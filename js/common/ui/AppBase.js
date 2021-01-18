@@ -40,7 +40,9 @@ define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
             this._dnd = new DragAndDrop(this._appContainer, this._workspace.loadFiles.bind(this._workspace));
 
             this._controlsVisible = true;
-            this._processAddressLine();
+            if (window.location.search) {
+                this._clickControlSwitch();
+            }
         };
 
         AppBase.prototype = Object.create(null, {
@@ -83,6 +85,11 @@ define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
                 }
             },
 
+            submitInitialFiles: {
+                value: function(fileNames) {
+                    this._workspace.download(fileNames);
+                }
+            },
 
             /* Property used to show/hide the sidebar
              */
@@ -144,16 +151,6 @@ define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
                 value: function() {
                     var controlsSwitcher = this._appContainer.querySelector('#controls-switcher');
                     controlsSwitcher.click();
-                }
-            },
-
-            _processAddressLine: {
-                value: function() {
-                    if (window.location.search) {
-                        this._clickControlSwitch();
-                        var fileNames = window.location.search.substr(1).split(';');
-                        this._workspace.download(fileNames);
-                    }
                 }
             },
 

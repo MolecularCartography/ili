@@ -136,9 +136,14 @@ function(OrbitControls, THREE, EventSource) {
                 if (this._controls.autoRotate) {
                     this._controls.autoRotate = false;
                 } else {
-                    this._controls.autoRotate = true;
-                    this._controls.autoRotateSpeed = Math.abs(this._controls.autoRotateSpeed) * (event.ctrlKey ? -1 : 1);
-                    this._group.requestAnimationFrame();
+                    if (!event.ctrlKey) {
+                        this._controls.autoRotate = true;
+                        this._controls.autoRotateSpeed = Math.abs(this._controls.autoRotateSpeed) * (event.ctrlKey ? -1 : 1);
+                        this._group.requestAnimationFrame();
+                    } else {
+                        this._requestDefaultView();
+                        event.preventDefault();
+                    }
                 }
             }
         },

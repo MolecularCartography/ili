@@ -28,6 +28,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
     Scene3D.prototype = Object.create(EventSource.prototype, {
         clone: {
             value: function(eventName, listener) {
+                // Clone is too expensive for the scene.
                 return null;
             }
         },
@@ -265,7 +266,6 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         render: {
             value: function(renderer, camera) {
-                console.log('rendering...');
                 renderer.render(this._scene, camera);
             }
         },

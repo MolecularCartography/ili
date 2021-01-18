@@ -1,32 +1,36 @@
+const surfacePathPrefix = 'js/surface/';
 requirejs.config({
     paths: {
         // Utilities
-        'surfacesettingscontroller': 'js/surface/core/SettingsController',
-        'surfaceinputfilesprocessor': 'js/surface/core/InputFilesProcessor',
-        'surfacescene2d': 'js/surface/core/Scene2D',
-        'surfacescene3d': 'js/surface/core/Scene3D',
-        'surfaceview2d': 'js/surface/core/View2D',
-        'surfaceview3d': 'js/surface/core/View3D',
-        'surfaceviewcontainer': 'js/surface/core/ViewContainer',
-        'surfaceviewgroup3d': 'js/surface/core/ViewGroup3D',
-        'surfaceworkspace': 'js/surface/core/Workspace',
-        'surfacemapselector': 'js/surface/core/MapSelector',
-        'surfacespotscontroller': 'js/surface/core/SpotsController',
-        'surfaceviewlegend': 'js/surface/core/ViewLegend',
+        'surfacesettingscontroller': surfacePathPrefix + 'core/SettingsController',
+        'surfaceinputfilesprocessor': surfacePathPrefix + 'core/InputFilesProcessor',
+        'surfacescene2d': surfacePathPrefix + 'core/Scene2D',
+        'surfacescene3d': surfacePathPrefix + 'core/Scene3D',
+        'surfaceview2d': surfacePathPrefix + 'core/View2D',
+        'surfaceview3d': surfacePathPrefix + 'core/View3D',
+        'surfaceviewcontainer': surfacePathPrefix + 'core/ViewContainer',
+        'surfaceviewgroup3d': surfacePathPrefix + 'core/ViewGroup3D',
+        'surfaceworkspace': surfacePathPrefix + 'core/Workspace',
+        'surfacemapselector': surfacePathPrefix + 'core/MapSelector',
+        'surfacespotscontroller': surfacePathPrefix + 'core/SpotsController',
+        'surfaceviewlegend': surfacePathPrefix + 'core/ViewLegend',
 
         // Tabs
-        'surfacetabcontroller3d': 'js/surface/tabs/TabController3D',
-        'surfacetabcontrollerdocumentation': 'js/surface/tabs/TabControllerDocumentation',
-        'surfacetabcontrollerexamples': 'js/surface/tabs/TabControllerExamples',
-        'surfacetabcontrollermapping': 'js/surface/tabs/TabControllerMapping',
-        'surfacetabcontrollerspots': 'js/surface/tabs/TabControllerSpots',
+        'surfacetabcontroller3d': surfacePathPrefix + 'tabs/TabController3D',
+        'surfacetabcontrollerdocumentation': surfacePathPrefix + 'tabs/TabControllerDocumentation',
+        'surfacetabcontrollerexamples': surfacePathPrefix + 'tabs/TabControllerExamples',
+        'surfacetabcontrollermapping': surfacePathPrefix + 'tabs/TabControllerMapping',
+        'surfacetabcontrollerspots': surfacePathPrefix + 'tabs/TabControllerSpots',
 
         // Workers
-        'imageloader': 'js/surface/workers/ImageLoader',
-        'mapper': 'js/surface/workers/Mapper',
-        'materialloader': 'js/surface/workers/MaterialLoader',
-        'surfacemeasuresloader': 'js/surface/workers/MeasurerLoader',
-        'meshloader': 'js/surface/workers/MeshLoader',
-        'raycaster': 'js/surface/workers/Raycaster'
+        'imageloader': surfacePathPrefix + 'workers/ImageLoader',
+        'mapper': surfacePathPrefix + 'workers/Mapper',
+        'materialloader': surfacePathPrefix + 'workers/MaterialLoader',
+        'surfacemeasuresloader': surfacePathPrefix + 'workers/MeasurerLoader',
+        'meshloader': surfacePathPrefix + 'workers/MeshLoader',
+        'raycaster': surfacePathPrefix + 'workers/Raycaster',
+
+        // Templates
+        'surfacedocumentationlayout': surfacePathPrefix + 'documentation.html'
     }
 });

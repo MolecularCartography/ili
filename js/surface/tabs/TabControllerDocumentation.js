@@ -1,7 +1,7 @@
 ﻿'use strict';
 
 define([
-    'tabcontrollerbase', 'documentationlayout'
+    'tabcontrollerbase', 'surfacedocumentationlayout'
 ],
 function (TabControllerBase, layout) {
     function TabControllerDocumentation(container, workspace, views) {

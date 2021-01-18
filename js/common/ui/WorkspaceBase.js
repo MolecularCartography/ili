@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'eventsource'
+    'eventsource', 'utils'
 ],
-function (EventSource)
+function (EventSource, Utils)
 {
     /**
      * Main application WorkspaceBase. It works in 3 modes:
@@ -116,7 +116,7 @@ function (EventSource)
                 var curPatch = this._settingsPatch;
                 this._doTask(WorkspaceBase.TaskType.DOWNLOAD, {
                     fileNames: fileNames,
-                    prefix: prefix
+                    prefix: prefix ? prefix : Utils.FILE_SERVICE_PREFIX
                 }).
                     then(function (result) {
                         this.loadFiles(result.items);

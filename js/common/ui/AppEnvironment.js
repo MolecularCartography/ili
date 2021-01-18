@@ -3,10 +3,10 @@
  */
 'use strict';
 
-define(['mainlayout'],
-    function (appLayout)
+define(['modulebootstrap', 'mainlayout'],
+    function (moduleBootstrap, appLayout)
     {
-        function AppCore(appContainer) {
+        function AppEnvironment(appContainer) {
             this._appContainer = document.createElement('div');
             this._appContainer.id = 'ili-container';
             this._appContainer.innerHTML = appLayout;
@@ -14,7 +14,25 @@ define(['mainlayout'],
             return this;
         };
 
-        AppCore.prototype = Object.create(null, {
+        AppEnvironment.prototype = Object.create(null, {
+
+
+            /* Property used to show/hide the sidebar
+             */
+            controlsVisible: {
+                get: function() {
+                    return this._controlsVisible;
+                },
+                set: function (visible) {
+                    visible = !!visible;
+                    if (visible !== this._controlsVisible) {
+                        var controlsSwitcher = this._appContainer.querySelector('#controls-switcher');
+                        controlsSwitcher.click();
+                        controlsSwitcher.style.visibility = visible ? 'visible' : 'hidden';
+                        this._controlsVisible = visible;
+                    }
+                }
+            },
 
             appContainer: {
                 get: function() {
@@ -52,8 +70,7 @@ define(['mainlayout'],
                     }
                 }
             },
-
         });
 
-        return AppCore;
+        return AppEnvironment;
 });
