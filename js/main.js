@@ -15,7 +15,7 @@ require(['initiallayout'], function(initialTemplate) {
 
     function bootstrap(mainPath) {
         parentContainer.removeChild(initialContainer);
-        require(['js/common/ui/appenvironment'], function(AppEnvironment) {
+        require(['appenvironment'], function(AppEnvironment) {
             const environment = new AppEnvironment(document.body);
             environment.setAppStatus('Initializing workspace...');
             require([mainPath], function (ili) { 
