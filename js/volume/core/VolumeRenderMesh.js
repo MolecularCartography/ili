@@ -50,11 +50,15 @@ define([
                 u_uniformal_opacity: {value: 1.0},
                 u_uniformal_step_opacity: {value: 0.5},
 
+                u_shape_intensity_threshold: { value: new THREE.Vector2(0, 1) },
+
                 u_proportional_opacity_enabled: {value: 1.0},
                 u_lighting_enabled: {value: 1.0},
 
                 u_scalemode: {value: 0},
             };
+
+            this._shapeIntensityThreshold = new THREE.Vector2(0, 1);
 
             // color map texture renderers.
             this._shapeColorMapRenderer = new ColorMapTextureRenderer(shapeColorMapTextureSize);
@@ -251,6 +255,26 @@ define([
                 set: function(value) {
                     this._relativeStepSize = value;
                     this._setUniform('u_relative_step_size', value);
+                }
+            },
+
+            minShapeIntensityThreshold: {
+                get: function() {
+                    return this._shapeIntensityThreshold.x;
+                },
+                set: function(value) {
+                    this._shapeIntensityThreshold.x = value;
+                    this._setUniform('u_shape_intensity_threshold', this._shapeIntensityThreshold);
+                }
+            },
+
+            maxShapeIntensityThreshold: {
+                get: function() {
+                    return this._shapeIntensityThreshold.y;
+                },
+                set: function(value) {
+                    this._shapeIntensityThreshold.y = value;
+                    this._setUniform('u_shape_intensity_threshold', this._shapeIntensityThreshold);
                 }
             },
 

@@ -205,6 +205,26 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             }
         },
 
+        min_intensity_threshold: {
+            get: function() {
+                return this._volumeRenderMesh.minShapeIntensityThreshold;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.minShapeIntensityThreshold = value;
+                this._notify(Scene3D.Events.CHANGE);
+            },
+        },
+
+        max_intensity_threshold: {
+            get: function() {
+                return this._volumeRenderMesh.maxShapeIntensityThreshold;
+            },
+            set: function(value) {
+                this._volumeRenderMesh.maxShapeIntensityThreshold = value;
+                this._notify(Scene3D.Events.CHANGE);
+            },
+        },
+
         isIntensityEnabled: {
             get: function() {
                 return this._volumeRenderMesh.isIntensityEnabled;
