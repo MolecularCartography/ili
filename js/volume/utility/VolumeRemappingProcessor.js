@@ -8,7 +8,7 @@ define(
 
         VolumeRemappingProcessor.prototype = Object.create(null, {
             calculate: {
-                value: function(volume, buffer, opacityBuffer, cuboids, intensities, sizeScale, borderOpacity, isEllipsoidMode, callback) {
+                value: function(volume, buffer, opacityBuffer, cuboids, intensities, sizeScale, borderOpacity, callback) {
                     const result = new Float32Array(buffer);
                     result.fill(Number.POSITIVE_INFINITY); // Fake value that indicates that voxel should not be colored.
 
@@ -70,20 +70,7 @@ define(
                         result.ySizeIndex = Math.abs(result.yEndIndex - result.yStartIndex);
                         result.zSizeIndex = Math.abs(result.zEndIndex - result.zStartIndex);
 
-                        if (isEllipsoidMode) {
-                            result.xSizeIndexHalf = result.xSizeIndex / 2;
-                            result.ySizeIndexHalf = result.ySizeIndex / 2;
-                            result.zSizeIndexHalf = result.zSizeIndex / 2;
-
-                            result.squaredRadiusX = result.xSizeIndexHalf * result.xSizeIndexHalf;
-                            result.squaredRadiusY = result.ySizeIndexHalf * result.ySizeIndexHalf;
-                            result.squaredRadiusZ = result.zSizeIndexHalf * result.zSizeIndexHalf;
-
-                            result.volume = Math.floor(result.xSizeIndexHalf * result.ySizeIndexHalf * result.zSizeIndexHalf * Math.PI * (4 / 3)) * 2;
-                        }
-                        else {
-                            result.volume = result.xSizeIndex * result.ySizeIndex * result.zSizeIndex;
-                        }
+                        result.volume = result.xSizeIndex * result.ySizeIndex * result.zSizeIndex;
 
                         totalIterationCount += result.volume;
 
@@ -112,15 +99,8 @@ define(
                                     const squaredDistanceZIndex = distanceZIndex * distanceZIndex;
                                     
                                     let relativeDistance = null;
-                                    if (isEllipsoidMode) {
-                                        relativeDistance = 
-                                            squaredDistanceXIndex / computedCuboid.squaredRadiusX + 
-                                            squaredDistanceYIndex / computedCuboid.squaredRadiusY + 
-                                            squaredDistanceZIndex / computedCuboid.squaredRadiusZ;  
-                                    } else {
-                                        const distance = Math.sqrt(squaredDistanceXIndex + squaredDistanceYIndex + squaredDistanceZIndex);
-                                        relativeDistance = distance / computedCuboid.halfSizeIndex;
-                                    }
+                                    const distance = Math.sqrt(squaredDistanceXIndex + squaredDistanceYIndex + squaredDistanceZIndex);
+                                    relativeDistance = distance / computedCuboid.halfSizeIndex;
 
                                     if (relativeDistance <= 1) {
                                         if (Number.isFinite(result[rawIndex])) {
