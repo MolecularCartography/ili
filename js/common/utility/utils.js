@@ -17,7 +17,7 @@ function() {
         FileSizeStrings: ['b', 'Kb', 'Mb'],
 
         keyPressEvent: function() {
-            return this.isWebkit ? 'keydown' : 'keypress';
+            return 'keydown';
         },
 
         // Copied from https://github.com/miguelmota/webgl-detect

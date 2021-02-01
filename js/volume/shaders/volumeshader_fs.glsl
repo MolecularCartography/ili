@@ -23,6 +23,8 @@ uniform int u_scalemode;
 uniform float u_uniformal_opacity;
 uniform float u_uniformal_step_opacity;
 
+uniform vec2 u_shape_intensity_threshold;
+
 uniform int u_proportional_opacity_enabled;
 uniform int u_lighting_enabled;
 
@@ -183,6 +185,13 @@ void raycast(vec3 start_loc, vec3 step, int nsteps, vec3 view_ray) {
 
         float shape_value = shape_sample(loc);
         float normalized_shape_value = normalized_value(shape_value, u_shape_bounds);
+
+        if (normalized_shape_value < u_shape_intensity_threshold.x
+                || normalized_shape_value > u_shape_intensity_threshold.y) {
+                loc += step;
+                continue;
+        }
+
         vec4 shape_color = apply_shape_colormap(normalized_shape_value);
         shape_color.a *= normalized_shape_value;
 

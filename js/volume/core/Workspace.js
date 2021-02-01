@@ -63,7 +63,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             (error) => this._onShaderLoadError('fragment', error),
         );
 
-        this.isEllipsoidModeEnabled = false;
         this.isIntensityEnabled = true;
 
         return this;
@@ -223,7 +222,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
                     intensities: activeMeasure.values,
                     cuboidsSizeScale: this._spotsController.globalSpotScale,
                     cuboidsBorderOpacity: this._spotsController.spotBorder,
-                    isEllipsoidModeEnabled: this.isEllipsoidModeEnabled
                 };
                 this._doTask(Workspace.TaskType.MAP, data, [transferBuffer, opacityTransferBuffer, shape.data.buffer]).
                     then(function (result) {          
@@ -260,16 +258,6 @@ function (WorkspaceBase, InputFilesProcessor, Scene3D, SpotsController, THREE, T
             set: function(value) {
                 this._isIntensityEnabled = value;
                 this._scene3d.isIntensityEnabled = value;
-            }
-        },
-
-        isEllipsoidModeEnabled: {
-            get: function() {
-                return this._isEllipsoidModeEnabled;
-            },
-            set: function(value) {
-                this._isEllipsoidModeEnabled = value;
-                this._mapVolume();
             }
         },
 
