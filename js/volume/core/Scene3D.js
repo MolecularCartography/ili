@@ -14,6 +14,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         this._slicing = { minX: 0, maxX: 1, minY: 0, maxY: 1, minZ: 0, maxZ: 1 };
         this._light = { ambient: 0.3, diffuse: 0.6, specular: 0.3 };
+        this._adjustment = { x: 0, y: 0, z: 0 };
 
         this.slicing = this._slicing;
         this.light = this._light;
@@ -169,6 +170,14 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
                 this._notify(Scene3D.Events.CHANGE);   
             }),
 
+        adjustment: Utils.makeProxyProperty('_adjustment', ['x', 'y', 'z'],
+            function() {
+                if (this._mesh) {
+                    this._applyAdjustment();
+                    this._notify(Scene3D.Events.CHANGE);
+                }
+            }),
+
         light: Utils.makeProxyProperty('_light', ['ambient', 'diffuse', 'specular'],
             function() {
                 this._volumeRenderMesh.light = this._light;
@@ -280,6 +289,14 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
                 this.slicing.maxZ = 1; 
             }
         },
+        
+        resetAdjustment: {
+            value: function() {
+                this.adjustment.x = 0; 
+                this.adjustment.y = 0; 
+                this.adjustment.z = 0;
+            }
+        },
 
         reset: {
             value: function() {
@@ -289,9 +306,16 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
                 this.spacing = 1.0;
                 this.proportionalOpacityEnabled = false;
                 this.isIntensityEnabled = true;
+                this.resetAdjustment();
                 this.resetSlicing();
                 this._onAttrChange();
                 this.shadingEnabled = false;
+            }
+        },
+
+        _applyAdjustment: {
+            value: function() {
+                this._volumeRenderMesh.coordinatesAdjustment = this.adjustment;
             }
         }
     });

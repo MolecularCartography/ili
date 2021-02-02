@@ -49,6 +49,7 @@ define([
                 u_relative_step_size: {value: 1.0 },
                 u_uniformal_opacity: {value: 1.0},
                 u_uniformal_step_opacity: {value: 0.5},
+                u_coordinates_adjustment: {value: new THREE.Vector3(0, 0, 0)},
 
                 u_proportional_opacity_enabled: {value: 1.0},
                 u_lighting_enabled: {value: 1.0},
@@ -337,6 +338,16 @@ define([
                         this._shapeTexture = ThreeUtils.createGenericTexture3D(value);
                         this._setUniform('u_shape_data', this._shapeTexture);
                     }
+                }
+            },
+
+            coordinatesAdjustment: {
+                get: function() {
+                    return this._coordinatesAdjustment;
+                },
+                set: function(value) {
+                    this._coordinatesAdjustment = value;
+                    this._setUniform('u_coordinates_adjustment', new THREE.Vector3(value.x, value.y, value.z));
                 }
             },
 

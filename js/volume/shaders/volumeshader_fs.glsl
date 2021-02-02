@@ -15,6 +15,8 @@ uniform vec2 u_intensity_bounds_scaled;
 uniform float u_intensity_opacity;
 uniform int u_intensity_enabled;
 
+uniform vec3 u_coordinates_adjustment;
+
 uniform sampler3D u_normals_data;
 
 uniform int u_renderstyle;
@@ -84,8 +86,8 @@ void main() {
     //vec3 view_ray = normalize(nearpos.xyz - farpos.xyz);
     vec3 view_ray = normalize(nearpos.xyz - farpos.xyz);
 
-    vec3 minPosition = u_shape_slice_min * u_shape_size;
-    vec3 maxPosition = u_shape_slice_max * u_shape_size;
+    vec3 minPosition = u_coordinates_adjustment + u_shape_slice_min * u_shape_size;
+    vec3 maxPosition = u_coordinates_adjustment + u_shape_slice_max * u_shape_size;
 
     // Intersect the view ray and the box.
     float t_0, t_1;

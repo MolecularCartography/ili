@@ -47,6 +47,17 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
                 workspace.scene3d.resetSlicing();
                 slicingControls.forEach((v) => v.refresh());
             });
+
+            const coordsAdjGroup = this.addGroupBox('Coordinates Adjustment');
+            const coordsAdjControls = [];
+            coordsAdjControls.push(coordsAdjGroup.addNumeric(workspace.scene3d.adjustment, 'x', 'X offset').step(1));
+            coordsAdjControls.push(coordsAdjGroup.addNumeric(workspace.scene3d.adjustment, 'y', 'Y offset').step(1));
+            coordsAdjControls.push(coordsAdjGroup.addNumeric(workspace.scene3d.adjustment, 'z', 'Z offset').step(1));
+            coordsAdjGroup.addAction('Reset', () => {
+                workspace.scene3d.resetAdjustment();
+                coordsAdjControls.forEach((v) => v.refresh());
+            });
+
             return this;
         }
 

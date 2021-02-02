@@ -6,6 +6,8 @@ uniform vec3 u_shape_size;
 uniform vec3 u_shape_slice_min;
 uniform vec3 u_shape_slice_max;
 
+uniform vec3 u_coordinates_adjustment;
+
 void main() {
     // Prepare transforms to map to camera view. See also:
     // https://threejs.org/docs/#api/renderers/webgl/WebGLProgram
@@ -20,7 +22,7 @@ void main() {
     // backward (in cam coords) to the near clipping plane, and project back. Do
     // the same for the far clipping plane. This gives us all the information we
     // need to calculate the ray and truncate it to the viewing cone.
-    vec4 position4 = vec4(realPosition * u_shape_size, 1.0);
+    vec4 position4 = vec4(u_coordinates_adjustment + realPosition * u_shape_size, 1.0);
     vec4 shiftPosition4 = vec4(position4.xyz - u_shape_size / 2.0, 1.0);
     vec4 pos_in_cam = viewtransformf * position4;
 
