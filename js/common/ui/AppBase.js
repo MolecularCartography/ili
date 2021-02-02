@@ -3,8 +3,8 @@
  */
 'use strict';
 
-define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
-    function ( WorkspaceBase, appLayout, DragAndDrop, Utils, saveAs)
+define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver', 'mapselectorbase'],
+    function ( WorkspaceBase, appLayout, DragAndDrop, Utils, saveAs, MapSelectorBase)
     {
         function AppBase(appEnvironment, appContainer, initializers, checker) {
             this._appEnvironment = appEnvironment;
@@ -113,11 +113,11 @@ define(['workspacebase', 'mainlayout', 'dragndrop', 'utils', 'filesaver'],
                     this._keyboardShortcuts = {
                         '38': function() { // ArrowUp
                             this._mapSelector.blink();
-                            this._mapSelector.navigate(MapSelector.Direction.UP);
+                            this._mapSelector.navigate(MapSelectorBase.Direction.UP);
                         },
                         '40': function() { // ArrowDown
                             this._mapSelector.blink();
-                            this._mapSelector.navigate(MapSelector.Direction.DOWN);
+                            this._mapSelector.navigate(MapSelectorBase.Direction.DOWN);
                         }
                     };
                     this._keyboardShortcuts[Utils.isWebkit ? '79' : '111'] = this.chooseFilesToOpen; // Ctrl + O

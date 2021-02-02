@@ -28,6 +28,8 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
             visualizationGroup.addNumeric(workspace.scene3d, 'opacity', 'Opacity', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'filling', 'Filling', 0, 1);
             visualizationGroup.addNumeric(workspace.scene3d, 'spacing', 'Spacing', 0, 5);
+            visualizationGroup.addNumeric(workspace.scene3d, 'min_intensity_threshold', 'Min intensity threshold', 0, 1);
+            visualizationGroup.addNumeric(workspace.scene3d, 'max_intensity_threshold', 'Max intensity threshold', 0, 1);
       
             const lightGroup = this.addGroupBox('Light');
             lightGroup.addFlag(workspace.scene3d, 'shadingEnabled', 'Shading', 0, 1);

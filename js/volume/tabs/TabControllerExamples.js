@@ -22,6 +22,15 @@ define([
                     prefix: wwwUrl
                 }
             ];
+            const development = false;
+            if (development) {
+                items.push(
+                {
+                    name: 'Example1 NRRD Data',
+                    files: ['data/example1.nrrd', 'data/example1.csv'],
+                    prefix: wwwUrl
+                });
+            }
 
             this.addHintBlock('Select any of the examples below');
             items.forEach(function (item) {

@@ -15,7 +15,6 @@ define([
             this.addNumeric(spotsController, 'spotBorder', 'Border opacity', 0, 1, 250);
             this.addFlag(spotsController, 'dataDependentOpacity', 'Proportional opacity');
             this.addNumeric(spotsController, 'globalSpotScale', 'Size factor', 0, 5, 250);
-            this.addFlag(volumeWorkspace, 'isEllipsoidModeEnabled', 'Ellipsoid Mode');
             return this;
         }
 
