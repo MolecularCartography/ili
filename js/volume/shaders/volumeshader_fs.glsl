@@ -96,8 +96,8 @@ void main() {
     if (!ray_box_intersection(nearpos, view_ray, maxPosition, minPosition, t_0, t_1)) {
         //discard; // TODO: seems to be an error in this check
     }
-    vec3 ray_start = (nearpos + view_ray * t_0) / u_shape_size;
-    vec3 ray_stop = (nearpos + view_ray * t_1) / u_shape_size;
+    vec3 ray_start = (nearpos + view_ray * t_0 - u_coordinates_adjustment) / u_shape_size;
+    vec3 ray_stop = (nearpos + view_ray * t_1 - u_coordinates_adjustment) / u_shape_size;
     
     // Find distance.
     vec3 ray_diff = ray_stop - ray_start;

@@ -172,10 +172,8 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         adjustment: Utils.makeProxyProperty('_adjustment', ['x', 'y', 'z'],
             function() {
-                if (this._mesh) {
-                    this._applyAdjustment();
-                    this._notify(Scene3D.Events.CHANGE);
-                }
+                this._applyAdjustment();
+                this._notify(Scene3D.Events.CHANGE);       
             }),
 
         light: Utils.makeProxyProperty('_light', ['ambient', 'diffuse', 'specular'],
@@ -335,7 +333,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         _applyAdjustment: {
             value: function() {
-                this._volumeRenderMesh.coordinatesAdjustment = this.adjustment;
+                this._volumeRenderMesh.coordinatesAdjustment = this._adjustment;
             }
         }
     });

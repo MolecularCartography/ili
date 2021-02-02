@@ -14,9 +14,10 @@ define('ili', [], function () {
 
         require.config({
             paths: {
-                /* HTML templates */
-                'modulebootstrap': './js/bootstrap',
-                'initiallayout': './initial-template.html'
+                  /* HTML templates */
+                  'modulebootstrap': './js/bootstrap',
+                  'mainlayout': './template.html',
+                  'initiallayout': './initial-template.html'
             },
         });
 

@@ -371,7 +371,8 @@ define([
                 },
                 set: function(value) {
                     this._coordinatesAdjustment = value;
-                    this._setUniform('u_coordinates_adjustment', new THREE.Vector3(value.x, value.y, value.z));
+                    const vector = new THREE.Vector3(Number.parseFloat(value.x), Number.parseFloat(value.y), Number.parseFloat(value.z));
+                    this._setUniform('u_coordinates_adjustment', vector);
                 }
             },
 
