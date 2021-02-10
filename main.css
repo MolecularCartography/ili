@@ -2,14 +2,68 @@
     height: 100%;
     width: 100%;
 }
-
+.header{
+    height: 15%;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: white;
+    text-align: center;
+    font-size: 5em;
+}
+.main{
+    display: flex;
+    flex-direction: row;
+    flex: auto;
+    height: 100%;
+}
 body {
     margin: 0;
     display: flex;
     flex-direction: column;
     height: 100%;
     width: 100%;
-    background-color: #000;
+    background: #000000;
+}
+
+#surfaceBtn {
+    background: url("img/surface.png") no-repeat right bottom;
+    background-size: contain;
+    text-align: right;
+    /*margin-right: 10px;*/
+}
+
+#volumeBtn {
+    background: url("img/volume.png") no-repeat left bottom;
+    background-size: contain;
+    text-align: left;
+}
+
+.menuBtn {
+    background: transparent;
+    flex: 50%;
+    border: none;
+    color: white;
+    font-size: 2em;
+    display: inline-grid;
+    margin: 3%;
+    overflow: hidden;
+    transition: all 0.5s;
+    filter: grayscale(0.5);
+    border: darkgray 1px solid;
+    border-radius: 25px;
+}
+
+.menuBtn .text {
+    font-size: 4em;
+}
+
+.menuBtn div{
+    margin: 0 10%;
+    position: static;
+}
+.menuBtn:hover {
+    border: #ffffff 1px solid;
+    transform: scale(1.12);
+    filter: grayscale(0);
 }
 
 .emperor-tab-div,
