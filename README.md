@@ -5,9 +5,10 @@
 
 `ili is being developed mainly by [Alexandrov Team](http://www.embl.de/research/units/scb/alexandrov/index.html) at EMBL Heidelberg ([contact information](http://www.embl.de/research/units/scb/alexandrov/contact/index.html)) in collaboration with the [Dorrestein Lab](http://dorresteinlab.ucsd.edu/Dorrestein_Lab/Welcome.html) and the [Knight Lab](https://knightlab.ucsd.edu/) at UCSD.
 
-* Developers: Ivan Protsyuk, Sergey Ryazanov
+* Developers: Ivan Protsyuk, Sergey Ryazanov, Richard Goater
 * External contributors:
   * Members of [Knight lab](http://knightlab.ucsd.edu): Antonio Gonzalez, Jamie Morton, Jose Navas, Yoshiki Vázquez Baeza
+  * Members of [Atomicus](https://atomicus.de/): Alexei Dolgolyov, Konstantin Senkevich, Violetta Nebyshinets
 * Principal investigator: Theodore Alexandrov 
 
 ### Table of contents
