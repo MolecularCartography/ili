@@ -1,0 +1,65 @@
+.scene {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+    perspective: 400px;
+    position: absolute;
+    background: rgba(0,0,0,0.29);
+}
+
+.cube {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: translateZ(-300px);
+}
+
+.cube__face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+.cube__face--right, .cube__face--left {
+    background: rgba(24, 50, 31, 0.7);
+}
+.cube__face--front, .cube__face--back
+{
+    background: rgba(50, 24, 24, 0.7);
+}
+
+.cube__face--top, .cube__face--bottom {
+    background: rgba(24, 24, 50, 0.7);
+}
+
+
+.cube__face--front {
+    transform: rotateY(0deg) rotateX(180deg) translateZ(-50px);
+
+}
+
+.cube__face--right {
+    transform: rotateY(90deg) rotateX(180deg) translateZ(-50px);
+}
+
+.cube__face--back {
+    transform: rotateY(180deg) rotateX(180deg) translateZ(-50px);
+}
+
+.cube__face--left {
+    transform: rotateY(-90deg) rotateX(180deg) translateZ(-50px);
+}
+
+.cube__face--top {
+    transform: rotateX(-90deg) rotateX(180deg) translateZ(-50px);
+}
+
+.cube__face--bottom {
+    transform: rotateX(90deg) rotateX(180deg) translateZ(-50px);
+}

@@ -13,8 +13,8 @@ function(THREE, ViewGroup3DBase, View3D, SpotLabel3D) {
      */
     function ViewGroup3D(workspace, div) {
         ViewGroup3DBase.call(this, workspace, div, {
-            createView: function(group, div) {
-                return new View3D(group, div);
+            createView: function(group, div, i, orientationWidget) {
+                return new View3D(group, div, orientationWidget);
             },
             createSpotLabel: function(group, scene) {
                 return new SpotLabel3D(group, scene);

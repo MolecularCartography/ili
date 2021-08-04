@@ -27,8 +27,9 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 
         var divs = this._div.querySelectorAll('.View3D');
+        let orientationWidgets = this._div.querySelectorAll('orientation-widget');
         for (var i = 0; i < divs.length; i++) {
-            const view3d = initializer.createView(this, divs[i], i);
+            const view3d = initializer.createView(this, divs[i], i, orientationWidgets[i]);
             this._views.push(view3d);
         }
         this._spotLabel = initializer.createSpotLabel(this, this._scene);
@@ -55,7 +56,7 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
                     renderer.setViewport(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissor(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissorTest(true);
-                    scene.render(renderer, v.camera);
+                    scene.render(renderer, v.camera, v.orientationWidget);
                 }
             }
         },

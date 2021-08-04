@@ -12,11 +12,12 @@ function(THREE, View3DBase, Workspace) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div, workspace, cameraController) {
+    function View3D(group, div, workspace, cameraController, orientationWidget) {
         View3DBase.call(this, group, div, new THREE.OrthographicCamera());
 
         this._workspace = workspace;
         this._cameraController = cameraController;
+        this.orientationWidget = orientationWidget;
 
         this.addEventListener(View3DBase.Events.ASPECT_CHANGE, this._onAspectChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.SHAPE_LOAD, this._onShapeChange.bind(this));
