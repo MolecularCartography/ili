@@ -293,7 +293,7 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
 
         render: {
             value: function(renderer, camera, orientationWidget) {
-                orientationWidget.myTransform = `translateZ(-300px)  ${Scene3DBase.prototype.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
+                orientationWidget.transform = `translateZ(-300px)  ${Scene3DBase.prototype.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
                 renderer.render(this._scene, camera);
             }
         },

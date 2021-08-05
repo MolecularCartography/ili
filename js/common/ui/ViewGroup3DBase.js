@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'scene3dbase', 'spotscontrollerbase'
+    'three', 'scene3dbase', 'spotscontrollerbase', 'tween'
 ],
-function(THREE, Scene3DBase, SpotsControllerBase) {
+function(THREE, Scene3DBase, SpotsControllerBase, TWEEN) {
 
     function ViewGroup3DBase(workspace, div, initializer) {
         this._div = div;
@@ -30,6 +30,38 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
         let orientationWidgets = this._div.querySelectorAll('orientation-widget');
         for (var i = 0; i < divs.length; i++) {
             const view3d = initializer.createView(this, divs[i], i, orientationWidgets[i]);
+
+            view3d.orientationWidget._cameraRotateFunc = ((eyeFixed) => {
+                let camera = view3d.camera;
+                let duration = 100;
+                let dist = Math.sqrt(camera.position.x * camera.position.x +
+                    camera.position.y * camera.position.y +
+                    camera.position.z * camera.position.z);
+                let edgeDist = Math.sqrt(dist * dist / 2);
+                let cornerDist = Math.sqrt(dist * dist / 3);
+                let upFixed = camera.up;
+
+                let tween = new TWEEN.Tween(camera.position);
+                let eyeFixed2 = eyeFixed(dist, edgeDist, cornerDist);
+                let vector = new THREE.Vector3(eyeFixed2[0], eyeFixed2[1], eyeFixed2[2])
+                tween.to(vector, duration);
+                camera.up.set(upFixed.x, upFixed.y, upFixed.z);
+                tween.start();
+
+                tween.onComplete(() => {
+                    setTimeout(() => {
+                        this._renderer.setAnimationLoop(null);
+                        this._renderTo(this._renderer, this._scene);
+                    })
+                });
+
+                this._renderer.setAnimationLoop(() => {
+                    TWEEN.update();
+                    camera.lookAt(0, 0, 0);
+                    this._renderTo(this._renderer, this._scene);
+                });
+            });
+
             this._views.push(view3d);
         }
         this._spotLabel = initializer.createSpotLabel(this, this._scene);
