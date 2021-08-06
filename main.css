@@ -261,6 +261,7 @@ body[drop-target] > #drop-target-informer {
 
 .View3D {
     overflow: hidden;
+    display: none;
 }
 
 .SpotLabel3D, .SpotLabel2D {
@@ -283,4 +284,10 @@ body[drop-target] > #drop-target-informer {
     height: 4px;
     background-color: white;
     border-radius: 2px;
+}
+orientation-widget {
+    height: 100px;
+    width: 100px;
+    display: block;
+    position: absolute;
 }

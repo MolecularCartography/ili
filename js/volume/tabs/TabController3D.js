@@ -13,11 +13,14 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps'],
                 ['Triple view', VolumeViewGroup3D.Layout.TRIPLE],
                 ['Quadriple view', VolumeViewGroup3D.Layout.QUADRIPLE]
             ];
+            let layoutCorners = ['Top-left', 'Top-right', 'Bottom-left', 'Bottom-right'];
 
             const generalGroup = this.addGroupBox('General');
             generalGroup.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);
             generalGroup.addColor(workspace.scene3d, 'backgroundColor', 'Background');
             generalGroup.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
+            generalGroup.addChoice(views, 'legendLayout', 'Legend layout', layoutCorners);
+            generalGroup.addChoice(views, 'widgetLayout', 'Widget layout', layoutCorners);
 
             const visualizationGroup = this.addGroupBox('Visualization');
             var colorMapOptions = Object.keys(ColorMap.Maps).reduce(function (prev, cur) {

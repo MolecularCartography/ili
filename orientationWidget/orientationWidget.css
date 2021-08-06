@@ -1,16 +1,11 @@
 .scene {
-    width: 100px;
-    height: 100px;
-    margin: 10px;
     perspective: 400px;
-    position: absolute;
     background: rgba(0,0,0,0.29);
 }
 
 .cube {
     width: 100px;
     height: 100px;
-    position: relative;
     transform-style: preserve-3d;
     transform: translateZ(-300px);
 }
