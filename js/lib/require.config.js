@@ -31,7 +31,9 @@ require.config({
         'slickcore': 'js/lib/slick.core.min',
         'slickgrid': 'js/lib/slick.grid.min',
         'slickformatters': 'js/lib/slick.editors.min',
-        'slickeditors': 'js/lib/slick.formatters.min'
+        'slickeditors': 'js/lib/slick.formatters.min',
+
+        'tween': 'js/lib/tween.min'
     },
     /*
         Libraries that are not AMD compatible need shim to declare their

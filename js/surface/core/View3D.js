@@ -12,11 +12,12 @@ function(THREE, View3DBase) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div) {
+    function View3D(group, div, orientationWidget) {
         const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
         camera.position.x = -30;
         camera.position.y = 40;
         camera.position.z = 30;
+        this.orientationWidget = orientationWidget;
 
         View3DBase.call(this, group, div, camera);
         return this;

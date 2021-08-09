@@ -12,10 +12,18 @@ define([], function() {
                 '</div>' +
                 '<div class="ViewGroup3D" layout="single">' +
                     '<canvas></canvas>' +
-                    '<div class="View3D" id="view-3d-1"></div>' +
-                    '<div class="View3D" id="view-3d-2"></div>' +
-                    '<div class="View3D" id="view-3d-3"></div>' +
-                    '<div class="View3D" id="view-3d-4"></div>' +
+                    '<div class="View3D" id="view-3d-1">' +
+                        '<orientation-widget id="orientation-widget-1"></orientation-widget>' +
+                    '</div>' +
+                    '<div class="View3D" id="view-3d-2">' +
+                        '<orientation-widget id="orientation-widget-2"></orientation-widget>' +
+                    '</div>' +
+                    '<div class="View3D" id="view-3d-3">' +
+                        '<orientation-widget id="orientation-widget-3"></orientation-widget>' +
+                    '</div>' +
+                    '<div class="View3D" id="view-3d-4">' +
+                        '<orientation-widget id="orientation-widget-4"></orientation-widget>' +
+                    '</div>' +
                     '<div class="HoverSpot"></div>' +
                 '</div>' +
                 '<svg class="ViewLegend" xmlns="http://www.w3.org/2000/svg">' +

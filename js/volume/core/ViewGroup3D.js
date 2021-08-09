@@ -88,8 +88,8 @@ function(THREE, ViewGroup3DBase, View3D) {
      */
     function ViewGroup3D(workspace, div) {
         ViewGroup3DBase.call(this, workspace, div, {
-            createView: function(group, div, index) {
-                return new View3D(group, div, workspace, cameraControllers[index]);
+            createView: function(group, div, index, orientationWidget) {
+                return new View3D(group, div, workspace, cameraControllers[index], orientationWidget);
             },
             createSpotLabel: function(group, scene) {
                 return null;

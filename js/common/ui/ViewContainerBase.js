@@ -6,6 +6,10 @@ function() {
         this._workspace = workspace;
         this._div = div;
         this._exportPixelRatio3d = 1.0;
+        this._legendLayout = 'Bottom-right';
+        this._widgetLayout = 'Top-left';
+        this._defaultMargin = 20;
+        this._extraMargin = 100;
         return this;
     }
 
@@ -75,6 +79,30 @@ function() {
             }
         },
 
+        legendLayout:{
+            get: function (){
+                return this._legendLayout;
+            },
+
+            set: function (value){
+                this._changeLayout('.ViewLegend', value);
+                this._legendLayout = value;
+                this._layoutNearby();
+            }
+        },
+
+        widgetLayout: {
+            get: function (){
+                return this._widgetLayout;
+            },
+
+            set: function (value){
+                this._changeLayout('orientation-widget', value);
+                this._widgetLayout = value;
+                this._layoutNearby();
+            }
+        },
+
         _onWorkspaceModeChange: {
             value: function() {
                 this._div.setAttribute('layout', this.layoutName);
@@ -97,6 +125,28 @@ function() {
                 for (var i = 0; i < json.length; i++) {
                     this.all[i].fromJSON(json[i]);
                 }
+            }
+        },
+
+        _layoutNearby: {
+            value: function () {
+                if (this._widgetLayout === this._legendLayout)
+                    $('.ViewLegend').css('margin', `${this._defaultMargin} ${this._defaultMargin + this._extraMargin}`);
+                else
+                    $('.ViewLegend').css('margin', `${this._defaultMargin} ${this._defaultMargin}`);
+            }
+        },
+
+        _changeLayout: {
+            value: function (elem, value) {
+                let legendLayout = value.toLowerCase();
+                let properties = legendLayout.split('-');
+                ['top', 'bottom', 'right', 'left'].forEach(element => {
+                    if (properties.includes(element))
+                        $(elem).css(element, "0");
+                    else
+                        $(elem).css(element, "revert");
+                });
             }
         }
     });
