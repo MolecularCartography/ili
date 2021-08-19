@@ -334,7 +334,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionContr
                 row.appendChild(container);
                 this._$container.append(row);
 
-                let control = new TransferFunctionControl(div);
+                let control = new TransferFunctionControl(div, 10, 50);
                 control.points = object[key];
                 control.addEventListener('update', () => object[key] = control.points);
                 $('#' + controlId).append('<link rel="stylesheet" type="text/css" href="/transferFunctionControl/TransferFunctionControlStyle.css">');
@@ -379,8 +379,9 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionContr
                 var controlId = controlIds['control-id'];
 
                 var subContainerId = 'sub-' + controlId;
+                var subSubContainerId = 'sub-sub-' + controlId
                 var layout = '<div class="row"><div class="col-xs-12"><div class="panel-group">';
-                layout += '<div class="panel panel-default" data-toggle="collapse" data-target="#'
+                layout += '<div class="panel panel-default" id="' + subSubContainerId + '" data-toggle="collapse" data-target="#'
                     + subContainerId + '"><div id="' + controlId + '" class="panel-heading">';
                 layout += '<div class="panel-title btn-text">' + '<span id="arrow-' + controlId
                     + '" class="indicator glyphicon glyphicon-chevron-down pull-left"></span>&nbsp;'
@@ -393,7 +394,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionContr
                 this._params[this._toKey(name)] = result;
 
                 var collapseIndicator = this._$container.find('#arrow-' + controlId);
-                this._$container.find('div.panel.panel-default').on('click', function () {
+                this._$container.find('#' + subSubContainerId).on('click', function () {
                     collapseIndicator.toggleClass('glyphicon-chevron-down');
                     collapseIndicator.toggleClass('glyphicon-chevron-up');
                 });

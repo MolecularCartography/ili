@@ -110,10 +110,10 @@ class CoordsTransformer {
 }
 
 class TransferFunctionControl extends HTMLElement {
-    constructor(div, minorTicksCount, majorTicksCount) {
+    constructor(div, minorTicksDensity, majorTicksDensity) {
         super();
         const ns = 'http://www.w3.org/2000/svg';
-        let svg = document.createElementNS(ns, 'svg');
+        const svg = document.createElementNS(ns, 'svg');
         svg.setAttributeNS(null, 'width', '100%')
         svg.setAttributeNS(null, 'height', '100%')
         svg.id = "svg";
@@ -122,18 +122,17 @@ class TransferFunctionControl extends HTMLElement {
         this._letterOffset = 15;
         this._defaultPoints = [{x: 0, y: 0}, {x: 1, y: 1}]
         this._updateEvent = new CustomEvent('update');
-        this._majorTicksCount = majorTicksCount || 2;
-        this._minorTicksCount = minorTicksCount * this._majorTicksCount || 10;
+        this._container.addEventListener('mousemove', event => this._dragPoint(event));
+        this._container.addEventListener('contextmenu', event => event.preventDefault());
+        this._container.addEventListener('mouseup', () => this._selectedIndex = -1);
+        this._minorTicksDensity = minorTicksDensity;
+        this._majorTicksDensity = majorTicksDensity;
         this._drawing = new Drawing(svg, ns);
-        this._minorTicks = new Array(this._minorTicksCount * 2);
-        this._majorTicks = new Array(this._majorTicksCount * 2);
-        this._labels = new Array(this._majorTicksCount * 2 + 1);
-        this._gridLines = new Array((this._majorTicksCount - 1) * 2);
         this._selectedIndex = -1;
         this._pointRadius = 5;
 
         new ResizeObserver(entries => {
-            let entry = entries[0].contentRect;
+            const entry = entries[0].contentRect;
             if (entry.width > 3 * this._letterOffset && entry.height > 3 * this._letterOffset)
                 this.draw();
         }).observe(div);
@@ -170,11 +169,7 @@ class TransferFunctionControl extends HTMLElement {
         this._circles = new Array(this._points.length);
         for (let i = 0; i < this._points.length; i++)
             this._addControlPoint(i);
-        let canvas = this._container.querySelector('svg rect');
-
-        this._container.onmousemove = event => this._dragPoint(event);
-        this._container.oncontextmenu = event => event.preventDefault();
-        this._container.onmouseup = () => this._selectedIndex = -1;
+        const canvas = this._container.querySelector('svg rect');
         canvas.onmousedown = event => {
             if (event.which === 1)
                 this._addPoint(event, this._container, this._points)
@@ -182,30 +177,30 @@ class TransferFunctionControl extends HTMLElement {
     }
 
     _addControlPoint(index) {
-        let absolutePoints = this._makeArrayAbsolute(this._points);
+        const absolutePoints = this._makeArrayAbsolute(this._points);
         this._polyline = this._drawing.drawPolyline(this._makeArrayAbsolute(this._points).map(a => a.x + ',' + a.y), this._polyline);
         this._polyline.classList.add('line');
         this._circles.splice(index, 0, this._drawing.drawCircle(absolutePoints[index].x,
             absolutePoints[index].y, this._pointRadius));
-        let circle = this._circles[index];
+        const circle = this._circles[index];
         circle.classList.add('points');
-        circle.onmousedown = (event) => {
+        circle.addEventListener('mousedown', (event) => {
             if (event.which === 1)
                 this._selectedIndex = this._circles.indexOf(circle);
-        }
-        circle.oncontextmenu = () => this._deletePoint(circle);
+        });
+        circle.addEventListener('contextmenu', () => this._deletePoint(circle));
     }
 
     _addPoint(event, parent, points) {
-        let mousePosition = this._getCursorPosition(event);
-        let elem = this._coordsTransformer.absoluteToRelative(mousePosition);
+        const mousePosition = this._getCursorPosition(event);
+        const elem = this._coordsTransformer.absoluteToRelative(mousePosition);
         this._selectedIndex = this._insertIntoArray(points, elem);
         this._addControlPoint(this._selectedIndex);
         this.dispatchEvent(this._updateEvent);
     }
 
     _deletePoint(point) {
-        let index = this._circles.indexOf(point);
+        const index = this._circles.indexOf(point);
         if (index === 0 || index === this.points.length - 1)
             return;
         this.points.splice(index, 1);
@@ -219,7 +214,7 @@ class TransferFunctionControl extends HTMLElement {
         if (this._selectedIndex < 0)
             return;
         let mousePos = this._getCursorPosition(event);
-        let relativePoint = this._coordsTransformer.absoluteToRelative(mousePos);
+        const relativePoint = this._coordsTransformer.absoluteToRelative(mousePos);
         if (relativePoint.y > 1)
             relativePoint.y = 1;
         else if (relativePoint.y < 0)
@@ -240,12 +235,41 @@ class TransferFunctionControl extends HTMLElement {
         this.dispatchEvent(this._updateEvent);
     }
 
+    _getTicksCount(length, density) {
+
+        let tmpCount = Math.trunc(length / density);
+        let count = 1;
+        while (tmpCount >= 10) {
+            tmpCount = Math.trunc(tmpCount / 10)
+            count *= 10;
+        }
+        if (tmpCount >= 5) {
+            tmpCount = Math.trunc(tmpCount / 5)
+            count *= 5;
+        }
+        if (tmpCount >= 2) {
+            count *= 2;
+        }
+        return count;
+    }
+
     _drawBackground() {
-        let xMajorDistance = this._canvasHeight / this._majorTicksCount;
-        let yMajorDistance = this._canvasWidth / this._majorTicksCount;
-        let xMinorDistance = this._canvasHeight / this._minorTicksCount;
-        let yMinorDistance = this._canvasWidth / this._minorTicksCount;
-        let minorTickLength = this._canvasStartX / 9;
+        this._container.querySelectorAll('line.ticks').forEach(tick => tick.parentNode.removeChild(tick));
+        this._container.querySelectorAll('text.label').forEach(label => label.parentNode.removeChild(label));
+        this._container.querySelectorAll('line.grid-line').forEach(line => line.parentNode.removeChild(line));
+
+        const minorTickLength = this._canvasStartX / 9;
+        const xMajorTicksCount = this._getTicksCount(this._canvasWidth, this._majorTicksDensity);
+        const yMajorTicksCount = this._getTicksCount(this._canvasHeight, this._majorTicksDensity);
+        const xMinorTicksCount = this._getTicksCount(this._canvasWidth, this._minorTicksDensity);
+        const yMinorTicksCount = this._getTicksCount(this._canvasHeight, this._minorTicksDensity);
+
+        const xMinorTicksDistance = this._canvasWidth / xMinorTicksCount;
+        const yMinorTicksDistance = this._canvasHeight / yMinorTicksCount;
+        const xMajorTicksDistance = this._canvasWidth / xMajorTicksCount;
+        const yMajorTicksDistance = this._canvasHeight / yMajorTicksCount;
+        const xMajorTickLabel = 1 / xMajorTicksCount;
+        const yMajorTickLabel = 1 / yMajorTicksCount;
 
         this._canvas = this._drawing.drawRectangle(this._canvasStartX, this._canvasStartY, this._canvasWidth, this._canvasHeight, this._canvas);
         this._canvas.classList.add('canvas');
@@ -255,47 +279,60 @@ class TransferFunctionControl extends HTMLElement {
         this._axisY = this._drawing.drawLine(this._canvasStartX, this._canvasStartY, this._canvasStartX, this._canvasStartY + this._canvasHeight, this._axisY);
         this._axisY.classList.add('axis');
 
-        for (let i = 0; i < this._minorTicksCount; i++) {
-            this._minorTicks[2 * i] = this._drawing.drawLine(this._canvasStartX + i * yMinorDistance, this._canvasStartY + this._canvasHeight - minorTickLength,
-                this._canvasStartX + i * yMinorDistance, this._canvasStartY + this._canvasHeight + minorTickLength, this._minorTicks[2 * i]);
-            this._minorTicks[2 * i].classList.add('ticks');
-            this._minorTicks[2 * i + 1] = this._drawing.drawLine(this._canvasStartX - minorTickLength, this._canvasStartY + i * xMinorDistance,
-                this._canvasStartX + minorTickLength, this._canvasStartY + i * xMinorDistance, this._minorTicks[2 * i + 1]);
-            this._minorTicks[2 * i + 1].classList.add('ticks');
+        for (let i = 0; i < xMinorTicksCount; i++) {
+            const minorTick = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMinorTicksDistance, this._canvasStartY + this._canvasHeight - minorTickLength,
+                this._canvasStartX + (i + 1) * xMinorTicksDistance, this._canvasStartY + this._canvasHeight + minorTickLength);
+            minorTick.classList.add('ticks');
         }
 
-        for (let i = 0; i < this._majorTicksCount; i++) {
-            this._majorTicks[i] = (this._drawing.drawLine(this._canvasStartX + (i + 1) * yMajorDistance, this._canvasStartY + this._canvasHeight - 2 * minorTickLength,
-                this._canvasStartX + (i + 1) * yMajorDistance, this._canvasStartY + this._canvasHeight + 2 * minorTickLength, this._majorTicks[i]));
-            this._majorTicks[i].classList.add('ticks');
-            this._majorTicks[this._majorTicksCount + i] = this._drawing.drawLine(
-                this._canvasStartX - 2 * minorTickLength, this._canvasStartY + i * xMajorDistance,
-                this._canvasStartX + 2 * minorTickLength, this._canvasStartY + i * xMajorDistance, this._majorTicks[this._majorTicksCount + i]);
-            this._majorTicks[this._majorTicksCount + i].classList.add('ticks')
+        for (let i = 0; i < yMinorTicksCount; i++) {
+            const minorTick = this._drawing.drawLine(this._canvasStartX - minorTickLength, this._canvasStartY + i * yMinorTicksDistance,
+                this._canvasStartX + minorTickLength, this._canvasStartY + i * yMinorTicksDistance);
+            minorTick.classList.add('ticks');
         }
 
-        for (let i = 0; i < this._majorTicksCount; i++) {
-            this._labels[i] = this._drawing.drawText(this._canvasStartX + (i + 1) * yMajorDistance, this._canvasStartY + this._canvasHeight + 6 * minorTickLength,
-                (0.5 * (i + 1)).toString(), this._labels[i]);
-            this._labels[i].classList.add('label');
-            this._labels[this._majorTicksCount + i] = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
-                this._canvasStartY + i * xMajorDistance,
-                (0.5 * (this._majorTicksCount - i)).toString(), this._labels[this._majorTicksCount + i]);
-            this._labels[this._majorTicksCount + i].classList.add('label');
+        for (let i = 0; i < xMajorTicksCount; i++) {
+            const majorTicks = (this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight - 2 * minorTickLength,
+                this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight + 2 * minorTickLength));
+            majorTicks.classList.add('ticks');
         }
 
-        this._labels[this._majorTicksCount * 2] = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
-            this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0, this._labels[this._majorTicksCount * 2]);
-        this._labels[this._majorTicksCount * 2].classList.add('label');
-
-        for (let i = 0; i < this._majorTicksCount - 1; i++) {
-            this._gridLines[i * 2] = this._drawing.drawLine(this._canvasStartX + (i + 1) * yMajorDistance, this._canvasStartY + this._canvasHeight,
-                this._canvasStartX + (i + 1) * yMajorDistance, this._canvasStartY, this._gridLines[i * 2]);
-            this._gridLines[i * 2].classList.add('grid-line');
-            this._gridLines[i * 2 + 1] = this._drawing.drawLine(this._canvasStartX, this._canvasStartY + (i + 1) * xMajorDistance,
-                this._canvasStartX + this._canvasWidth, this._canvasStartY + (i + 1) * xMajorDistance, this._gridLines[i * 2 + 1]);
-            this._gridLines[i * 2 + 1].classList.add('grid-line');
+        for (let i = 0; i < yMajorTicksCount; i++) {
+            const majorTick = this._drawing.drawLine(
+                this._canvasStartX - 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
+                this._canvasStartX + 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance);
+            majorTick.classList.add('ticks');
         }
+
+        for (let i = 0; i < xMajorTicksCount + 1; i++) {
+            const label = this._drawing.drawText(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight + 6 * minorTickLength,
+                (xMajorTickLabel * (i + 1)).toFixed(1));
+            label.classList.add('label');
+        }
+
+        for (let i = 0; i < yMajorTicksCount; i++) {
+            const label = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
+                this._canvasStartY + i * yMajorTicksDistance,
+                (yMajorTickLabel * (yMajorTicksCount - i)).toFixed(1));
+            label.classList.add('label');
+        }
+
+        const label = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
+            this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0);
+        label.classList.add('label');
+
+        for (let i = 0; i < xMajorTicksCount - 1; i++) {
+            const gridLine = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight,
+                this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY);
+            gridLine.classList.add('grid-line');
+        }
+
+        for (let i = 0; i < yMajorTicksCount - 1; i++) {
+            const gridLine = this._drawing.drawLine(this._canvasStartX, this._canvasStartY + (i + 1) * yMajorTicksDistance,
+                this._canvasStartX + this._canvasWidth, this._canvasStartY + (i + 1) * yMajorTicksDistance);
+            gridLine.classList.add('grid-line');
+        }
+
     }
 
     _getCursorPosition(event) {
@@ -315,7 +352,7 @@ class TransferFunctionControl extends HTMLElement {
     }
 
     _makeArrayAbsolute(points) {
-        let relativePoints = [];
+        const relativePoints = [];
         points.forEach(point => relativePoints.push(this._coordsTransformer.relativeToAbsolute(point)));
         return relativePoints;
     }
