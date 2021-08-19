@@ -232,6 +232,17 @@ function(EventSource, Scene3DBase, THREE, ThreeUtils, Utils, ColorMaps, VolumeRe
             },
         },
 
+        transfer_function: {
+            get: function () {
+                console.log('get' + this._points);
+                return this._points;
+            },
+            set: function (value) {
+                this._points = value;
+                console.log('set' + JSON.stringify(this._points));
+            }
+        },
+
         isIntensityEnabled: {
             get: function() {
                 return this._volumeRenderMesh.isIntensityEnabled;

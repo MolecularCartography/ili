@@ -33,7 +33,8 @@ require.config({
         'slickformatters': 'js/lib/slick.editors.min',
         'slickeditors': 'js/lib/slick.formatters.min',
 
-        'tween': 'js/lib/tween.min'
+        'tween': 'js/lib/tween.min',
+        'transferfunctioncontrol': 'transferFunctionControl/TransferFunctionControl'
     },
     /*
         Libraries that are not AMD compatible need shim to declare their
