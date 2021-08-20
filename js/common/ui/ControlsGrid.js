@@ -334,7 +334,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionContr
                 row.appendChild(container);
                 this._$container.append(row);
 
-                let control = new TransferFunctionControl(div, 10, 50);
+                let control = new transferFunctionControl(div, 10, 25);
                 control.points = object[key];
                 control.addEventListener('update', () => object[key] = control.points);
                 $('#' + controlId).append('<link rel="stylesheet" type="text/css" href="/transferFunctionControl/TransferFunctionControlStyle.css">');
