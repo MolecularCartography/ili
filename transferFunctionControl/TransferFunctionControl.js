@@ -29,28 +29,29 @@ define([
                     this._container.addEventListener('mousemove', event => this._dragPoint(event));
                     this._container.addEventListener('contextmenu', event => event.preventDefault());
                     this._container.addEventListener('mouseup', () => this._selectedIndex = -1);
-                    this._minorTicks = [];
-                    this._majorTicks = [];
-                    this._gridLines = [];
-                    this._labels = [];
                     this._minorTicksDensity = minorTicksDensity;
                     this._majorTicksDensity = majorTicksDensity;
                     this._selectedIndex = -1;
                     this._pointRadius = 5;
 
                     const activator = {
-                        action: (array) => {
+                        action: (qualifiedName, className) => {
                            return  {
-                               activate: (i) => array[i].style.display = '',
-                               deactivate: (i) => array[i].style.display = 'none'
+                               activate: (element) =>  element.style.display = '',
+                               deactivate: (element) => element.style.display = 'none',
+                               create: () => {
+                                   const elem = document.createElementNS(ns, qualifiedName);
+                                   elem.classList.add(className);
+                                   return this._container.appendChild(elem);
+                               }
                            }
                         }
                     }
 
-                    this._minorTicksCache = new ObjectCache(activator.action(this._minorTicks));
-                    this._majorTicksCache = new ObjectCache(activator.action(this._majorTicks));
-                    this._gridLinesCache = new ObjectCache(activator.action(this._gridLines));
-                    this._labelsCache = new ObjectCache(activator.action(this._labels));
+                    this._minorTicksCache = new ObjectCache(activator.action('line', 'ticks'));
+                    this._majorTicksCache = new ObjectCache(activator.action('line', 'ticks'));
+                    this._gridLinesCache = new ObjectCache(activator.action('line', 'grid-line'));
+                    this._labelsCache = new ObjectCache(activator.action('text', 'label'));
 
                     new ResizeObserver(entries => {
                         const entry = entries[0].contentRect;
@@ -189,73 +190,64 @@ define([
                     this._axisY = this._drawing.drawLine(this._canvasStartX, this._canvasStartY, this._canvasStartX, this._canvasStartY + this._canvasHeight, this._axisY);
                     this._axisY.classList.add('axis');
 
+                    const gridLines = this._gridLinesCache.get(xMajorTicksCount + yMajorTicksCount - 2);
+
                     for (let i = 0; i < xMajorTicksCount - 1; i++) {
-                        this._gridLines[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                        gridLines[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
                             this._canvasStartY + this._canvasHeight, this._canvasStartX + (i + 1) * xMajorTicksDistance,
-                            this._canvasStartY, this._gridLines[i]);
-                        this._gridLines[i].classList.add('grid-line');
+                            this._canvasStartY, gridLines[i]);
                     }
 
                     for (let i = 0; i < yMajorTicksCount - 1; i++) {
-                        this._gridLines[xMajorTicksCount + i - 1] = this._drawing.drawLine(this._canvasStartX,
+                        gridLines[xMajorTicksCount + i - 1] = this._drawing.drawLine(this._canvasStartX,
                             this._canvasStartY + (i + 1) * yMajorTicksDistance, this._canvasStartX + this._canvasWidth,
-                            this._canvasStartY + (i + 1) * yMajorTicksDistance, this._gridLines[xMajorTicksCount + i - 1]);
-                        this._gridLines[xMajorTicksCount + i - 1].classList.add('grid-line');
+                            this._canvasStartY + (i + 1) * yMajorTicksDistance, gridLines[xMajorTicksCount + i - 1]);
                     }
 
-                    this._gridLinesCache.get(xMajorTicksCount + yMajorTicksCount - 2);
+                    const minorTicks = this._minorTicksCache.get(xMinorTicksCount + yMinorTicksCount);
 
                     for (let i = 0; i < xMinorTicksCount; i++) {
-                        this._minorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMinorTicksDistance,
+                        minorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMinorTicksDistance,
                             this._canvasStartY + this._canvasHeight - minorTickLength, this._canvasStartX + (i + 1) * xMinorTicksDistance,
-                            this._canvasStartY + this._canvasHeight + minorTickLength, this._minorTicks[i]);
-                        this._minorTicks[i].classList.add('ticks');
+                            this._canvasStartY + this._canvasHeight + minorTickLength, minorTicks[i]);
                     }
 
                     for (let i = 0; i < yMinorTicksCount; i++) {
-                        this._minorTicks[xMinorTicksCount + i] = this._drawing.drawLine(this._canvasStartX - minorTickLength,
+                        minorTicks[xMinorTicksCount + i] = this._drawing.drawLine(this._canvasStartX - minorTickLength,
                             this._canvasStartY + i * yMinorTicksDistance, this._canvasStartX + minorTickLength,
-                            this._canvasStartY + i * yMinorTicksDistance, this._minorTicks[xMinorTicksCount + i]);
-                        this._minorTicks[xMinorTicksCount + i].classList.add('ticks');
+                            this._canvasStartY + i * yMinorTicksDistance, minorTicks[xMinorTicksCount + i]);
                     }
-                    this._minorTicksCache.get(xMinorTicksCount + yMinorTicksCount);
+                    const majorTicks = this._majorTicksCache.get(xMajorTicksCount + yMajorTicksCount);
 
                     for (let i = 0; i < xMajorTicksCount; i++) {
-                        this._majorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                        majorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
                             this._canvasStartY + this._canvasHeight - 2 * minorTickLength, this._canvasStartX + (i + 1) * xMajorTicksDistance,
-                            this._canvasStartY + this._canvasHeight + 2 * minorTickLength, this._majorTicks[i]);
-                        this._majorTicks[i].classList.add('ticks');
+                            this._canvasStartY + this._canvasHeight + 2 * minorTickLength, majorTicks[i]);
                     }
 
                     for (let i = 0; i < yMajorTicksCount; i++) {
-                        this._majorTicks[xMajorTicksCount + i] = this._drawing.drawLine(
+                        majorTicks[xMajorTicksCount + i] = this._drawing.drawLine(
                             this._canvasStartX - 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
                             this._canvasStartX + 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
-                            this._majorTicks[xMajorTicksCount + i]);
-                        this._majorTicks[xMajorTicksCount + i].classList.add('ticks');
+                            majorTicks[xMajorTicksCount + i]);
                     }
 
-                    this._majorTicksCache.get(xMajorTicksCount + yMajorTicksCount);
+                    const labels = this._labelsCache.get(xMajorTicksCount + yMajorTicksCount + 1);
 
                     for (let i = 0; i < xMajorTicksCount + 1; i++) {
-                        this._labels[i] = this._drawing.drawText(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                        labels[i] = this._drawing.drawText(this._canvasStartX + (i + 1) * xMajorTicksDistance,
                             this._canvasStartY + this._canvasHeight + 6 * minorTickLength,
-                            (xMajorTickLabel * (i + 1)).toFixed(1), this._labels[i]);
-                        this._labels[i].classList.add('label');
+                            (xMajorTickLabel * (i + 1)).toFixed(1), labels[i]);
                     }
 
                     for (let i = 0; i < yMajorTicksCount; i++) {
-                        this._labels[xMajorTicksCount + i] = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
+                        labels[xMajorTicksCount + i] = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
                             this._canvasStartY + i * yMajorTicksDistance, (yMajorTickLabel * (yMajorTicksCount - i)).toFixed(1),
-                            this._labels[xMajorTicksCount + i]);
-                        this._labels[xMajorTicksCount + i].classList.add('label');
+                            labels[xMajorTicksCount + i]);
                     }
 
-                    this._labels[xMajorTicksCount + yMajorTicksCount] = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
-                        this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0, this._labels[xMajorTicksCount + yMajorTicksCount]);
-                    this._labels[xMajorTicksCount + yMajorTicksCount].classList.add('label');
-
-                    this._labelsCache.get(xMajorTicksCount + yMajorTicksCount + 1);
+                    labels[xMajorTicksCount + yMajorTicksCount] = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
+                        this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0, labels[xMajorTicksCount + yMajorTicksCount]);
                 }
 
                 _getCursorPosition(event) {
