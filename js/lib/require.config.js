@@ -36,7 +36,8 @@ require.config({
         'tween': 'js/lib/tween.min',
         'transferfunctioncontrol': 'transferFunctionControl/TransferFunctionControl',
         'drawing': 'transferFunctionControl/Drawing',
-        'coordstransformer': 'transferFunctionControl/CoordsTransformer'
+        'coordstransformer': 'transferFunctionControl/CoordsTransformer',
+        'objectcache': 'transferFunctioncontrol/ObjectCache'
     },
     /*
         Libraries that are not AMD compatible need shim to declare their
