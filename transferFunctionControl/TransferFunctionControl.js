@@ -14,17 +14,27 @@ define([
                     svg.setAttributeNS(null, 'width', '100%')
                     svg.setAttributeNS(null, 'height', '100%')
                     svg.id = "svg";
+                    this._drawing = new Drawing(svg, ns);
+                    this._canvas = this._drawing.drawRectangle(0, 0, 0, 0, this._canvas);
+                    this._canvas.classList.add('canvas');
 
                     this._container = div.appendChild(svg);
                     this._letterOffset = 15;
                     this._defaultPoints = [{x: 0, y: 0}, {x: 1, y: 1}]
                     this._updateEvent = new CustomEvent('update');
+                    this._canvas.addEventListener('mousedown', event => {
+                        if (event.which === 1)
+                            this._addPoint(event, this._container, this._points)
+                    });
                     this._container.addEventListener('mousemove', event => this._dragPoint(event));
                     this._container.addEventListener('contextmenu', event => event.preventDefault());
                     this._container.addEventListener('mouseup', () => this._selectedIndex = -1);
+                    this._minorTicks = [];
+                    this._majorTicks = [];
+                    this._gridLines = [];
+                    this._labels = [];
                     this._minorTicksDensity = minorTicksDensity;
                     this._majorTicksDensity = majorTicksDensity;
-                    this._drawing = new Drawing(svg, ns);
                     this._selectedIndex = -1;
                     this._pointRadius = 5;
 
@@ -66,11 +76,6 @@ define([
                     this._circles = new Array(this._points.length);
                     for (let i = 0; i < this._points.length; i++)
                         this._addControlPoint(i);
-                    const canvas = this._container.querySelector('svg rect');
-                    canvas.onmousedown = event => {
-                        if (event.which === 1)
-                            this._addPoint(event, this._container, this._points)
-                    };
                 }
 
                 _addControlPoint(index) {
@@ -151,10 +156,6 @@ define([
                 }
 
                 _drawBackground() {
-                    this._container.querySelectorAll('line.ticks').forEach(tick => tick.parentNode.removeChild(tick));
-                    this._container.querySelectorAll('text.label').forEach(label => label.parentNode.removeChild(label));
-                    this._container.querySelectorAll('line.grid-line').forEach(line => line.parentNode.removeChild(line));
-
                     const minorTickLength = this._canvasStartX / 9;
                     const xMajorTicksCount = this._getTicksCount(this._canvasWidth, this._majorTicksDensity);
                     const yMajorTicksCount = this._getTicksCount(this._canvasHeight, this._majorTicksDensity);
@@ -169,67 +170,83 @@ define([
                     const yMajorTickLabel = 1 / yMajorTicksCount;
 
                     this._canvas = this._drawing.drawRectangle(this._canvasStartX, this._canvasStartY, this._canvasWidth, this._canvasHeight, this._canvas);
-                    this._canvas.classList.add('canvas');
-
                     this._axisX = this._drawing.drawLine(this._canvasStartX, this._canvasStartY + this._canvasHeight, this._canvasStartX + this._canvasWidth, this._canvasStartY + this._canvasHeight, this._axisX);
                     this._axisX.classList.add('axis');
                     this._axisY = this._drawing.drawLine(this._canvasStartX, this._canvasStartY, this._canvasStartX, this._canvasStartY + this._canvasHeight, this._axisY);
                     this._axisY.classList.add('axis');
 
-                    for (let i = 0; i < xMinorTicksCount; i++) {
-                        const minorTick = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMinorTicksDistance, this._canvasStartY + this._canvasHeight - minorTickLength,
-                            this._canvasStartX + (i + 1) * xMinorTicksDistance, this._canvasStartY + this._canvasHeight + minorTickLength);
-                        minorTick.classList.add('ticks');
-                    }
-
-                    for (let i = 0; i < yMinorTicksCount; i++) {
-                        const minorTick = this._drawing.drawLine(this._canvasStartX - minorTickLength, this._canvasStartY + i * yMinorTicksDistance,
-                            this._canvasStartX + minorTickLength, this._canvasStartY + i * yMinorTicksDistance);
-                        minorTick.classList.add('ticks');
-                    }
-
-                    for (let i = 0; i < xMajorTicksCount; i++) {
-                        const majorTicks = (this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight - 2 * minorTickLength,
-                            this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight + 2 * minorTickLength));
-                        majorTicks.classList.add('ticks');
-                    }
-
-                    for (let i = 0; i < yMajorTicksCount; i++) {
-                        const majorTick = this._drawing.drawLine(
-                            this._canvasStartX - 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
-                            this._canvasStartX + 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance);
-                        majorTick.classList.add('ticks');
-                    }
-
-                    for (let i = 0; i < xMajorTicksCount + 1; i++) {
-                        const label = this._drawing.drawText(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight + 6 * minorTickLength,
-                            (xMajorTickLabel * (i + 1)).toFixed(1));
-                        label.classList.add('label');
-                    }
-
-                    for (let i = 0; i < yMajorTicksCount; i++) {
-                        const label = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
-                            this._canvasStartY + i * yMajorTicksDistance,
-                            (yMajorTickLabel * (yMajorTicksCount - i)).toFixed(1));
-                        label.classList.add('label');
-                    }
-
-                    const label = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
-                        this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0);
-                    label.classList.add('label');
-
                     for (let i = 0; i < xMajorTicksCount - 1; i++) {
-                        const gridLine = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY + this._canvasHeight,
-                            this._canvasStartX + (i + 1) * xMajorTicksDistance, this._canvasStartY);
-                        gridLine.classList.add('grid-line');
+                        this._gridLines[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                            this._canvasStartY + this._canvasHeight, this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                            this._canvasStartY, this._gridLines[i]);
+                        this._gridLines[i].classList.add('grid-line');
                     }
 
                     for (let i = 0; i < yMajorTicksCount - 1; i++) {
-                        const gridLine = this._drawing.drawLine(this._canvasStartX, this._canvasStartY + (i + 1) * yMajorTicksDistance,
-                            this._canvasStartX + this._canvasWidth, this._canvasStartY + (i + 1) * yMajorTicksDistance);
-                        gridLine.classList.add('grid-line');
+                        this._gridLines[xMajorTicksCount + i - 1] = this._drawing.drawLine(this._canvasStartX,
+                            this._canvasStartY + (i + 1) * yMajorTicksDistance, this._canvasStartX + this._canvasWidth,
+                            this._canvasStartY + (i + 1) * yMajorTicksDistance, this._gridLines[xMajorTicksCount + i - 1]);
+                        this._gridLines[xMajorTicksCount + i - 1].classList.add('grid-line');
                     }
 
+                    for (let i = xMajorTicksCount + yMajorTicksCount - 2; i < this._gridLines.length; i++)
+                        this._gridLines[i] = this._drawing.drawLine(0,0,0,0, this._gridLines[i]);
+
+                    for (let i = 0; i < xMinorTicksCount; i++) {
+                        this._minorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMinorTicksDistance,
+                            this._canvasStartY + this._canvasHeight - minorTickLength, this._canvasStartX + (i + 1) * xMinorTicksDistance,
+                            this._canvasStartY + this._canvasHeight + minorTickLength, this._minorTicks[i]);
+                        this._minorTicks[i].classList.add('ticks');
+                    }
+
+                    for (let i = 0; i < yMinorTicksCount; i++) {
+                        this._minorTicks[xMinorTicksCount + i] = this._drawing.drawLine(this._canvasStartX - minorTickLength,
+                            this._canvasStartY + i * yMinorTicksDistance, this._canvasStartX + minorTickLength,
+                            this._canvasStartY + i * yMinorTicksDistance, this._minorTicks[xMinorTicksCount + i]);
+                        this._minorTicks[xMinorTicksCount + i].classList.add('ticks');
+                    }
+
+                    for (let i = xMinorTicksCount + yMinorTicksCount; i < this._minorTicks.length; i++)
+                        this._minorTicks[i] = this._drawing.drawLine(0,0,0,0, this._minorTicks[i]);
+
+                    for (let i = 0; i < xMajorTicksCount; i++) {
+                        this._majorTicks[i] = this._drawing.drawLine(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                            this._canvasStartY + this._canvasHeight - 2 * minorTickLength, this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                            this._canvasStartY + this._canvasHeight + 2 * minorTickLength, this._majorTicks[i]);
+                        this._majorTicks[i].classList.add('ticks');
+                    }
+
+                    for (let i = 0; i < yMajorTicksCount; i++) {
+                        this._majorTicks[xMajorTicksCount + i] = this._drawing.drawLine(
+                            this._canvasStartX - 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
+                            this._canvasStartX + 2 * minorTickLength, this._canvasStartY + i * yMajorTicksDistance,
+                            this._majorTicks[xMajorTicksCount + i]);
+                        this._majorTicks[xMajorTicksCount + i].classList.add('ticks');
+                    }
+
+                    for (let i = xMajorTicksCount + yMajorTicksCount; i < this._majorTicks.length; i++)
+                        this._majorTicks[i] = this._drawing.drawLine(0,0,0,0, this._majorTicks[i]);
+
+                    for (let i = 0; i < xMajorTicksCount + 1; i++) {
+                        this._labels[i] = this._drawing.drawText(this._canvasStartX + (i + 1) * xMajorTicksDistance,
+                            this._canvasStartY + this._canvasHeight + 6 * minorTickLength,
+                            (xMajorTickLabel * (i + 1)).toFixed(1), this._labels[i]);
+                        this._labels[i].classList.add('label');
+                    }
+
+                    for (let i = 0; i < yMajorTicksCount; i++) {
+                        this._labels[xMajorTicksCount + i] = this._drawing.drawText(this._canvasStartX - 6 * minorTickLength,
+                            this._canvasStartY + i * yMajorTicksDistance, (yMajorTickLabel * (yMajorTicksCount - i)).toFixed(1),
+                            this._labels[xMajorTicksCount + i]);
+                        this._labels[xMajorTicksCount + i].classList.add('label');
+                    }
+
+                    this._labels[xMajorTicksCount + yMajorTicksCount] = this._drawing.drawText(this._canvasStartX - minorTickLength - 3 * minorTickLength,
+                        this._canvasStartY + this._canvasHeight + 6 * minorTickLength, 0, this._labels[xMajorTicksCount + yMajorTicksCount]);
+                    this._labels[xMajorTicksCount + yMajorTicksCount].classList.add('label');
+
+                    for (let i = xMajorTicksCount + yMajorTicksCount + 1; i < this._labels.length; i++)
+                        this._labels[i] = this._drawing.drawText(0,0,'', this._labels[i]);
                 }
 
                 _getCursorPosition(event) {
