@@ -4,9 +4,10 @@ define([
     'bootstrap_colorpicker',
     'bootstrap_select',
     'bootstrap_slider',
-    'bootstrap_spinbox'
+    'bootstrap_spinbox',
+    'transferfunctioncontrol'
 ],
-function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
+function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionControl) {
     function ControlGrid($container) {
         this._$container = $container;
         this._params = {};
@@ -310,6 +311,47 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 this._$container.append(layout);
                 var button = $('#' + controlId);
                 button.on('click', handler);
+            }
+        },
+
+        addTransferFunctionControl: {
+            value: function (object, key, name) {
+                let controlId = this._generateControlId()['control-id'];
+                let div = document.createElement('div');
+                div.id = controlId;
+                div.classList.add('transfer-function-control');
+                let nameContainer = document.createElement('div');
+                nameContainer.classList.add('control-name-column', 'col-xs-3');
+                nameContainer.innerText = name;
+                let controlContainer = document.createElement('div');
+                controlContainer.classList.add('col-xs-7');
+                controlContainer.appendChild(div);
+                let container = document.createElement('div');
+                container.classList.add('col-xs-12');
+                container.append(nameContainer, controlContainer);
+                let row = document.createElement('div');
+                row.classList.add('row');
+                row.appendChild(container);
+                this._$container.append(row);
+
+                let control = new transferFunctionControl(div, 10, 25);
+                control.points = object[key];
+                control.addEventListener('update', () => object[key] = control.points);
+                $('#' + controlId).append('<link rel="stylesheet" type="text/css" href="/transferFunctionControl/TransferFunctionControlStyle.css">');
+
+                var result = {
+                    get: function () {
+                        return control.points;
+                    },
+                    set: function (val) {
+                        control.points = val;
+                    },
+                    refresh: function () {
+                        control.points = object[key];
+                    },
+                };
+                this._params[this._toKey(name)] = result;
+                return result;
             }
         },
 

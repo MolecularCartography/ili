@@ -285,9 +285,15 @@ body[drop-target] > #drop-target-informer {
     background-color: white;
     border-radius: 2px;
 }
+
 orientation-widget {
     height: 100px;
     width: 100px;
     display: block;
     position: absolute;
+    margin: 20px;
+}
+
+.transfer-function-control {
+    height: 200px;
 }

@@ -1,0 +1,32 @@
+.canvas{
+    fill: transparent;
+}
+.label{
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    text-anchor: middle;
+    font-family: Arial, serif;
+    font-size: 1em;
+    alignment-baseline: middle;
+    fill: white;
+}
+
+.points:hover {
+    fill: #f2a359;
+    cursor: pointer;
+}
+
+.points {
+    fill: #f2dc5d;
+}
+
+.axis, .ticks, .line {
+    stroke: white;
+}
+
+.grid-line {
+    stroke: #808080FF;
+    stroke-dasharray: 5;
+}
