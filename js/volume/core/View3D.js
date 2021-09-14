@@ -12,12 +12,13 @@ function(THREE, View3DBase, Workspace) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div, workspace, cameraController, orientationWidget) {
+    function View3D(group, div, workspace, cameraController, orientationWidget, viewGroupRenderer) {
         View3DBase.call(this, group, div, new THREE.OrthographicCamera());
 
         this._workspace = workspace;
         this._cameraController = cameraController;
         this.orientationWidget = orientationWidget;
+        this._viewGroupRenderer = viewGroupRenderer;
 
         this.addEventListener(View3DBase.Events.ASPECT_CHANGE, this._onAspectChange.bind(this));
         this._workspace.addEventListener(Workspace.Events.SHAPE_LOAD, this._onShapeChange.bind(this));
@@ -44,12 +45,12 @@ function(THREE, View3DBase, Workspace) {
         },
 
         _requestDefaultView: {
-            value: function() {
+            value: function(screenWbyHRatio, defaultCameraProperties) {
                 const shapeSize = this._shapeSize;
                 if (!shapeSize) {
                     return;
                 }
-                this._cameraController.setDefaultView(this.camera, shapeSize);
+                this._cameraController.setDefaultView(this.camera, shapeSize, screenWbyHRatio, this._viewGroupRenderer, defaultCameraProperties);
                 this._cameraController.updateAspect(this.camera, this.camera.aspect, shapeSize);
                 this.camera.updateProjectionMatrix();
                 this._updateControls();

@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'orbitcontrols', 'three', 'eventsource'
+    'orbitcontrols', 'three', 'eventsource', 'actioncontroller'
 ],
-function(OrbitControls, THREE, EventSource) {
+function(OrbitControls, THREE, EventSource, actionController) {
     function View3DBase(group, div, camera, events) {
         EventSource.call(this, events ? Object.create(View3DBase.Events, events) : View3DBase.Events);
         this._group = group;
@@ -14,12 +14,7 @@ function(OrbitControls, THREE, EventSource) {
         this._height = 0;
         this._camera = camera;
         this._camera.lookAt(this._group._scene.position);
-
-        this._div.addEventListener('dblclick', this._onDoubleClick.bind(this));
-
-        this._controls = new OrbitControls(this._camera, this._div);
-        this._controls.target = this._group._scene.position;
-        this._controls.enableKeys = false;
+        this._controls = new actionController(this._camera, this._div, this._group, this._requestDefaultView.bind(this));
         this._controls.autoRotate = false;
         this._controls.minZoom = 0.1;
         this._controls.maxZoom = 4.0;
@@ -131,23 +126,6 @@ function(OrbitControls, THREE, EventSource) {
             }
         },
 
-        _onDoubleClick: {
-            value: function(event) {
-                if (this._controls.autoRotate) {
-                    this._controls.autoRotate = false;
-                } else {
-                    if (!event.ctrlKey) {
-                        this._controls.autoRotate = true;
-                        this._controls.autoRotateSpeed = Math.abs(this._controls.autoRotateSpeed) * (event.ctrlKey ? -1 : 1);
-                        this._group.requestAnimationFrame();
-                    } else {
-                        this._requestDefaultView();
-                        event.preventDefault();
-                    }
-                }
-            }
-        },
-
         _updateControls: {
             value: function() {
                 this._controls.update();
@@ -158,7 +136,7 @@ function(OrbitControls, THREE, EventSource) {
             value: function () {
                 return {
                     camera_coords: this._camera.position.toArray(),
-                    controls_target: this._controls.target.toArray(),
+                    controls_target: this._camera.LookAt.toArray(),
                     camera_zoom: this._camera.zoom
                 };
             }
@@ -167,9 +145,13 @@ function(OrbitControls, THREE, EventSource) {
         fromJSON: {
             value: function (json) {
                 this._camera.position.fromArray(json.camera_coords);
-                this._controls.target.fromArray(json.controls_target);
+                this._camera.LookAt.fromArray(json.controls_target);
                 this._camera.zoom = json.camera_zoom;
                 this._controls.update();
+                this._controls.defaultCameraProperties.defaultZoom = this._camera.zoom;
+                this._controls.defaultCameraProperties.defaultPosition = this._camera.position.clone();
+                this._controls.defaultCameraProperties.defaultLookAt = this._camera.LookAt
+                this._controls.defaultCameraProperties.defaultLookUp = this._camera.up.clone();
             }
         }
     });
