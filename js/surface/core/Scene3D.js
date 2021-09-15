@@ -32,6 +32,11 @@ function(Scene3DBase, THREE, Utils) {
         this._axisHelper = new THREE.AxesHelper(20);
         this._scene.add(this._axisHelper);
         this._scene.add(this._frontLight);
+
+        this._spotsController.addEventListener(SpotsController.Events.SPOTS_CHANGE, this._onSpotsChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onAttrChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._onIntensitiesChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onMappingChange.bind(this));
     };
 
     Object.assign(Scene3D, Scene3DBase);

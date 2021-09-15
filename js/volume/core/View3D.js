@@ -18,33 +18,35 @@ function(THREE, View3DBase, Workspace) {
         this._workspace = workspace;
         this._cameraController = cameraController;
 
-        this.addEventListener(View3DBase.Events.ASPECT_CHANGE, this._onAspectChange.bind(this));
-        this._workspace.addEventListener(Workspace.Events.SHAPE_LOAD, this._onShapeChange.bind(this));
+        this.addEventListener(View3DBase.Events.ASPECT_CHANGE, (aspect) => {
+            const shapeSize = this._shapeSize;
+            if (!shapeSize) {
+                return;
+            }
+            this._cameraController.updateAspect(this.camera, aspect, shapeSize);
+            this.camera.updateProjectionMatrix();
+            this._updateControls();
+        });
+
+        workspace.dataContainer.addEventListener('propertyChanged', (event) => {
+            switch (event.name) {
+                case 'shapeData':
+                    this._requestDefaultView();
+                    break;
+            }
+        });
         return this;
     }
 
     View3D.prototype = Object.create(View3DBase.prototype, {
-        _onAspectChange: {
-            value: function(aspect) {
-                const shapeSize = this._shapeSize;
-                if (!shapeSize) {
-                    return;
-                }
-                this._cameraController.updateAspect(this.camera, aspect, shapeSize);
-                this.camera.updateProjectionMatrix();
-                this._updateControls();
-            }
-        },
-
-        _onShapeChange: {
-            value: function(shape) {
-                this._requestDefaultView();
-            }
-        },
 
         _requestDefaultView: {
             value: function() {
-                const shapeSize = this._shapeSize;
+                const shape = this._workspace.dataContainer.shapeData;
+                if (!shape) {
+                    return;
+                }
+                const shapeSize = new THREE.Vector3(shape.sizeX, shape.sizeY, shape.sizeZ);
                 if (!shapeSize) {
                     return;
                 }
@@ -53,23 +55,8 @@ function(THREE, View3DBase, Workspace) {
                 this.camera.updateProjectionMatrix();
                 this._updateControls();
             }
-        },
-
-        _shape: {
-            get: function() {
-                return this._workspace.shape;
-            }
-        },
-
-        _shapeSize: {
-            get: function() {
-                const shape = this._shape;
-                if (!shape) {
-                    return null;
-                }
-                return new THREE.Vector3(shape.sizeX, shape.sizeY, shape.sizeZ);
-            }
         }
+
     });
 
     return View3D;

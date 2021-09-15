@@ -1,5 +1,5 @@
 /**
- * Web Worker. Loads a mesh from STL file.
+ * Web Worker. Remaps cuboids.
  */
 
 'use strict';

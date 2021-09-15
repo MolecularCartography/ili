@@ -2,9 +2,10 @@
 
 define([
     'abcviewcontroller',
-    'controlsgrid'
+    'controlsgrid',
+    'utils'
 ],
-function (EmperorViewControllerABC, ControlGrid) {
+function (EmperorViewControllerABC, ControlGrid, Utils) {
     function TabControllerBase(container, title, description, workspace) {
         EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
 
@@ -83,6 +84,39 @@ function (EmperorViewControllerABC, ControlGrid) {
         fromJSON: {
             value: function (json) {
                 return this._controlGrid.fromJSON(json);
+            }
+        },
+
+        _makeProxyProperty: {
+            value: function(owner, key, converter) {
+                const proxyResult = {};
+                const result = {};
+
+                const value = owner[key];
+                const properties = Object.keys(value);
+                for (let i = 0; i < properties.length; i++) {
+                    const property = properties[i];
+                    proxyResult[property] = owner[key][property];
+                    Object.defineProperty(result, properties[i], {
+                        get: function(prop) {
+                            return proxyResult[prop];
+                        }.bind(owner, properties[i]),
+        
+                        set: function(prop, value) {
+                            if (converter) {
+                                value = converter(value, prop);
+                            }
+                            proxyResult[prop] = value;
+                            owner[key] = Object.assign({}, proxyResult);
+                        }.bind(this, properties[i])
+                    });  
+                }
+                result.refresh = () => {
+                    for (let property in properties) {
+                        proxyResult[property] = owner[key][property];
+                    }
+                };
+                return result;
             }
         }
     });

@@ -14,11 +14,6 @@ function(EventSource, SpotsController, THREE) {
         this._backgroundColor = new THREE.Color('black');
         this._mapping = null;
 
-        this._spotsController.addEventListener(SpotsController.Events.SPOTS_CHANGE, this._onSpotsChange.bind(this));
-        this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onAttrChange.bind(this));
-        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._onIntensitiesChange.bind(this));
-        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onMappingChange.bind(this));
-
         this._scene.add(this._meshContainer);
     };
 
@@ -67,7 +62,6 @@ function(EventSource, SpotsController, THREE) {
 
         render: {
             value: function(renderer, camera) {
-                this._frontLight.position.set(camera.position.x, camera.position.y, camera.position.z);
                 renderer.render(this._scene, camera);
             }
         },

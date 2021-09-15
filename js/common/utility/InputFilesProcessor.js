@@ -2,12 +2,12 @@
 
 define(['utils'],
 function (Utils) {
-    function InputFilesProcessorBase(workspace, supportedInput) {
-        this._workspace = workspace;
+    function InputFilesProcessor(owner, supportedInput) {
+        this._owner = owner;
         this._supportedInput = supportedInput;
     }
 
-    InputFilesProcessorBase.prototype = Object.create(null, {
+    InputFilesProcessor.prototype = Object.create(null, {
         /* @inputFiles is a list of File objects */
         process: {
             value: function (inputFiles) {
@@ -43,8 +43,8 @@ function (Utils) {
                     }
                 }
 
-                for (var i = 0; i < recognizedInput.length; ++i) {
-                    recognizedInput[i].handler(inputFiles.filter(function (file) {
+                for (var i = 0; i < recognizedInput.length; ++i) { 
+                    recognizedInput[i].handler(this._owner, inputFiles.filter(function (file) {
                         return this.files.indexOf(file.name.toLowerCase()) > -1;
                     }.bind(recognizedInput[i])));
                 }
@@ -62,5 +62,5 @@ function (Utils) {
         }
     });
 
-    return InputFilesProcessorBase;
+    return InputFilesProcessor;
 });

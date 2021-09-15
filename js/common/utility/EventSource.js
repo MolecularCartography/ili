@@ -15,7 +15,14 @@ function() {
 
     EventSource.prototype = {
         addEventListener: function(eventName, listener) {
-            this._listeners[eventName].push(listener);
+            const listenerBucket = this._listeners[eventName];
+            listenerBucket.push(listener);
+            return {
+                unsubscribe: () => {
+                    const index = listenerBucket.indexOf(listener);
+                    listenerBucket.splice(index, 1);
+                }
+            };
         },
 
         _notify: function(eventName, args) {

@@ -5,6 +5,39 @@ define([
 ],
 function(THREE) {
     
+    // cube vertices.
+    const CUBE_POSITIONS = [
+        // Near.
+        new THREE.Vector3(0, 0, 0),
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(1, 1, 0),
+        new THREE.Vector3(0, 1, 0),
+        // Far.
+        new THREE.Vector3(0, 0, 1),
+        new THREE.Vector3(1, 0, 1),
+        new THREE.Vector3(1, 1, 1),
+        new THREE.Vector3(0, 1, 1)
+    ];
+
+    // cube line segments.
+    const CUBE_LINE_POSITIONS = [
+        // near.
+        CUBE_POSITIONS[0], CUBE_POSITIONS[1],
+        CUBE_POSITIONS[1], CUBE_POSITIONS[2],
+        CUBE_POSITIONS[2], CUBE_POSITIONS[3],
+        CUBE_POSITIONS[3], CUBE_POSITIONS[0],
+        // far.
+        CUBE_POSITIONS[4], CUBE_POSITIONS[5],
+        CUBE_POSITIONS[5], CUBE_POSITIONS[6],
+        CUBE_POSITIONS[6], CUBE_POSITIONS[7],
+        CUBE_POSITIONS[7], CUBE_POSITIONS[4],
+        // side.
+        CUBE_POSITIONS[0], CUBE_POSITIONS[4],
+        CUBE_POSITIONS[1], CUBE_POSITIONS[5],
+        CUBE_POSITIONS[2], CUBE_POSITIONS[6],
+        CUBE_POSITIONS[3], CUBE_POSITIONS[7]
+    ];
+
     const ThreeJsUtils = {
 
         loadAsync: async function (loader, path, progressCallback) {
@@ -72,7 +105,11 @@ function(THREE) {
 
         createNormalTexture3D: function(volumeData) {
             return ThreeJsUtils.createTexture3D(volumeData, THREE.UnsignedByteType, THREE.RGBFormat);
-        }
+        },
+
+        cubePositions: CUBE_POSITIONS,
+
+        cubeLinePositions: CUBE_LINE_POSITIONS
 
     };
 

@@ -1,15 +1,7 @@
+const pathPrefix = 'js/common/';
+
 require.config({
     paths: {
-        // Utilities.
-        'colormaps': 'js/common/utility/ColorMaps',
-        'eventsource': 'js/common/utility/EventSource',
-        'inputfilesprocessorbase': 'js/common/utility/InputFilesProcessorBase',
-        'utils': 'js/common/utility/utils',
-        'filecombination': 'js/common/utility/FileCombination',
-        'bounds': 'js/common/utility/Bounds',
-        'indexer1d': 'js/common/utility/Indexer1D',
-        'shaderloader': 'js/common/utility/ShaderLoader',
-
         // Ui.
         'appbase': 'js/common/ui/AppBase',
         'appenvironment': 'js/common/ui/AppEnvironment',
@@ -30,6 +22,21 @@ require.config({
         'workspacebase': 'js/common/ui/WorkspaceBase',
         'viewlegendbase': 'js/common/ui/ViewLegendBase',
         'settingscontrollerbase': 'js/common/ui/SettingsControllerBase',
+
+        // Utilities.
+        'colormaps': 'js/common/utility/ColorMaps',
+        'transferfunction': 'js/common/utility/TransferFunction',
+        'eventsource': 'js/common/utility/EventSource',
+        'inputfilesprocessor': 'js/common/utility/InputFilesProcessor',
+        'utils': 'js/common/utility/utils',
+        'filecombination': 'js/common/utility/FileCombination',
+        'bounds': 'js/common/utility/Bounds',
+        'indexer1d': 'js/common/utility/Indexer1D',
+        'shaderloader': 'js/common/utility/ShaderLoader',
+        'shaderschunk': 'js/common/utility/ShadersChunk',
+        'taskcontroller': 'js/common/utility/TaskController',
+        'workercontroller': 'js/common/utility/WorkerController',
+        'propertychangedmanager': 'js/common/utility/PropertyChangedManager',
 
         // Workers.
         'downloader': 'js/common/workers/Downloader',

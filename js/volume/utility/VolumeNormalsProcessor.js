@@ -34,9 +34,9 @@ define(
                     const inputIndexer = new Indexer1D(xLength, yLength, zLength);
 
                     let computeIndex = 0;
-                    for (let xIndex = 0; xIndex < xLength; ++xIndex) {
-                        for (let yIndex = 0; yIndex < yLength; ++yIndex) {
-                            for (let zIndex = 0; zIndex < zLength; ++zIndex) {
+                    for (let xIndex = 1; xIndex < xLength - 1; ++xIndex) {
+                        for (let yIndex = 1; yIndex < yLength - 1; ++yIndex) {
+                            for (let zIndex = 1; zIndex < zLength - 1; ++zIndex) {
                                 const resultIndex = inputIndexer.get(xIndex, yIndex, zIndex) * 3;
                                 this._calculateNormal(
                                     data,
@@ -57,14 +57,15 @@ define(
 
             _calculateNormal: {
                 value: function(input, indexer, xIndex, yIndex, zIndex, output, outputIndex) {
-                    const leftXValue = input[indexer.getXClipped(xIndex - 1, yIndex, zIndex)];
-                    const rightXValue = input[indexer.getXClipped(xIndex + 1, yIndex, zIndex)];
+                    // not sure if we really need cliped indices, but this slows the program...
+                    const leftXValue = input[indexer.get(xIndex - 1, yIndex, zIndex)];
+                    const rightXValue = input[indexer.get(xIndex + 1, yIndex, zIndex)];
     
-                    const leftYValue = input[indexer.getYClipped(xIndex, yIndex - 1, zIndex)];
-                    const rightYValue = input[indexer.getYClipped(xIndex, yIndex + 1, zIndex)];
+                    const leftYValue = input[indexer.get(xIndex, yIndex - 1, zIndex)];
+                    const rightYValue = input[indexer.get(xIndex, yIndex + 1, zIndex)];
     
-                    const leftZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex - 1)];
-                    const rightZValue = input[indexer.getZClipped(xIndex, yIndex, zIndex + 1)];
+                    const leftZValue = input[indexer.get(xIndex, yIndex, zIndex - 1)];
+                    const rightZValue = input[indexer.get(xIndex, yIndex, zIndex + 1)];
     
                     const xRange = rightXValue - leftXValue;
                     const yRange = rightYValue - leftYValue;
