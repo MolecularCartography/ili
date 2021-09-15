@@ -10,8 +10,7 @@ define([
 
 			static getLookUp(camera) {
 				const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
-				const up = new THREE.Vector3(0, 1, 0);
-				const cameraRight = (up.cross(cameraDirection)).normalize();
+				const cameraRight = (camera.up.clone().cross(cameraDirection)).normalize();
 				return cameraDirection.cross(cameraRight)
 			}
 
