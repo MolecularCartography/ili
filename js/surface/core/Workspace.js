@@ -96,13 +96,13 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
                 this._doTask(Workspace.TaskType.LOAD_MESH, blob[0]).then(function(result) {
-                    var geometry = new THREE.BufferGeometry();
+                    this.geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes.geometry) {
                         var attribute = result.attributes.geometry[name];
-                        geometry.setAttribute(name, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
+                        this.geometry.setAttribute(name, new THREE.BufferAttribute(attribute.array, attribute.itemSize));
                     }
                     this._scene3d.materialName = result.attributes.materialName;
-                    this._scene3d.geometry = geometry;
+                    this._scene3d.geometry = this.geometry;
                     if (this.spotsController.spots) {
                         this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                     }

@@ -68,8 +68,8 @@ function(EventSource, SpotsController, THREE) {
         render: {
             value: function(renderer, camera, orientationWidget) {
                 this._frontLight.position.set(camera.position.x, camera.position.y, camera.position.z);
-                orientationWidget.transform = `translateZ(-300px)  ${this.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
                 renderer.render(this._scene, camera);
+                orientationWidget.transform = `translateZ(-300px)  ${this.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
             }
         },
         getCameraCSSMatrix:{

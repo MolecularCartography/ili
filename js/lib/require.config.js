@@ -37,7 +37,13 @@ require.config({
         'transferfunctioncontrol': 'transferFunctionControl/TransferFunctionControl',
         'drawing': 'transferFunctionControl/Drawing',
         'coordstransformer': 'transferFunctionControl/CoordsTransformer',
-        'objectcache': 'transferFunctioncontrol/ObjectCache'
+        'objectcache': 'transferFunctioncontrol/ObjectCache',
+        'actioncontroller' : 'js/common/interactivitySystem/ActionController',
+        'rotatestate' : 'js/common/interactivitySystem/RotateState',
+        'zoombymousemovestate' : 'js/common/interactivitySystem/ZoomByMouseMoveState',
+        'zoombymousewheelstate' : 'js/common/interactivitySystem/ZoomByMouseWheelState',
+        'panstate' : 'js/common/interactivitySystem/PanState',
+        'camerahelper': 'js/common/interactivitySystem/CameraHelper',
     },
     /*
         Libraries that are not AMD compatible need shim to declare their
