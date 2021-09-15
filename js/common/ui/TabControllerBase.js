@@ -45,6 +45,12 @@ function (EmperorViewControllerABC, ControlGrid, Utils) {
             }
         },
 
+        addTransferFunctionControl: {
+            value: function (object, key, name) {
+                return this._controlGrid.addTransferFunctionControl(object, key, name);
+            }
+        },
+
         addAction: {
             value: function (name, handler) {
                 return this._controlGrid.addAction(name, handler);

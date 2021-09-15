@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'scene3dbase', 'spotscontrollerbase'
+    'three', 'scene3dbase', 'spotscontrollerbase', 'camerahelper'
 ],
-function(THREE, Scene3DBase, SpotsControllerBase) {
+function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper) {
 
     function ViewGroup3DBase(workspace, div, initializer) {
         this._div = div;
@@ -27,8 +27,20 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
         this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
 
         var divs = this._div.querySelectorAll('.View3D');
+        let orientationWidgets = this._div.querySelectorAll('orientation-widget');
         for (var i = 0; i < divs.length; i++) {
-            const view3d = initializer.createView(this, divs[i], i);
+            let viewGroupRenderer = {
+                renderer: this._renderer,
+                scene: this._scene,
+                renderTo: this._renderTo,
+                _views: this._views,
+                _height: this._height,
+                div: this._div
+            };
+            const view3d = initializer.createView(this, divs[i], i, orientationWidgets[i], viewGroupRenderer);
+            view3d.orientationWidget._cameraRotateFunc = ((eyeFixed) => {
+                CameraHelper.rotateByOrientationWidget(view3d.camera, eyeFixed, viewGroupRenderer)
+            });
             this._views.push(view3d);
         }
         this._spotLabel = initializer.createSpotLabel(this, this._scene);
@@ -55,7 +67,7 @@ function(THREE, Scene3DBase, SpotsControllerBase) {
                     renderer.setViewport(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissor(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissorTest(true);
-                    scene.render(renderer, v.camera);
+                    scene.render(renderer, v.camera, v.orientationWidget);
                 }
             }
         },

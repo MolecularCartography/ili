@@ -176,8 +176,7 @@ body[drop-target] > #view-container[layout='welcome'] > .view-welcome {
     width: 200px;
     height: 80px;
     position: absolute;
-    right: 20px;
-    bottom: 20px;
+    margin: 20px;
     display: block;
 }
 

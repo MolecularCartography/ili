@@ -19,6 +19,7 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
             ['Transfer Shape', 2],
             ['Mixed', 3]
         ];
+        const layoutCorners = ['Top-left', 'Top-right', 'Bottom-left', 'Bottom-right'];
 
         function TabController3D(container, workspace, views) {
             var description = 'Settings of 3D view';
@@ -31,6 +32,8 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
             {
                 const generalGroup = this.addGroupBox('General');
                 generalGroup.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);
+                generalGroup.addChoice(views, 'legendLayout', 'Legend layout', layoutCorners);
+                generalGroup.addChoice(views, 'widgetLayout', 'Widget layout', layoutCorners);
                 generalGroup.addColor(workspace.scene3d, 'backgroundColor', 'Background');          
                 generalGroup.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
             }
@@ -48,6 +51,8 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
                 commonGroup.addChoice(dataContainer, 'shapeColorMapId', 'Color Map', colorMapOptions);
                 commonGroup.addFlag(dataContainer, 'isBoundingBoxVisible', 'Border Visible', 0, 1);
                 commonGroup.addNumeric(dataContainer, 'shapeOpacity', 'Opacity', 0, 1);
+                commonGroup.addTransferFunctionControl(workspace.scene3d, 'transfer_function1', 'Shape based transfer function');
+                commonGroup.addTransferFunctionControl(workspace.scene3d, 'transfer_function1', 'Intensity based transfer function');
             }
 
             // light.

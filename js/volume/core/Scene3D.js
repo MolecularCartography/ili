@@ -92,7 +92,8 @@ function(EventSource, PropertyChangedManager, Scene3DBase, THREE, ThreeUtils, Ut
         },
 
         render: {
-            value: function(renderer, camera) {
+            value: function(renderer, camera, orientationWidget) {
+                orientationWidget.transform = `translateZ(-300px)  ${Scene3DBase.prototype.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
                 renderer.render(this._scene, camera);
             }
         }

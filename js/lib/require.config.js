@@ -31,7 +31,19 @@ require.config({
         'slickcore': 'js/lib/slick.core.min',
         'slickgrid': 'js/lib/slick.grid.min',
         'slickformatters': 'js/lib/slick.editors.min',
-        'slickeditors': 'js/lib/slick.formatters.min'
+        'slickeditors': 'js/lib/slick.formatters.min',
+
+        'tween': 'js/lib/tween.min',
+        'transferfunctioncontrol': 'transferFunctionControl/TransferFunctionControl',
+        'drawing': 'transferFunctionControl/Drawing',
+        'coordstransformer': 'transferFunctionControl/CoordsTransformer',
+        'objectcache': 'transferFunctioncontrol/ObjectCache',
+        'actioncontroller' : 'js/common/interactivitySystem/ActionController',
+        'rotatestate' : 'js/common/interactivitySystem/RotateState',
+        'zoombymousemovestate' : 'js/common/interactivitySystem/ZoomByMouseMoveState',
+        'zoombymousewheelstate' : 'js/common/interactivitySystem/ZoomByMouseWheelState',
+        'panstate' : 'js/common/interactivitySystem/PanState',
+        'camerahelper': 'js/common/interactivitySystem/CameraHelper',
     },
     /*
         Libraries that are not AMD compatible need shim to declare their

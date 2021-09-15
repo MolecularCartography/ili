@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'viewgroup3dbase', 'volumeview3d'
+    'three', 'viewgroup3dbase', 'volumeview3d', 'camerahelper'
 ],
-function(THREE, ViewGroup3DBase, View3D) {
+function(THREE, ViewGroup3DBase, View3D, CameraHelper) {
 
     /**
      * The method is used to update orthogonal camera aspect.
@@ -27,34 +27,14 @@ function(THREE, ViewGroup3DBase, View3D) {
         camera.updateProjectionMatrix();
     }
 
-    /**
-     * Relative offset in direction of view.
-     */
-    const directionMultipler = 2;
 
     /**
      * Sets the camera default view.
      * @param {*} camera Camera for update.
      * @param {*} dimensions Bounding box dimensions.
-     * @param {*} depthIndex Depth axis index.
      */
-    function setDefaultView(camera, dimensions, horizontalIndex, verticalIndex) {
-        const depthIndex = 3 - (horizontalIndex + verticalIndex);
-
-        const offset = new THREE.Vector3();
-        offset.setComponent(depthIndex, 1);
-
-        const upVector = new THREE.Vector3();
-        upVector.setComponent(verticalIndex, 1);
-
-        const maxDimension = Math.max(dimensions.x, Math.max(dimensions.y, dimensions.z));
-        const offsetMultiplier = maxDimension * directionMultipler;
-        camera.position.multiplyVectors(new THREE.Vector3(offsetMultiplier, offsetMultiplier, offsetMultiplier), offset);
-        camera.near = 0.001;
-        camera.far = 10000;
-        
-        camera.up = upVector;
-        camera.zoom = 1;
+    function setDefaultView(camera, dimensions, horizontalIndex, verticalIndex, screenWbyHRatio, viewGroupRenderer, defaultCameraProperties) {
+        CameraHelper.setupCameraDefaultView(camera, screenWbyHRatio, dimensions, horizontalIndex, verticalIndex, viewGroupRenderer, defaultCameraProperties)
     }
 
     /**
@@ -62,20 +42,20 @@ function(THREE, ViewGroup3DBase, View3D) {
      */
     const cameraControllers = [
         {
-            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
-            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
+            updateAspect: function(c, a, d) { updateCameraAspect(c, a, d);},
+            setDefaultView: function(c, d, r, v, p) { setDefaultView(c, d, 0, 1, r, v, p); }
         },
         {
             updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
-            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
+            setDefaultView: function(c, d, r, v, p) { setDefaultView(c, d, 0, 1, r, v, p); }
         },
         {
             updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
-            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
+            setDefaultView: function(c, d, r, v, p) { setDefaultView(c, d, 0, 1, r, v, p); }
         },
         {
             updateAspect: function(c, a, d) { updateCameraAspect(c, a, d); },
-            setDefaultView: function(c, d) { setDefaultView(c, d, 0, 1); }
+            setDefaultView: function(c, d, r, v, p) { setDefaultView(c, d, 0, 1, r, v, p); }
         }
     ];
 
@@ -88,8 +68,8 @@ function(THREE, ViewGroup3DBase, View3D) {
      */
     function ViewGroup3D(workspace, div) {
         ViewGroup3DBase.call(this, workspace, div, {
-            createView: function(group, div, index) {
-                return new View3D(group, div, workspace, cameraControllers[index]);
+            createView: function(group, div, index, orientationWidget, viewGroupRenderer) {
+                return new View3D(group, div, workspace, cameraControllers[index], orientationWidget, viewGroupRenderer);
             },
             createSpotLabel: function(group, scene) {
                 return null;
