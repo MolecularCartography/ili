@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-        'drawing', 'coordstransformer', 'objectcache'
+        'js/common/transferFunctionControl/Drawing', 'coordstransformer', 'objectcache'
     ],
     function () {
 
