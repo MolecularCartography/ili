@@ -64,10 +64,9 @@ define([
 					camera.position.z * camera.position.z);
 				let edgeDist = Math.sqrt(dist * dist / 2);
 				let cornerDist = Math.sqrt(dist * dist / 3);
-				let upFixed = camera.up;
+				let upFixed = new THREE.Vector3(0, 1, 0)
 				const target = new THREE.Vector3();
 				let vector = new THREE.Vector3().fromArray(eyeFixed(dist, edgeDist, cornerDist));
-				camera.up.set(upFixed.x, upFixed.y, upFixed.z);
 
 				this.setAnimationLoop(camera, viewGroupRenderer, target, vector, upFixed, duration);
 			}
@@ -120,12 +119,11 @@ define([
 
 			static setAnimationLoop(camera, viewGroupRenderer, lookAt, position, lookUp, duration) {
 				viewGroupRenderer._height = viewGroupRenderer.div.clientHeight;
-				let tween = new TWEEN.Tween(camera.position);
-				tween.to(position, duration);
-				camera.up.set(lookUp.x, lookUp.y, lookUp.z);
-				tween.start();
-
-				tween.onComplete(() => {
+				let lookAtVector = camera.LookAt;
+				let tweenPosition = new TWEEN.Tween(camera.position).to(position, duration).start();
+				new TWEEN.Tween(lookAtVector).to(lookAt, duration).start();
+				new TWEEN.Tween(camera.up).to(lookUp, duration).start();
+				tweenPosition.onComplete(() => {
 					setTimeout(() => {
 						viewGroupRenderer.renderer.setAnimationLoop(null);
 						viewGroupRenderer.renderTo(viewGroupRenderer.renderer, viewGroupRenderer.scene);
@@ -135,8 +133,7 @@ define([
 
 				viewGroupRenderer.renderer.setAnimationLoop(() => {
 					TWEEN.update();
-					camera.lookAt(lookAt);
-					camera.up.set(0, 1, 0);
+					camera.lookAt(lookAtVector);
 					viewGroupRenderer.renderTo(viewGroupRenderer.renderer, viewGroupRenderer.scene);
 				})
 			}
