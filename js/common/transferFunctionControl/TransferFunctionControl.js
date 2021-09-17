@@ -1,7 +1,7 @@
 'use strict';
 
 define([
-        'drawing', 'coordstransformer', 'objectcache'
+        'js/common/transferFunctionControl/Drawing', 'coordstransformer', 'objectcache'
     ],
     function () {
 
@@ -29,6 +29,8 @@ define([
                     this._container.addEventListener('mousemove', event => this._dragPoint(event));
                     this._container.addEventListener('contextmenu', event => event.preventDefault());
                     this._container.addEventListener('mouseup', () => this._selectedIndex = -1);
+                    this._container.addEventListener('pointerdown', event => this._onPointerDown(event))
+                    this._container.addEventListener('pointerup', event => this._onPointerUp(event))
                     this._minorTicksDensity = minorTicksDensity;
                     this._majorTicksDensity = majorTicksDensity;
                     this._selectedIndex = -1;
@@ -62,6 +64,13 @@ define([
 
                 get points() {
                     return this._points;
+                }
+
+                _onPointerDown(event) {
+                        this._container.setPointerCapture(event.pointerId)
+                }
+                _onPointerUp(event) {
+                    this._container.releasePointerCapture(event.pointerId)
                 }
 
                 set points(value) {

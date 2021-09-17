@@ -39,7 +39,7 @@ class OrientationWidget extends HTMLElement {
     }
 
     connectedCallback() {
-        fetch('orientationWidget/orientationWidget.html')
+        fetch('js/common/orientationWidget/orientationWidget.html')
             .then(r => r.text())
             .then(t => {
                 this.innerHTML = t;
