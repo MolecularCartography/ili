@@ -86,6 +86,17 @@ function(
             this._normalsVolumeTextureCache = new VolumeDataCache.VolumeTextureCache((volume) => ThreeJsUtils.createNormalTexture3D(volume));
 
             // getters.
+            this._boundingBoxGetterProperty = this._defineGetterProperty({
+                name: 'boundingBox',
+                getter: () => {
+                    const shapeData = this.shapeData;
+                    if (!shapeData) {
+                        return null;
+                    }
+                    const halfShapeSize = new THREE.Vector3().set(shapeData.sizeX / 2, shapeData.sizeY / 2, shapeData.sizeZ / 2);
+                    return new THREE.Box3(halfShapeSize.clone().negate(), halfShapeSize);
+                }
+            });
             this._normalsTextureGetterProperty = this._defineGetterProperty({
                 name: 'normalDataTexture',
                 getter: () => this._areNormalsValid ? this._normalsVolumeTextureCache.texture : null
@@ -99,13 +110,14 @@ function(
                 getter: () => this._isRemappingValid ? this._intensityOpacityVolumeTextureCache.texture : null
             });
 
-            // shape properties.
+            // shape properties. 
             this._definePresentationProperty({
                 name: 'shapeData',
                 nameEx: 'shapeDataTexture',
                 getterEx: () => this._shapeDataTextureCache.texture,
                 callback: (data) => {
                     this._isRemappingValid = false;
+                    this._boundingBoxGetterProperty.notify();
 
                     this._intensityTextureGetterProperty.notify();
                     this._intensityOpacityTextureGetterProperty.notify();
@@ -113,7 +125,7 @@ function(
                     this._areNormalsValid = false;
                     this._normalsTextureGetterProperty.notify();
     
-                    this._shapeDataTextureCache.setup(data);
+                    this._shapeDataTextureCache.setup(data);   
 
                     this._tryInvalidateNormalsData();
                     this._tryRemapIntensities();
@@ -225,7 +237,7 @@ function(
             });
             this._definePresentationProperty({ 
                 name: 'renderMode', 
-                value: 'section',
+                value: 'volume',
                 callback: () => {
                     this._tryRemapIntensities();
                     this._tryResetSectionGeometry();
@@ -314,6 +326,10 @@ function(
                     this._tryResetSectionGeometry();
                 }
             });
+            this._definePresentationProperty({
+                name: 'textureFilter',
+                value: 'linear'
+            })
             this._definePresentationProperty({
                 name: 'isSectionLineVisible',
                 value: true

@@ -21,7 +21,7 @@ function (TabControllerBase, ViewGroup3D) {
         this.addColor(workspace.scene3d, 'color', 'Color');
         this.addColor(workspace.scene3d, 'backgroundColor', 'Background');
         this.addFlag(workspace.scene3d, 'axisHelper', 'Show the origin');
-        this.addNumeric(workspace.scene3d.frontLight, 'intensity', 'Light', 0, 3);
+        this.addNumeric(workspace.scene3d, 'lightIntensity', 'Light', 0, 3);
         this.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
         this.addChoice(views, 'legendLayout', 'Legend layout', layoutCorners);
         this.addChoice(views, 'widgetLayout', 'Widget layout', layoutCorners);

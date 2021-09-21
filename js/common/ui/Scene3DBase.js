@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'eventsource', 'spotscontrollerbase', 'three', 
+    'eventsource', 'spotscontrollerbase', 'three', 'camerahelper'
 ],
-function(EventSource, SpotsController, THREE) {
+function(EventSource, SpotsController, THREE, CameraHelper) {
     function Scene3DBase(spotsController) {
         EventSource.call(this, Scene3DBase.Events);
 
@@ -61,41 +61,16 @@ function(EventSource, SpotsController, THREE) {
         },
 
         render: {
-            value: function(renderer, camera) {
+            value: function(renderer, camera, orientationWidget) {
                 renderer.render(this._scene, camera);
-                orientationWidget.transform = `translateZ(-300px)  ${this._getCameraCSSMatrix(camera.matrixWorldInverse)}`;
+                orientationWidget.transform = `translateZ(-300px)  ${CameraHelper.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
             }
         },
 
-        _getCameraCSSMatrix:{
-            value: function(matrix) {
-                let elements = matrix.elements;
-                return 'matrix3d(' +
-                    epsilon(elements[0]) + ',' +
-                    epsilon(-elements[1]) + ',' +
-                    epsilon(elements[2]) + ',' +
-                    epsilon(elements[3]) + ',' +
-                    epsilon(elements[4]) + ',' +
-                    epsilon(-elements[5]) + ',' +
-                    epsilon(elements[6]) + ',' +
-                    epsilon(elements[7]) + ',' +
-                    epsilon(elements[8]) + ',' +
-                    epsilon(-elements[9]) + ',' +
-                    epsilon(elements[10]) + ',' +
-                    epsilon(elements[11]) + ',' +
-                    0 + ',' +
-                    0 + ',' +
-                    0 + ',' +
-                    1 +
-                    ')';
-            }
-        }
     });
 
 
-    function epsilon( value ) {
-        return Math.abs( value ) < 1e-10 ? 0 : value;
-    }
+
 
     return Scene3DBase;
 });

@@ -5,9 +5,10 @@ define([
     'bootstrap_select',
     'bootstrap_slider',
     'bootstrap_spinbox',
-    'transferfunctioncontrol'
+    'transferfunctioncontrol',
+    'transferfunction'
 ],
-function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionControl) {
+function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionControl, TransferFunction) {
     function ControlGrid($container) {
         this._$container = $container;
         this._params = {};
@@ -335,8 +336,8 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionContr
                 this._$container.append(row);
 
                 let control = new transferFunctionControl(div, 10, 25);
-                control.points = object[key];
-                control.addEventListener('update', () => object[key] = control.points);
+                control.points = object[key].points;
+                control.addEventListener('update', () => object[key] = new TransferFunction(control.points));
                 $('#' + controlId).append('<link rel="stylesheet" type="text/css" href="/transferFunctionControl/TransferFunctionControlStyle.css">');
 
                 var result = {

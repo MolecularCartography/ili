@@ -176,7 +176,7 @@ vec4 extract_shape_color(vec3 loc, out float tfModifier) {
 vec4 extract_intensity_color(vec3 loc, out float tfModifier) {
     float intensity_value, normalized_intensity_value;
     if (!extract_intensity_values(loc, intensity_value, normalized_intensity_value)) {
-        tfModifier = 0.0;
+        tfModifier = -1.0;
         return vec4(0.0);
     }
 
@@ -196,7 +196,11 @@ float get_shape_tf_modifier(float shapeModifier, float intensityModifier) {
         case 2:
             return shape_transfer_function_sample(shapeModifier);
         case 3:
-            return shape_transfer_function_sample(shapeModifier) * shape_transfer_function_ex_sample(intensityModifier);
+            if (intensityModifier >= 0.0) {
+                return shape_transfer_function_sample(shapeModifier) * shape_transfer_function_ex_sample(intensityModifier);
+            } else {
+                return 0.0;
+            }
     }
     return 0.0;
 }
@@ -246,7 +250,7 @@ vec4 get_ray_color(vec3 loc, vec3 shading_ray, bool shape_enabled) {
 
     // Submit transfer functions alpha modifiers based on input sources.
     float shape_tf_modifier = get_shape_tf_modifier(shapeTfModifier, intensityTfModifier);
-    float intensity_tf_modifier =  get_intensity_tf_modifier(shapeTfModifier, intensityTfModifier);
+    float intensity_tf_modifier = get_intensity_tf_modifier(shapeTfModifier, intensityTfModifier);
     if (u_shape_tf_opacity_enabled == 1) {
         shape_color.a *= shape_tf_modifier;
     } 

@@ -43,6 +43,7 @@ define([
             [ 'normalDataTexture', (mesh, getter) => mesh._resetShapeDataNormalTexture(getter) ],
     
             // Complex properties.
+            [ 'textureFilter', (mesh, getter) => mesh._resetTextureFilter(getter )],
             [ 'isSliceEnabled', (mesh, getter) => mesh._resetIsSliceEnabled(getter) ],
             [ 'sliceInfo', (mesh, getter) => mesh._resetSliceInfo(getter) ],
             [ 'coordinatesAdjustmentInfo', (mesh, getter) => mesh._resetCoordinatesAdjustment(getter) ],
@@ -114,6 +115,25 @@ define([
 
             }
 
+            _resetTextureFilter(getter) {
+                this._textureFilter = getter();
+                this._validateTextureFilter();
+            }
+
+            _validateTextureFilter() {
+                const filter = this._textureFilter === 'nearest' ? THREE.NearestFilter :  THREE.LinearFilter;
+                const resetFilter = (texture) => {
+                    if (texture) {
+                        texture.magFilter = filter;
+                        texture.minFilter = filter;
+                        texture.needsUpdate = true;
+                    }
+                }
+                resetFilter(this._intensityDataTexture);
+                resetFilter(this._shapeDataTexture);
+                resetFilter(this._shapeDataNormalsTexture);
+            }
+
             _resetIntensitySizeFactor(getter) {
                 const value = getter();
                 this._setUniform('u_intensity_size_factor', value);
@@ -166,6 +186,8 @@ define([
 
             _resetShapeDataTexture(getter) { 
                 const value = getter();
+                this._shapeDataTexture = value;
+                this._validateTextureFilter();
                 this._setUniform('u_shape_data', value);
 
                 if (!value) {
@@ -178,6 +200,7 @@ define([
             _resetShapeDataNormalTexture(getter) {  
                 const value = getter();          
                 this._shapeDataNormalsTexture = value;
+                this._validateTextureFilter();
                 this._setUniform('u_normals_data', value);
 
                 if (!value) {
@@ -238,6 +261,7 @@ define([
             _resetIntensityDataTexture(getter) {
                 const value = getter();
                 this._intensityDataTexture = value;
+                this._validateTextureFilter();
                 this._setUniform('u_intensity_data', value);
                 if (value) {
                     const image = value.image;

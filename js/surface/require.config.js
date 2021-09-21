@@ -3,7 +3,6 @@ requirejs.config({
     paths: {
         // Utilities
         'surfacesettingscontroller': surfacePathPrefix + 'core/SettingsController',
-        'surfaceinputfilesprocessor': surfacePathPrefix + 'core/InputFilesProcessor',
         'surfacescene2d': surfacePathPrefix + 'core/Scene2D',
         'surfacescene3d': surfacePathPrefix + 'core/Scene3D',
         'surfaceview2d': surfacePathPrefix + 'core/View2D',

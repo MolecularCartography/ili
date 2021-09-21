@@ -78,6 +78,15 @@ function (WorkspaceBase, FileCombination, Scene3D, SpotsController, THREE, Three
             };
         });
 
+        // setup data container events.
+        this.dataContainer.addEventListener('propertyChanged', (args) => {
+            switch (args.name) {
+                case 'boundingBox':
+                    this._notify(WorkspaceBase.Events.BOUNDS_CHANGE);
+                    break;
+            }
+        });
+
         return this;
     }
 
@@ -88,6 +97,12 @@ function (WorkspaceBase, FileCombination, Scene3D, SpotsController, THREE, Three
     };
 
     Workspace.prototype = Object.create(WorkspaceBase.prototype, {
+
+        getDataBoundingBox: {
+            value: function() {
+                return this.dataContainer.boundingBox;
+            }
+        }, 
 
         _onShapeLoaded: {
             value: function(blob) {

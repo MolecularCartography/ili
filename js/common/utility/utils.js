@@ -81,23 +81,7 @@ function() {
             return (value < min) ? min : (value > max) ? max : value;
         }
     };
-
-    Utils.setupProxyObject = function(owner, properties, callback) {
-        for (var i = 0; i < properties.length; i++) {
-            Object.defineProperty(owner, properties[i], {
-                get: function(prop) {
-                    return owner[prop];
-                }.bind(owner, properties[i]),
-
-                set: function(prop, value) {
-                    owner[prop] = value;
-                    callback.call(owner);
-                }.bind(this, properties[i])
-            });  
-        }
-        return owner;
-    };
-
+    
     Utils.makeProxyProperty = function(field, properties, callback) {
         var proxyName = 'proxy' + field;
         this[proxyName] = null;
@@ -105,7 +89,18 @@ function() {
             get: function() {
                 if (this[proxyName]) return this[proxyName];
                 this[proxyName] = {};
-                Utils.setupProxyObject(this[proxyName], properties, callback);
+                for (var i = 0; i < properties.length; i++) {
+                    Object.defineProperty(this[proxyName], properties[i], {
+                        get: function(prop) {
+                            return this[field][prop];
+                        }.bind(this, properties[i]),
+
+                        set: function(prop, value) {
+                            this[field][prop] = value;
+                            callback.call(this);
+                        }.bind(this, properties[i])
+                    });  
+                }
                 return this[proxyName];
             },
 

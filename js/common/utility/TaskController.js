@@ -14,14 +14,14 @@ function () {
 
         runTask(taskType, args, transfer) {
             if (taskType.key in this._tasks) 
-                this._cancelTask(taskType);
+                this.cancelTask(taskType);
 
             var task = {
                 worker: typeof taskType.worker == 'function' ?
                     new taskType.worker() :
                     new Worker(require.toUrl(taskType.worker)),
                 status: '',
-                cancel: this._cancelTask.bind(this, taskType),
+                cancel: this.cancelTask.bind(this, taskType),
                 startTime: new Date().valueOf(),
             };
             this._tasks[taskType.key] = task;
@@ -68,7 +68,7 @@ function () {
             }.bind(this));
         }
 
-        _cancelTask(taskType) {
+        cancelTask(taskType) {
             if (taskType.key in this._tasks) {
                 this._tasks[taskType.key].worker.onerror = null;
                 this._tasks[taskType.key].worker.terminate();

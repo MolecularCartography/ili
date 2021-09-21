@@ -56,14 +56,21 @@ class OrientationWidget extends HTMLElement {
                                 elements[j].style.background = 'transparent';
                             }
                         })
-                        elements[i].addEventListener('click', () => this._cameraRotateFunc(value));
+                        elements[i].addEventListener('mousedown', (event) => {
+                            if (!this._cameraRotateFunc) {
+                                throw new Error("Rotation function is not specified.");
+                            }
+                            this._cameraRotateFunc(value);
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
                     }
                 }
             });
     }
 
-    set cameraRotateFunc(val) {
-        this._cameraRotateFunc = val;
+    initialize(rotateFunc) {
+        this._cameraRotateFunc = rotateFunc;
     }
 
     set transform(val) {

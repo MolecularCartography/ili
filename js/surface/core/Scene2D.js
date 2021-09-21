@@ -36,6 +36,17 @@ function(EventSource, SpotsController, THREE) {
             }
         },
 
+        getDataBoundingBox: {
+            value: function() {
+                if (!this._imageURL) {
+                    return null;
+                }
+                return new THREE.Box3(
+                    new THREE.Vector3().set(0, 0, 0),
+                    new THREE.Vector3().set(this._width, this._height, 0));
+            }
+        },
+
         setImage: {
             value: function(imageURL, width, height) {
                 if (this._imageURL) {

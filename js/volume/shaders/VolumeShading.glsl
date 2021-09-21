@@ -46,8 +46,8 @@ vec4 add_lighting(vec4 color, vec3 normal_vector, vec3 view_ray) {
     normal_vector = normalize(normal_vector);
 
     // Flip normal so it points towards viewer
-    //float Nselect = float(dot(normal_vector, V) > 0.0);
-    //normal_vector = (2.0 * Nselect - 1.0) * normal_vector;
+    float Nselect = float(dot(normal_vector, V) > 0.0);
+    normal_vector = (2.0 * Nselect - 1.0) * normal_vector;
 
     float dd = 0.0;
     vec4 final_color = color * u_ambient_intensity;

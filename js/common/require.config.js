@@ -37,6 +37,8 @@ require.config({
         'taskcontroller': 'js/common/utility/TaskController',
         'workercontroller': 'js/common/utility/WorkerController',
         'propertychangedmanager': 'js/common/utility/PropertyChangedManager',
+        'commoneventlisteners': 'js/common/interactivitySystem/CommonEventListeners',
+        'animationloopmanager': 'js/common/utility/AnimationLoopManager',
 
         // Workers.
         'downloader': 'js/common/workers/Downloader',

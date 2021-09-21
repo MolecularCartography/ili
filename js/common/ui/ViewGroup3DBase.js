@@ -1,9 +1,16 @@
 'use strict';
 
 define([
-    'three', 'scene3dbase', 'spotscontrollerbase', 'camerahelper'
+    'three', 'scene3dbase', 'spotscontrollerbase', 'camerahelper', 'animationloopmanager'
 ],
-function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper) {
+function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper, AnimationLoopManager) {
+
+    const ViewProjections = [
+        { horizontalIndex: 0, verticalIndex: 1 },
+        { horizontalIndex: 0, verticalIndex: 2 },
+        { horizontalIndex: 1, verticalIndex: 2 },
+        { horizontalIndex: 0, verticalIndex: 2 },
+    ];
 
     function ViewGroup3DBase(workspace, div, initializer) {
         this._div = div;
@@ -17,41 +24,47 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper) {
         this._left = 0;
         this._top = 0;
         this._pixelRatio = 1;
-        this._views = [];
         this._animationFrameRequested = false;
+
+        // create animation controller responsible for abstract animation callbacks.
+        this._animationController = {
+            requestRedraw: () => this._redraw(),
+            setState: (state) => null,
+            setAnimationLoop: (action) => this.setAnimationLoop(action)
+        };
+        this._animationLoopManager = new AnimationLoopManager(this._renderer);   
 
         this._scene = workspace.scene3d;
         this._scene.addEventListener(Scene3DBase.Events.CHANGE, this.requestAnimationFrame.bind(this));
         workspace.spotsController.addEventListener(SpotsControllerBase.Events.MAPPING_CHANGE, this.requestAnimationFrame.bind(this));
 
-        this._div.addEventListener('mousedown', this._onMouseDown.bind(this));
-
-        var divs = this._div.querySelectorAll('.View3D');
-        let orientationWidgets = this._div.querySelectorAll('orientation-widget');
-        for (var i = 0; i < divs.length; i++) {
-            let viewGroupRenderer = {
-                renderer: this._renderer,
-                scene: this._scene,
-                renderTo: this._renderTo,
-                _views: this._views,
-                _height: this._height,
-                div: this._div
-            };
-            const view3d = initializer.createView(this, divs[i], i, orientationWidgets[i], viewGroupRenderer);
-            view3d.orientationWidget._cameraRotateFunc = ((eyeFixed) => {
-                CameraHelper.rotateByOrientationWidget(view3d.camera, eyeFixed, viewGroupRenderer)
-            });
-            this._views.push(view3d);
-        }
+        // create spot label.
         this._spotLabel = initializer.createSpotLabel(this, this._scene);
+
+        // extract view items and initialize views.
+        const divs = this._div.querySelectorAll('.View3D');
+        const orientationWidgets = this._div.querySelectorAll('orientation-widget');
+        this._views = new Array(divs.length);
+        for (let i = 0; i < divs.length; i++) {
+            this._views[i] = initializer.createView(workspace, this, divs[i], orientationWidgets[i], ViewProjections[i]);
+        }
+      
         return this;
     }
 
     ViewGroup3DBase.prototype = Object.create(null, {
+
+        setAnimationLoop: {
+            value: function(action) {
+                return this._animationLoopManager.setAnimationLoop(action);
+            }
+        },
+
         requestAnimationFrame: {
             value: function() {
-                if (this._animationFrameRequested) return;
-
+                if (this._animationFrameRequested) {
+                    return;
+                }
                 requestAnimationFrame(this._onAnimationFrame.bind(this), this._canvas);
                 this._animationFrameRequested = true;
             }
@@ -67,7 +80,7 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper) {
                     renderer.setViewport(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissor(v.left, viewportBottom, v.width, v.height);
                     renderer.setScissorTest(true);
-                    scene.render(renderer, v.camera, v.orientationWidget);
+                    scene.render(renderer, v.camera, v._orientationWidget);
                 }
             }
         },
@@ -158,19 +171,16 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper) {
                 for (var i = 0; i < this._views.length; i++) {
                     this._views[i].onAnimationFrame(now);
                 }
+                this._redraw();
+            }
+        },
+
+        _redraw: {
+            value: function() {
                 this._renderTo(this._renderer, this._scene);
                 if (this._spotLabel) {
                     this._spotLabel.update();
                 }
-            }
-        },
-
-        _onMouseDown: {
-            value: function(event) {
-                var parentRect = this._div.getBoundingClientRect();
-                if (this._spotLabel) {
-                    this._spotLabel.showFor(event.pageX - parentRect.left, event.pageY - parentRect.top);
-                } 
             }
         },
 

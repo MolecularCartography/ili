@@ -56,7 +56,8 @@ function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombinati
         MODE_CHANGE: 'mode-change',
         ERRORS_CHANGE: 'errors-change',
         SETTINGS_CHANGE: 'settings-change',
-        REQUEST_SETTINGS: 'request-settings'
+        REQUEST_SETTINGS: 'request-settings',
+        BOUNDS_CHANGE: 'bounds-change'
     };
 
     WorkspaceBase.SettingsPatch = {
@@ -91,10 +92,9 @@ function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombinati
 
     WorkspaceBase.prototype = Object.create(EventSource.prototype, {
 
-        _onLoadSettings: {
-            value: function (blob) {
-                this._settingsToLoad = blob[0];
-                this._loadPendingSettings();
+        getDataBoundingBox: {
+            value: function() {
+                return null;
             }
         },
 
@@ -190,11 +190,25 @@ function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombinati
             }
         },
 
+        
+        _onLoadSettings: {
+            value: function (blob) {
+                this._settingsToLoad = blob[0];
+                this._loadPendingSettings();
+            }
+        },
+
+        _onModeChange: {
+            value: function() {
+
+            }
+        },
+
         _loadPendingSettings: {
             value: function () {
                 if (this.taskController.taskCount == 0) {
                     if (this._settingsToLoad !== null) {
-                        this._doTask(WorkspaceBase.TaskType.LOAD_SETTINGS, this._settingsToLoad).
+                        this.taskController.runTask(WorkspaceBase.TaskType.LOAD_SETTINGS, this._settingsToLoad).
                         then(function (result) {
                             this._loadedSettings = Object.assign(result.settings, this._settingsPatch);
                             this._settingsPatch = {};
@@ -222,6 +236,7 @@ function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombinati
                     return;
                 }
                 this._mode = value;
+                this._onModeChange(value);
                 this._notify(WorkspaceBase.Events.MODE_CHANGE, this._mode);
             }
         },

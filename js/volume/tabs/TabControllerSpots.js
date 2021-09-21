@@ -25,6 +25,7 @@ define([
             this.addChoice(dataContainer, 'intensityTransferFunctionSource', 'Opacity Mode', opacityModes);
             this.addFlag(volumeWorkspace.dataContainer, 'isShapeBasedIntensityEnabled', 'Shape Based Opacity');
             this.addNumeric(spotsController, 'globalSpotScale', 'Size factor', 0, 5, 250);
+            this.addTransferFunctionControl(dataContainer, 'intensityTransferFunction', 'Intensity TF');
             return this;
         }
 

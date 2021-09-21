@@ -19,6 +19,10 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
             ['Transfer Shape', 2],
             ['Mixed', 3]
         ];
+        const filterModes = [
+            ['Linear', 'linear'],
+            ['Nearest', 'nearest']
+        ];
         const layoutCorners = ['Top-left', 'Top-right', 'Bottom-left', 'Bottom-right'];
 
         function TabController3D(container, workspace, views) {
@@ -45,14 +49,16 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
                     return prev;
                 }, []);
                 const commonGroup = this.addGroupBox('Common');
+                commonGroup.addFlag(dataContainer, 'isBoundingBoxVisible', 'Border Visible', 0, 1);
                 commonGroup.addChoice(dataContainer, 'renderMode', 'Render Mode', renderModes);
+
                 commonGroup.addFlag(dataContainer, 'isShapeTransferFunctionEnabled', 'Transfer Enabled', 0, 1);
+                commonGroup.addChoice(dataContainer, 'textureFilter', 'Filter', filterModes);
                 commonGroup.addChoice(dataContainer, 'shapeTransferFunctionSource', 'Opacity Mode', opacityModes);
                 commonGroup.addChoice(dataContainer, 'shapeColorMapId', 'Color Map', colorMapOptions);
-                commonGroup.addFlag(dataContainer, 'isBoundingBoxVisible', 'Border Visible', 0, 1);
                 commonGroup.addNumeric(dataContainer, 'shapeOpacity', 'Opacity', 0, 1);
-                commonGroup.addTransferFunctionControl(workspace.scene3d, 'transfer_function1', 'Shape based transfer function');
-                commonGroup.addTransferFunctionControl(workspace.scene3d, 'transfer_function1', 'Intensity based transfer function');
+                commonGroup.addTransferFunctionControl(dataContainer, 'shapeTransferFunction', 'Shape TF');
+                commonGroup.addTransferFunctionControl(dataContainer, 'shapeTransferFunctionEx', 'Intensity TF');
             }
 
             // light.
@@ -80,9 +86,9 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pX', 'pX', 0, 1));
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pY', 'pY', 0, 1));
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pZ', 'pZ', 0, 1));
-                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dX', 'dX', 0, 1));
-                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dY', 'dY', 0, 1));
-                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dZ', 'dZ', 0, 1));
+                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dX', 'dX', -1, 1));
+                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dY', 'dY', -1, 1));
+                sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'dZ', 'dZ', -1, 1));
             }
             
             // slicing.

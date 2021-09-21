@@ -16,7 +16,6 @@ define(['modulebootstrap', 'mainlayout'],
 
         AppEnvironment.prototype = Object.create(null, {
 
-
             /* Property used to show/hide the sidebar
              */
             controlsVisible: {

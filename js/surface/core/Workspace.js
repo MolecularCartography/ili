@@ -1,12 +1,27 @@
 'use strict';
 
 define([
-    'workspacebase', 'colormaps', 'eventsource', 'imageloader', 'surfaceinputfilesprocessor', 'materialloader',
-    'surfacescene2d', 'surfacescene3d', 'surfacespotscontroller', 'three'
+    'workspacebase', 'colormaps', 'eventsource', 'imageloader', 'materialloader',
+    'surfacescene2d', 'surfacescene3d', 'surfacespotscontroller', 'three', 'filecombination'
 ],
-function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor, MaterialLoader,
-    Scene2D, Scene3D, SpotsController, THREE)
+function (WorkspaceBase, ColorMap, EventSource, ImageLoader, MaterialLoader,
+    Scene2D, Scene3D, SpotsController, THREE, FileCombination)
 {
+    // the workspace file formats for loaded.
+    const SupportedImageFormats = ['png', 'jpg', 'jpeg'];
+    const FileFormats = [
+        new FileCombination('csv', (owner, blob) => owner.loadIntensities(blob)),
+        new FileCombination('json', (owner, blob) => owner.loadSettings(blob)),
+        new FileCombination(SupportedImageFormats, (owner, blob) => owner.loadImage(blob), FileCombination.RELATION.OR),
+        new FileCombination('stl', (owner, blob) => owner.loadMesh(blob)),
+        new FileCombination('obj', (owner, blob) => owner.loadMesh(blob)),
+        new FileCombination(['mtl', new FileCombination(SupportedImageFormats,
+            null, FileCombination.RELATION.OR)], (owner, blob) => owner.loadMaterial(blob), FileCombination.RELATION.AND)
+    ];
+
+    // the workspace custom events.
+    const Events = {};
+
     /**
      * Main application workspace. It works in 3 modes:
      * 1. UNDEFINED. In may have measures but with no visual representation.
@@ -24,15 +39,15 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
      *
      */
     function Workspace(spotsController) {
-        WorkspaceBase.call(this, spotsController, 
-            new InputFilesProcessor(this),
-            Workspace.TaskType);
+        WorkspaceBase.call(
+            this, spotsController, 
+            FileFormats,
+            Events);
 
         this._scene3d = new Scene3D(spotsController);
         this._scene2d = new Scene2D(spotsController);
 
         this.spotsController.addEventListener(SpotsController.Events.SCALE_CHANGE, this._onSpotScaleChange.bind(this));
-        this.addEventListener(WorkspaceBase.Events.MODE_CHANGE, this._onModeChange.bind(this));
 
         return this;
     }
@@ -41,7 +56,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
 
     Workspace.Mode = {
         MODE_2D: 2,
-        MODE_3D: 3,
+        MODE_3D: 3
     };
 
     /**
@@ -74,16 +89,28 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
     }, WorkspaceBase.TaskType);
 
     Workspace.prototype = Object.create(WorkspaceBase.prototype, {
+
+        /**
+         * Gets data bounding box.
+         */
+        getDataBoundingBox: {
+            value: function() {
+                return this._currentScene.getDataBoundingBox();
+            }
+        },
+
         /**
          * Switches the workspace to MODE_2D and starts image loading.
          */
         loadImage: {
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_2D;
-
                 this._scene2d.resetImage();
-                this._doTask(Workspace.TaskType.LOAD_IMAGE, blob[0]).
+                this.taskController.runTask(Workspace.TaskType.LOAD_IMAGE, blob[0]).
                     then(function(result) {
+                        if (this.mode == Workspace.Mode.MODE_2D) {
+                            this._notify(WorkspaceBase.Events.BOUNDS_CHANGE);
+                        }
                         this._scene2d.setImage(result.url, result.width, result.height);
                     }.bind(this));
             }
@@ -95,7 +122,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
         loadMesh: {
             value: function(blob) {
                 this.mode = Workspace.Mode.MODE_3D;
-                this._doTask(Workspace.TaskType.LOAD_MESH, blob[0]).then(function(result) {
+                this.taskController.runTask(Workspace.TaskType.LOAD_MESH, blob[0]).then(function(result) {
                     this.geometry = new THREE.BufferGeometry();
                     for (var name in result.attributes.geometry) {
                         var attribute = result.attributes.geometry[name];
@@ -103,6 +130,9 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                     }
                     this._scene3d.materialName = result.attributes.materialName;
                     this._scene3d.geometry = this.geometry;
+                    if (this.mode == Workspace.Mode.MODE_3D) {
+                        this._notify(WorkspaceBase.Events.BOUNDS_CHANGE);
+                    }
                     if (this.spotsController.spots) {
                         this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                     }
@@ -113,8 +143,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
         loadMaterial: {
             value: function (blob) {
                 this.mode = Workspace.Mode.MODE_3D;
-
-                this._doTask(Workspace.TaskType.LOAD_MATERIAL, blob).then(function (result) {
+                this.taskController.runTask(Workspace.TaskType.LOAD_MATERIAL, blob).then(function (result) {
                     this._scene3d.materials = result.materials;
                 }.bind(this));
             }
@@ -125,11 +154,10 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
          */
         loadIntensities: {
             value: function(blob) {
-                this._doTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
+                this.taskController.runTask(Workspace.TaskType.LOAD_MEASURES, blob[0]).
                     then(function (result) {
                         this.spotsController.spots = result.spots;
                         this.spotsController.measures = result.measures;
-
                         if (this._mode == Workspace.Mode.MODE_3D) {
                             this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
                         }
@@ -150,7 +178,7 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                     spots: this.spotsController.spots,
                     scale: this.spotsController.globalSpotScale
                 };
-                this._doTask(Workspace.TaskType.MAP, args).then(function(results) {
+                this.taskController.runTask(Workspace.TaskType.MAP, args).then(function(results) {
                     this._scene3d.mapping = {
                         closestSpotIndeces: results.closestSpotIndeces,
                         closestSpotDistances: results.closestSpotDistances,
@@ -164,11 +192,13 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
             value: function(mode) {
                 if (mode == Workspace.Mode.MODE_3D) {
                     this._scene2d.resetImage();
-                    this._cancelTask(WorkspaceBase.TaskType.LOAD_IMAGE);
+                    this.taskController.cancelTask(Workspace.TaskType.LOAD_IMAGE);
+                    this._currentScene = this._scene3d;
                 }
                 if (mode == Workspace.Mode.MODE_2D) {
                     this._scene3d.geometry = null;
-                    this._cancelTask(WorkspaceBase.TaskType.LOAD_MESH);
+                    this.taskController.cancelTask(Workspace.TaskType.LOAD_MESH);
+                    this._currentScene = this._scene2d;
                 }
             }       
         },
@@ -178,30 +208,6 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, InputFilesProcessor
                 if (this.mode == Workspace.Mode.MODE_3D) {
                     this._mapMesh(Scene3D.RecoloringMode.NO_COLORMAP);
                 }
-            }
-        },
-
-        mode: {
-            get: function() {
-                return this._mode;
-            },
-
-            set: function(value) {
-                if (this._mode == value) {
-                    return;
-                }
-                this._mode = value;
-
-                if (this._mode == Workspace.Mode.MODE_3D) {
-                    this._scene2d.resetImage();
-                    this._cancelTask(Workspace.TaskType.LOAD_IMAGE);
-                }
-                if (this._mode == Workspace.Mode.MODE_2D) {
-                    this._scene3d.geometry = null;
-                    this._cancelTask(Workspace.TaskType.LOAD_MESH);
-                }
-
-                this._notify(Workspace.Events.MODE_CHANGE);
             }
         },
 
