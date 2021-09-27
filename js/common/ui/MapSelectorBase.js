@@ -28,7 +28,7 @@ function(Utils, SpotsControllerBase, WorkspaceBase, SettingsControllerBase) {
         this._selectedIndex = -1;
         this._div.style.opacity = 0;
         this._active = false;
-        this._spotsController.addEventListener(SpotsControllerBase.Events.INTENSITIES_LOADED, this._onIntencitiesLoaded.bind(this));
+        this._spotsController.addEventListener(SpotsControllerBase.Events.MEASURES_LOADED, this._onMeasuresLoaded.bind(this));
         this._workspace.addEventListener(WorkspaceBase.Events.SETTINGS_CHANGE, this._onWorkspaceSettingsChange.bind(this));
         this._input.addEventListener('input', this._onInput.bind(this));
         this._input.addEventListener('blur', this._onBlur.bind(this));
@@ -36,11 +36,11 @@ function(Utils, SpotsControllerBase, WorkspaceBase, SettingsControllerBase) {
         this._input.addEventListener(Utils.keyPressEvent(), this._onKeyPress.bind(this), false);
         this._itemsContainer.addEventListener('mousedown', this._onItemMouseDown.bind(this), false);
         this._itemsContainer.addEventListener('click', this._onItemClick.bind(this), false);
-        this._onIntencitiesLoaded();
+        this._onMeasuresLoaded();
     }
 
     MapSelectorBase.prototype = Object.create(null, {
-        _onIntencitiesLoaded: {
+        _onMeasuresLoaded: {
             value: function() {
                 if (!this._spotsController.measures) {
                     this._measures = [];

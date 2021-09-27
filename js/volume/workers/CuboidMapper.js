@@ -48,7 +48,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, ThreeUtils, RemappingP
                 progressReportTime = now;
                 postMessage({
                     status: 'working',
-                    message: `Cuboid remapping - ${progress} operations of ${total}`
+                    message: `Remapping ${Math.ceil(Math.min(progress / total, 1) * 100)}%`
                 });
             },
 

@@ -67,7 +67,7 @@ define([
                 }
 
                 _onPointerDown(event) {
-                        this._container.setPointerCapture(event.pointerId)
+                    this._container.setPointerCapture(event.pointerId)
                 }
                 _onPointerUp(event) {
                     this._container.releasePointerCapture(event.pointerId)

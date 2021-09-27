@@ -80,6 +80,19 @@ function(THREE, EventSource, ActionController, CameraHelper, WorkspaceBase) {
             }
         },
 
+        render: {
+            value: function(renderer, scene, parentHeight) {
+                const v = this;
+                if (!v.width || !v.height) return;
+                const viewportBottom = parentHeight - v.top - v.height;
+                renderer.setViewport(v.left, viewportBottom, v.width, v.height);
+                renderer.setScissor(v.left, viewportBottom, v.width, v.height);
+                renderer.setScissorTest(true);
+                this._orientationWidget.transform = `translateZ(-300px)  ${CameraHelper.getCameraCSSMatrix(v._camera.matrixWorldInverse)}`;
+                scene.render(renderer, v.camera, v._orientationWidget);
+            }
+        },
+
         prepareUpdateLayout: {
             value: function() {
                 this._controls.stopAnimation();
@@ -164,11 +177,7 @@ function(THREE, EventSource, ActionController, CameraHelper, WorkspaceBase) {
 
         onAnimationFrame: {
             value: function(now) {
-                if (!this._controls.autoRotate) {
-                    return;
-                } else {
-                    this._group.requestAnimationFrame();
-                }
+                this._group.requestAnimationFrame();        
             }
         },
 

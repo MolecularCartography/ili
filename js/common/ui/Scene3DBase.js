@@ -20,37 +20,15 @@ function(EventSource, SpotsController, THREE, CameraHelper) {
     Scene3DBase.Events = {
         CHANGE: 'change',
     };
-
-    Scene3DBase.RecoloringMode = {
-        USE_COLORMAP: 'colormap',
-        NO_COLORMAP: 'no-colormap'
-    };
-
+    
     Scene3DBase.prototype = Object.create(EventSource.prototype, {
         backgroundColor: {
-            get: function() {
-                return '#' + this._backgroundColor.getHexString();
-            },
-
             set: function(value) {
-                var color = new THREE.Color(value);
-                if (!color.equals(this._backgroundColor)) {
-                    this._backgroundColor.set(color);
-                    this._notify(Scene3DBase.Events.CHANGE);
-                }
-            }
-        },
-
-        backgroundColorValue: {
+                this._backgroundColor = value;
+                this._notify(Scene3DBase.Events.CHANGE);
+            },
             get: function() {
                 return this._backgroundColor;
-            }
-        },
-
-        refreshSpots: {
-            value: function () {
-                this._recolor(Scene3DBase.RecoloringMode.NO_COLORMAP);
-                this._notify(Scene3DBase.Events.CHANGE);
             }
         },
 
@@ -61,9 +39,8 @@ function(EventSource, SpotsController, THREE, CameraHelper) {
         },
 
         render: {
-            value: function(renderer, camera, orientationWidget) {
+            value: function(renderer, camera) {
                 renderer.render(this._scene, camera);
-                orientationWidget.transform = `translateZ(-300px)  ${CameraHelper.getCameraCSSMatrix(camera.matrixWorldInverse)}`;
             }
         },
 

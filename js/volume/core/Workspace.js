@@ -71,7 +71,7 @@ function (WorkspaceBase, FileCombination, Scene3D, SpotsController, THREE, Three
         this._spotsController.addEventListener(SpotsController.Events.BORDER_CHANGE, () => {
             this.dataContainer.intensityBorderOpacity = this._spotsController.spotBorder;
         });
-        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, () => {
+        this._spotsController.addEventListener(SpotsController.Events.ACTIVE_MEASURES_CHANGED, () => {
             this.dataContainer.intensityData = {
                 spots: this._spotsController.spots,
                 intensities: this._spotsController.activeMeasure

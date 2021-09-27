@@ -1,4 +1,6 @@
 
+const float log10 = log(10.0);
+
 vec4 inverseBlend(vec4 base, vec4 blend) {
     return base + (1.0 - base.a) * vec4(blend.rgb * blend.a, blend.a);
 }
@@ -23,7 +25,7 @@ float scale(float value, int scaleMode) {
     }
     // Log.
     if (scaleMode == 2) {
-        return value <= 0.0 ? 0.0 : log(value) / log(10.0);
+        return value <= 0.0 ? 0.0 : log(value) / log10;
     }
     // Linear.
     return value;

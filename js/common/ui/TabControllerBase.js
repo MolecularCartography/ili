@@ -3,9 +3,10 @@
 define([
     'abcviewcontroller',
     'controlsgrid',
-    'utils'
+    'utils',
+    'three'
 ],
-function (EmperorViewControllerABC, ControlGrid, Utils) {
+function (EmperorViewControllerABC, ControlGrid, Utils, THREE) {
     function TabControllerBase(container, title, description, workspace) {
         EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
 
@@ -90,6 +91,31 @@ function (EmperorViewControllerABC, ControlGrid, Utils) {
         fromJSON: {
             value: function (json) {
                 return this._controlGrid.fromJSON(json);
+            }
+        },
+
+        _makeProxyColorProperty: {
+            value: function(owner, key) {
+                const result = {};
+                const proxyKey = `proxy_${key}_hex`;
+                const proxyKeyColor = `proxy_${key}_color`;
+                Object.defineProperty(result, key, {
+                    get: () => {
+                        return result[proxyKey];
+                    },
+                    set: (value) => {
+                        value = new THREE.Color(value);
+                        const current = owner[proxyKeyColor];
+                        if (current && current.equals(value)) {
+                            return;
+                        }
+                        owner[key] = value;
+                        result[proxyKeyColor] = value;
+                        result[proxyKey] = '#' + value.getHexString();
+                    }
+                });
+                result[key] = owner[key];
+                return result;
             }
         },
 

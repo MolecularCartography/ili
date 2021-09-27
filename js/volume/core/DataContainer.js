@@ -432,11 +432,7 @@ function(
             );
             this._isSectionValid = true;
         }
-
-        _tryResetGeometries() {
-
-        }   
-
+        
         _tryRemapIntensities() {      
             if (!this.isIntensityEnabled || this._isRemappingValid || this.renderMode === 'lego') {
                 return;

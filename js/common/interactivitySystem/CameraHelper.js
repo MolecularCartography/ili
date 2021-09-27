@@ -239,7 +239,7 @@ define([
 					const depth = size.getComponent(depthIndex);
 
 				    const maxDimension = Math.max(horizontal, vertical) * multiplier;
-					const maxDimensionWithDeps = Math.max(Math.abs(depth), Math.max(Math.abs(horizontal), Math.abs(vertical)));
+					const maxDimensionWithDepth = Math.max(Math.abs(depth), Math.max(Math.abs(horizontal), Math.abs(vertical)));
 
 					const right = maxDimension / 2 * cameraAspect;
 					const left = -right;
@@ -251,7 +251,7 @@ define([
 					camera.top = top;
 					camera.bottom = bottom;
 					camera.near = 0.1;
-					camera.far = maxDimensionWithDeps * 4;
+					camera.far = maxDimensionWithDepth * 4;
 				}
 				camera.updateProjectionMatrix();
 			}

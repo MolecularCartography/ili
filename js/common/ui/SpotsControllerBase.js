@@ -34,7 +34,8 @@ function (THREE, ColorMap, EventSource, Utils) {
         ATTR_CHANGE: 'attr-change',
         MAPPING_CHANGE: 'mapping-change',
         AUTO_MAPPING_CHANGE: 'auto-mapping-change',
-        INTENSITIES_LOADED: 'intensities-loaded',
+        MEASURES_LOADED: 'measures-loaded',
+        ACTIVE_MEASURES_CHANGED: 'active-measures-loaded',
         INTENSITIES_CHANGE: 'intensities-change',
         BORDER_CHANGE: 'border-change'
     };
@@ -147,7 +148,7 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function (value) {
                 this._measures = Array.isArray(value) && value ? value : [];
                 this._activeMeasure = null;
-                this._notify(SpotsControllerBase.Events.INTENSITIES_LOADED);
+                this._notify(SpotsControllerBase.Events.MEASURES_LOADED);
             }
         },
 
@@ -168,8 +169,9 @@ function (THREE, ColorMap, EventSource, Utils) {
                 }
                 this._hotspotQuantile = Utils.boundNumber(0.0, value, 1.0);
                 if (this._autoMinMax) {
-                    this._updateMinMaxValues();
-                    this._updateIntensities();
+                    if (this._updateMinMaxValues()) {
+                        this._updateIntensities();
+                    }            
                 } else {
                     console.log('Potential programming error: attempt to change "hotspot quantile" parameter with "auto min/max" disabled.');
                 }
@@ -245,6 +247,7 @@ function (THREE, ColorMap, EventSource, Utils) {
                     this._updateMinMaxValues();
                 }
                 this._updateIntensities();
+                this._notify(SpotsControllerBase.Events.ACTIVE_MEASURES_CHANGED);
             }
         },
 
@@ -291,8 +294,9 @@ function (THREE, ColorMap, EventSource, Utils) {
             set: function(value) {
                 this._autoMinMax = !!value;
                 if (this._autoMinMax) {
-                    this._updateMinMaxValues();
-                    this._updateIntensities();
+                    if (this._updateMinMaxValues()) {
+                        this._updateIntensities();
+                    }           
                 }
                 this._notify(SpotsControllerBase.Events.AUTO_MAPPING_CHANGE);
             }

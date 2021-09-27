@@ -52,7 +52,7 @@ function(EventSource, PropertyChangedManager, Scene3DBase, THREE, ThreeUtils, Ut
 
     Scene3D.prototype = Object.create(Scene3DBase.prototype, {
         clone: {
-            value: function(eventName, listener) {
+            value: function() {
                 // Clone is too expensive for the scene.
                 return null;
             }

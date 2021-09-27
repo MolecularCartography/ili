@@ -1,7 +1,7 @@
 'use strict';
 
-define([],
-function() {
+define(['workspacebase'],
+function(WorkspaceBase) {
     function ViewContainerBase(workspace, div) {
         this._workspace = workspace;
         this._div = div;
@@ -10,6 +10,9 @@ function() {
         this._widgetLayout = 'Top-left';
         this._defaultMargin = 20;
         this._extraMargin = 100;
+
+        this._workspace.addEventListener(WorkspaceBase.Events.MODE_CHANGE, this._onWorkspaceModeChange.bind(this));
+        this._onWorkspaceModeChange();
         return this;
     }
 
@@ -30,7 +33,7 @@ function() {
             }
         },
 
-        _createView: {
+        createView: {
             value: function(constructor, selector) {
                 var view = new constructor(this._workspace, this._div.querySelector(selector));
                 this.all.push(view);
@@ -118,6 +121,27 @@ function() {
                 }
                 return result;
             }
+        },
+
+        exportInner: {
+            value: function(renderAction) {
+                return new Promise(function(accept, reject) {
+                    var pixelRatio = window.devicePixelRatio * this._exportPixelRatio3d;
+                    var width = this._div.clientWidth * pixelRatio;
+                    var height = this._div.clientHeight * pixelRatio;
+
+                    var canvas = document.createElement('canvas');
+                    var ctx = canvas.getContext('2d');
+                    var imageData = ctx.createImageData(width, height);
+
+                    renderAction(imageData, pixelRatio);
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.putImageData(imageData, 0, 0);
+                    this.legend.export(canvas, pixelRatio).then(this.makeCanvasBlob.bind(this, canvas, accept)).catch(reject);
+                }.bind(this));
+            }    
         },
 
         fromJSON: {

@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'three', 'threejsutils', 'propertychangedmanager'
+    'three', 'propertychangedmanager'
 ],
-    function(THREE, ThreeUtils, PropertyChangedManager) {
+    function(THREE, PropertyChangedManager) {
 
         class RenderMeshBase {
 

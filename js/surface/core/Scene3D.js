@@ -48,6 +48,11 @@ function(Scene3DBase, THREE, Utils, SpotsController) {
 
     Object.assign(Scene3D, Scene3DBase);
 
+    Scene3D.RecoloringMode = {
+        USE_COLORMAP: 'colormap',
+        NO_COLORMAP: 'no-colormap'
+    };
+
     Scene3D.prototype = Object.create(Scene3DBase.prototype, {
 
         lightIntensity: {
@@ -71,18 +76,9 @@ function(Scene3DBase, THREE, Utils, SpotsController) {
         },
 
         clone: {
-            value: function(eventName, listener) {
-                var result = new Scene3D(this._spotsController);
-                result.frontLight = this.frontLight;
-                result.color = this.color;
-                result.backgroundColor = this.backgroundColor;
-                result.adjustment = this.adjustment;
-                result._meshMaterialName = this._meshMaterialName;
-                result._meshMaterials = this._meshMaterials.map(function (m) { return m.clone(); });
-                result.geometry = this.geometry.clone();
-                result.mapping = this.mapping;
-                result.axisHelper = this.axisHelper;
-                return result;
+            value: function() {
+                // Clone is too expensive for the scene.
+                return null;
             }
         },
 
@@ -92,15 +88,12 @@ function(Scene3DBase, THREE, Utils, SpotsController) {
 
         color: {
             get: function() {
-                return '#' + this._color.getHexString();
+                return this._color;
             },
 
             set: function(value) {
-                var color = new THREE.Color(value);
-                if (!color.equals(this._color)) {
-                    this._color.set(color);
-                    this._onGeometryColorChange();
-                }
+                this._color = value;
+                this._onGeometryColorChange();          
             }
         },
 

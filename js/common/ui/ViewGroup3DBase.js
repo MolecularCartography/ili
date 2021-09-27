@@ -17,7 +17,7 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper, AnimationLoopMan
         this._canvas = div.querySelector('canvas');
         this._renderer = new THREE.WebGLRenderer({
             antialias: true,
-            canvas: this._canvas,
+            canvas: this._canvas
         });
         this._width = 0;
         this._height = 0;
@@ -27,12 +27,16 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper, AnimationLoopMan
         this._animationFrameRequested = false;
 
         // create animation controller responsible for abstract animation callbacks.
+        this._animationLoopManager = new AnimationLoopManager({
+            requestRedraw: () => this.requestAnimationFrame(),
+            setAnimationLoop: (action) => this._renderer.setAnimationLoop(action),
+            redraw: () => this._redraw()
+        });   
         this._animationController = {
-            requestRedraw: () => this._redraw(),
+            requestRedraw: () => this._animationLoopManager.requestRedraw(),
             setState: (state) => null,
-            setAnimationLoop: (action) => this.setAnimationLoop(action)
+            setAnimationLoop: (action) => this._animationLoopManager.setAnimationLoop(action)
         };
-        this._animationLoopManager = new AnimationLoopManager(this._renderer);   
 
         this._scene = workspace.scene3d;
         this._scene.addEventListener(Scene3DBase.Events.CHANGE, this.requestAnimationFrame.bind(this));
@@ -54,12 +58,6 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper, AnimationLoopMan
 
     ViewGroup3DBase.prototype = Object.create(null, {
 
-        setAnimationLoop: {
-            value: function(action) {
-                return this._animationLoopManager.setAnimationLoop(action);
-            }
-        },
-
         requestAnimationFrame: {
             value: function() {
                 if (this._animationFrameRequested) {
@@ -72,15 +70,10 @@ function(THREE, Scene3DBase, SpotsControllerBase, CameraHelper, AnimationLoopMan
 
         _renderTo: {
             value: function(renderer, scene) {
-                renderer.setClearColor(scene.backgroundColorValue);
+                renderer.setClearColor(scene.backgroundColor);
                 for (var i = 0; i < this._views.length; i++) {
                     var v = this._views[i];
-                    if (!v.width || !v.height) continue;
-                    var viewportBottom = this._height - v.top - v.height;
-                    renderer.setViewport(v.left, viewportBottom, v.width, v.height);
-                    renderer.setScissor(v.left, viewportBottom, v.width, v.height);
-                    renderer.setScissorTest(true);
-                    scene.render(renderer, v.camera, v._orientationWidget);
+                    v.render(renderer, scene, this._height);
                 }
             }
         },

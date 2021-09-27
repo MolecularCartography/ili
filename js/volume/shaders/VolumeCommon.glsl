@@ -225,18 +225,7 @@ vec4 merge_shape_intensity_colors(vec4 shape_color, vec4 intensity_color) {
     }
 }
 
-vec4 merge_colors(vec4 shape_color, vec4 intensity_color, bool shape_enabled, bool intensity_enabled) {
-    if (shape_enabled && intensity_enabled) {
-        return merge_shape_intensity_colors(shape_color, intensity_color);
-    }
-    if (shape_enabled) {
-        return shape_color;
-    } else {
-        return intensity_color;
-    }
-}
-
-vec4 get_ray_color(vec3 loc, vec3 shading_ray, bool shape_enabled) {
+vec4 get_ray_color(vec3 loc, vec3 shading_ray) {
     // Accumulate shape color.
     float shapeTfModifier = 0.0;
     vec4 shape_color = extract_shape_color(loc, shapeTfModifier);
@@ -260,7 +249,7 @@ vec4 get_ray_color(vec3 loc, vec3 shading_ray, bool shape_enabled) {
     }
 
     // Merge the colors.
-    vec4 merged_color = merge_colors(shape_color, intensity_color, shape_enabled, true);
+    vec4 merged_color = merge_shape_intensity_colors(shape_color, intensity_color);
     vec4 shaded_color = modify_lighting(merged_color, loc, shading_ray);   
 
     // This contains result color.

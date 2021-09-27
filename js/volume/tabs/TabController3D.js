@@ -34,12 +34,14 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
 
             // general.
             {
-                const generalGroup = this.addGroupBox('General');
+                const backgroundColorProxy = this._makeProxyColorProperty(workspace.scene3d, 'backgroundColor');
+                const generalGroup = this;
                 generalGroup.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);
                 generalGroup.addChoice(views, 'legendLayout', 'Legend layout', layoutCorners);
                 generalGroup.addChoice(views, 'widgetLayout', 'Widget layout', layoutCorners);
-                generalGroup.addColor(workspace.scene3d, 'backgroundColor', 'Background');          
+                generalGroup.addColor(backgroundColorProxy, 'backgroundColor', 'Background');          
                 generalGroup.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
+                generalGroup.addChoice(dataContainer, 'renderMode', 'Render Mode', renderModes);
             }
     
             // common.
@@ -50,13 +52,11 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
                 }, []);
                 const commonGroup = this.addGroupBox('Common');
                 commonGroup.addFlag(dataContainer, 'isBoundingBoxVisible', 'Border Visible', 0, 1);
-                commonGroup.addChoice(dataContainer, 'renderMode', 'Render Mode', renderModes);
-
-                commonGroup.addFlag(dataContainer, 'isShapeTransferFunctionEnabled', 'Transfer Enabled', 0, 1);
-                commonGroup.addChoice(dataContainer, 'textureFilter', 'Filter', filterModes);
-                commonGroup.addChoice(dataContainer, 'shapeTransferFunctionSource', 'Opacity Mode', opacityModes);
-                commonGroup.addChoice(dataContainer, 'shapeColorMapId', 'Color Map', colorMapOptions);
                 commonGroup.addNumeric(dataContainer, 'shapeOpacity', 'Opacity', 0, 1);
+                commonGroup.addChoice(dataContainer, 'shapeColorMapId', 'Color Map', colorMapOptions);       
+                commonGroup.addChoice(dataContainer, 'textureFilter', 'Filter', filterModes); 
+                commonGroup.addFlag(dataContainer, 'isShapeTransferFunctionEnabled', 'Transfer Enabled', 0, 1);
+                commonGroup.addChoice(dataContainer, 'shapeTransferFunctionSource', 'Opacity Mode', opacityModes);
                 commonGroup.addTransferFunctionControl(dataContainer, 'shapeTransferFunction', 'Shape TF');
                 commonGroup.addTransferFunctionControl(dataContainer, 'shapeTransferFunctionEx', 'Intensity TF');
             }

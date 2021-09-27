@@ -2,11 +2,20 @@ define(['three'], function(THREE) {
 
     return class AnimationLoopManager {
 
-        constructor(renderer) {
-            this._renderer = renderer;
+        constructor(controller) {
+            this._controller = controller;
             this._animationLoops = new Map();
             this._animationLoopsActionsForDelection = [];
             this._isInAnimationLoop = false;
+            this._animationLoopRedrawRequested = false;
+        }
+
+        requestRedraw() {
+            if (this._isInAnimationLoop) {
+                this._animationLoopRedrawRequested = true;
+            } else {
+                this._controller.requestRedraw();
+            }
         }
 
         setAnimationLoop(action) {
@@ -27,7 +36,7 @@ define(['three'], function(THREE) {
             };
             this._animationLoops.set(action, result);
             if (this._animationLoops.size == 1) {
-                this._renderer.setAnimationLoop(() => {
+                this._controller.setAnimationLoop(() => {
                     this._isInAnimationLoop = true;
                     try {
                         for (let pair of this._animationLoops) {
@@ -41,6 +50,10 @@ define(['three'], function(THREE) {
                         this._animationLoopsActionsForDelection = [];
                         this._isInAnimationLoop = false;
                     }
+                    if (this._animationLoopRedrawRequested) {
+                        this._controller.redraw();
+                        this._animationLoopRedrawRequested = false;
+                    }
                 });
             }
             return result;
@@ -49,7 +62,7 @@ define(['three'], function(THREE) {
         _deleteAction(action) {
             this._animationLoops.delete(action);
             if (this._animationLoops.size == 0) {
-                this._renderer.setAnimationLoop(null);
+                this._controller.setAnimationLoop(null);
             }
         }
 

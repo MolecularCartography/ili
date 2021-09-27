@@ -16,10 +16,13 @@ function (TabControllerBase, ViewGroup3D) {
             ['Triple view', ViewGroup3D.Layout.TRIPLE],
             ['Quadriple view', ViewGroup3D.Layout.QUADRIPLE]
         ];
+        let backgroundColorProxy = this._makeProxyColorProperty(workspace.scene3d, 'backgroundColor');
+        let colorProxy = this._makeProxyColorProperty(workspace.scene3d, 'backgroundColor');
+
         let layoutCorners = ['Top-left', 'Top-right', 'Bottom-left', 'Bottom-right'];
         this.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);
-        this.addColor(workspace.scene3d, 'color', 'Color');
-        this.addColor(workspace.scene3d, 'backgroundColor', 'Background');
+        this.addColor(colorProxy, 'color', 'Color');
+        this.addColor(backgroundColorProxy, 'backgroundColor', 'Background');
         this.addFlag(workspace.scene3d, 'axisHelper', 'Show the origin');
         this.addNumeric(workspace.scene3d, 'lightIntensity', 'Light', 0, 3);
         this.addChoice(views, 'exportPixelRatio3d', 'Export pixel ratio', [0.5, 1.0, 2.0]);
