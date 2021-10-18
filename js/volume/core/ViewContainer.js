@@ -30,8 +30,7 @@ function(ViewContainerBase, ViewGroup3D, ViewLegend, Workspace) {
                             this.g3d.export(imageData, pixelRatio);
                         });
                     default:
-                        reject();
-                        return;
+                        return new Promise((resolve, reject) => reject());
                 }  
             }
         }

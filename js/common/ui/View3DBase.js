@@ -206,16 +206,14 @@ function(THREE, EventSource, ActionController, CameraHelper, WorkspaceBase) {
 
         fromJSON: {
             value: function (json) {
-                this._camera.position.fromArray(json.camera_coords);
-                this._camera.lookAt(new THREE.Vector3().fromArray(json.controls_target));
-                this._camera.up.fromArray(json.camera_up);
-                this._camera.zoom = json.camera_zoom;
-                this._jsonCameraProperties = {
-                    zoom: this._camera.zoom,
-                    position: this._camera.position.clone(),
-                    lookAt: this._camera.getLookAt(),
-                    lookUp: this._camera.up.clone()
+                const info = {
+                    position: new THREE.Vector3().fromArray(json.camera_coords),
+                    lookUp: new THREE.Vector3().fromArray(json.camera_up),
+                    lookAt: new THREE.Vector3().fromArray(json.camera_target),
+                    zoom: json.camera_zoom
                 };
+                this._camera.setup(info);
+                this._jsonCameraProperties = info;
             }
         },
 

@@ -10,7 +10,7 @@ function () {
             this._callback = callback;
         }
 
-        get TaskCount() { return Object.keys(this._tasks).length; }
+        get taskCount() { return Object.keys(this._tasks).length; }
 
         runTask(taskType, args, transfer) {
             if (taskType.key in this._tasks) 

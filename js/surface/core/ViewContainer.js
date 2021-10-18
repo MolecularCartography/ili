@@ -45,7 +45,7 @@ function(ViewContainerBase, View2D, ViewGroup3D, ViewLegend, Workspace) {
                             }.bind(this)).catch(reject);
                         });
                     default:
-                        return Promise((accept, reject) => reject());
+                        return new Promise((accept, reject) => reject());
                 }
             }
         }

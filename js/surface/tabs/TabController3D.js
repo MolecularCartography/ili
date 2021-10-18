@@ -17,7 +17,7 @@ function (TabControllerBase, ViewGroup3D) {
             ['Quadriple view', ViewGroup3D.Layout.QUADRIPLE]
         ];
         let backgroundColorProxy = this._makeProxyColorProperty(workspace.scene3d, 'backgroundColor');
-        let colorProxy = this._makeProxyColorProperty(workspace.scene3d, 'backgroundColor');
+        let colorProxy = this._makeProxyColorProperty(workspace.scene3d, 'color');
 
         let layoutCorners = ['Top-left', 'Top-right', 'Bottom-left', 'Bottom-right'];
         this.addChoice(views.g3d, 'layout', 'Layout', layoutOptions);

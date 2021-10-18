@@ -342,6 +342,10 @@ function(
                 name: 'sectionLineColor',
                 value: new THREE.Color('green')
             });
+            this._definePresentationProperty({
+                name: 'sectionMultiplier',
+                value: 1.0
+            });
 
             // bounding box.
             this._definePresentationProperty({

@@ -11,7 +11,6 @@ function (WorkspaceBase, ColorMap, EventSource, ImageLoader, MaterialLoader,
     const SupportedImageFormats = ['png', 'jpg', 'jpeg'];
     const FileFormats = [
         new FileCombination('csv', (owner, blob) => owner.loadIntensities(blob)),
-        new FileCombination('json', (owner, blob) => owner.loadSettings(blob)),
         new FileCombination(SupportedImageFormats, (owner, blob) => owner.loadImage(blob), FileCombination.RELATION.OR),
         new FileCombination('stl', (owner, blob) => owner.loadMesh(blob)),
         new FileCombination('obj', (owner, blob) => owner.loadMesh(blob)),

@@ -20,6 +20,11 @@ define([
                     name: 'Bonsai NRRD Data',
                     files: ['data/bonsai.nrrd', 'data/bonsai.csv'],
                     prefix: wwwUrl
+                },
+                {
+                    name: 'Example',
+                    files: ['data/example1.nrrd', 'data/example1.csv'],
+                    prefix: wwwUrl
                 }
             ];
             const development = false;

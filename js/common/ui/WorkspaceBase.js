@@ -36,7 +36,7 @@ function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombinati
 
         // Initialize input files processor.
         this._inputFilesProcessor = fileFormats ? new InputFilesProcessor(this, 
-            [...WorkspaceBase.FileFormats, ...fileFormats]) : 
+            [...fileFormats, ...WorkspaceBase.FileFormats]) : 
             null;
 
         // Initialize task controller.

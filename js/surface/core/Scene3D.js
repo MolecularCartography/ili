@@ -93,7 +93,9 @@ function(Scene3DBase, THREE, Utils, SpotsController) {
 
             set: function(value) {
                 this._color = value;
-                this._onGeometryColorChange();          
+                if (this._mesh) {
+                    this._recolor();
+                }                      
             }
         },
 

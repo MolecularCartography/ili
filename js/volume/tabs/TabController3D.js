@@ -83,6 +83,7 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
                 const sectionProxyProperty = this._makeProxyProperty(dataContainer, 'sectionInfo');
                 const sectionGroup = this.addGroupBox('Section');
                 const sectionControls = [];
+                sectionControls.push(sectionGroup.addNumeric(dataContainer, 'sectionMultiplier', 'Multiplier', 0, 10));
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pX', 'pX', 0, 1));
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pY', 'pY', 0, 1));
                 sectionControls.push(sectionGroup.addNumeric(sectionProxyProperty, 'pZ', 'pZ', 0, 1));
