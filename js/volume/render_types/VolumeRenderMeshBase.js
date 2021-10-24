@@ -14,6 +14,8 @@ define([
             [ 'shapeData', (mesh, getter) => mesh._resetShapeData(getter) ],
             [ 'spacing', (mesh, getter) => mesh._resetShapeRelativeStepSize(getter) ],
             [ 'intensityScale', (mesh, getter) => mesh._resetIntensityScale(getter) ],
+            [ 'sectionMultiplier', (mesh, getter) => mesh._resetSectionMultiplier(getter) ],
+            [ 'volumeMultiplier', (mesh, getter) => mesh._resetVolumeMultiplier(getter) ],
 
             // Shape data.
             [ 'shapeDataTexture', (mesh, getter) => mesh._resetShapeDataTexture(getter) ],
@@ -89,6 +91,8 @@ define([
             u_rim_intensity: {value: 0},
             
             // Common.
+            output_multiplier_1: {value: 1.0},
+            output_multiplier_2: {value: 1.0},
             u_slicing_min: {value: new THREE.Vector3(0, 0, 0)},
             u_slicing_max: {value: new THREE.Vector3(1, 1, 1)},
             u_uniformal_opacity: {value: 1.0},
@@ -161,6 +165,14 @@ define([
                     return;
                 }  
                 this._setUniform('u_shape_bounds', new THREE.Vector2(value.bounds.min, value.bounds.max));
+            }
+
+            _resetSectionMultiplier(getter) {
+                this._setUniform('output_multiplier_2', getter());
+            }
+
+            _resetVolumeMultiplier(getter) {
+                this._setUniform('output_multiplier_1', getter());
             }
 
             _resetLight(getter) {

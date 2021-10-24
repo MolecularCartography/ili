@@ -139,7 +139,7 @@ define(['three', 'camerahelper'],
 
 				const camera = this.camera;
 				const wheelDelta = event.deltaY / this.domElement.clientHeight;
-				const usualWheelDeltaValue = 0.15;
+				const usualWheelDeltaValue = 0.2;
 				const defaultScalingCoefficient = 0.8;
 				const scalingCoefficient = defaultScalingCoefficient /
 					Math.pow(Math.abs(wheelDelta) / usualWheelDeltaValue, 0.3);

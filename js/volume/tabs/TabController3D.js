@@ -74,6 +74,7 @@ define(['tabcontrollerbase', 'volumeviewgroup3d', 'colormaps', 'utils'],
             // ray casting.
             {
                 const raycastingGroup = this.addGroupBox('RayCasting');
+                raycastingGroup.addNumeric(dataContainer, 'volumeMultiplier', 'Multiplier', 0, 10);
                 raycastingGroup.addNumeric(dataContainer, 'filling', 'Filling', 0, 1);
                 raycastingGroup.addNumeric(dataContainer, 'spacing', 'Spacing', 0, 5);
             }

@@ -20,6 +20,12 @@ uniform float u_relative_step_size;
 // Uniform opacity.
 uniform float u_uniformal_opacity;
 
+// Output multiplier value.
+uniform float output_multiplier_1;
+
+// Output multiplier value.
+uniform float output_multiplier_2;
+
 //----------------------------------------------------------------------
 // Shape uniforms.
 //----------------------------------------------------------------------

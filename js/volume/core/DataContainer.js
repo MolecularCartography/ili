@@ -331,6 +331,10 @@ function(
                 value: 'linear'
             })
             this._definePresentationProperty({
+                name: 'volumeMultiplier',
+                value: 1.0
+            });
+            this._definePresentationProperty({
                 name: 'isSectionLineVisible',
                 value: true
             });
