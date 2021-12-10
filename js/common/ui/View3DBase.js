@@ -1,32 +1,53 @@
 'use strict';
 
 define([
-    'orbitcontrols', 'three', 'eventsource'
+    'three', 'eventsource', 'actioncontroller', 'camerahelper', 'workspacebase'
 ],
-function(OrbitControls, THREE, EventSource) {
-    function View3DBase(group, div, camera, events) {
+function(THREE, EventSource, ActionController, CameraHelper, WorkspaceBase) {
+
+    const AnimationDuration = 250;
+
+    function View3DBase(workspace, group, div, camera, orientationWidget, projectionInfo, events) {
         EventSource.call(this, events ? Object.create(View3DBase.Events, events) : View3DBase.Events);
+        CameraHelper.decorateCamera(camera, group._animationController);
+        this._workspace = workspace;
+        this._orientationWidget = orientationWidget;
         this._group = group;
+        this._projectionInfo = projectionInfo;
         this._div = div;
         this._left = 0;
         this._top = 0;
         this._width = 0;
         this._height = 0;
         this._camera = camera;
-        this._camera.lookAt(this._group._scene.position);
+        this._animationController = group._animationController;
+        this._spotLabel = group._spotLabel;
 
-        this._div.addEventListener('dblclick', this._onDoubleClick.bind(this));
+        // specify orientation widget rotation callback.
+        this._orientationWidget.initialize((eyeFixed) => {
+            this._controls.stopAnimation();
+            const lookAt = this._boundingBox ? this._boundingBox.getCenter(new THREE.Vector3()) : new THREE.Vector3();
+            CameraHelper.rotateByOrientationWidget(
+                this._camera, 
+                lookAt, 
+                eyeFixed, 
+                AnimationDuration)
+        });
 
-        this._controls = new OrbitControls(this._camera, this._div);
-        this._controls.target = this._group._scene.position;
-        this._controls.enableKeys = false;
-        this._controls.autoRotate = false;
-        this._controls.minZoom = 0.1;
-        this._controls.maxZoom = 4.0;
-        this._controls.autoRotateSpeed = 6.0;
-        this._controls.update();
-        this._controls.addEventListener('change', group.requestAnimationFrame.bind(group));
-        this._controls.addEventListener('start', this._onOrbitStart.bind(this));
+        // create action controller responsible for interactivity.
+        this._controls = new ActionController(this._camera, this._div, {
+            spotLabel: this._spotLabel,
+            setAnimationLoop: (action) => this._animationController.setAnimationLoop(action),
+            requestRedraw: () => this._animationController.requestRedraw(),
+            setDefaultView: () => this.setDefaultView(AnimationDuration)
+        });
+
+        // add data bounds change functionality.
+        this._workspace.addEventListener(WorkspaceBase.Events.BOUNDS_CHANGE, () => {
+            this._jsonCameraProperties = null;
+            this._boundingBox = this._workspace.getDataBoundingBox();
+            this.setDefaultView();
+        });
     }
 
     View3DBase.Events = {
@@ -34,16 +55,51 @@ function(OrbitControls, THREE, EventSource) {
     };
 
     View3DBase.prototype = Object.create(EventSource.prototype, {
+
+        setDefaultView: {
+            value: function(duration) {
+                // set json settings if presented.
+                this._controls.stopAnimation();
+                if (this._jsonCameraProperties) {
+                    this._camera.setup(this._jsonCameraProperties, duration);
+                    return;
+                } 
+
+                // try to set new default view.
+                if (!this._boundingBox) {
+                    return;
+                }
+                this._fitAspect();
+                CameraHelper.setDefaultView(
+                    this._camera, 
+                    this._boundingBox,
+                    this._projectionInfo.horizontalIndex, 
+                    this._projectionInfo.verticalIndex,
+                    duration);
+                this._animationController.requestRedraw();
+            }
+        },
+
+        render: {
+            value: function(renderer, scene, parentHeight) {
+                const v = this;
+                if (!v.width || !v.height) return;
+                const viewportBottom = parentHeight - v.top - v.height;
+                renderer.setViewport(v.left, viewportBottom, v.width, v.height);
+                renderer.setScissor(v.left, viewportBottom, v.width, v.height);
+                renderer.setScissorTest(true);
+                this._orientationWidget.transform = `translateZ(-300px)  ${CameraHelper.getCameraCSSMatrix(v._camera.matrixWorldInverse)}`;
+                scene.render(renderer, v.camera, v._orientationWidget);
+            }
+        },
+
         prepareUpdateLayout: {
             value: function() {
+                this._controls.stopAnimation();
                 this._left = this._div.offsetLeft;
                 this._top = this._div.offsetTop;
                 this._width = this._div.offsetWidth;
                 this._height = this._div.offsetHeight;
-
-                if (!this._width || !this._height) {
-                    this._controls.autoRotate = false;
-                }
             }
         },
 
@@ -56,10 +112,15 @@ function(OrbitControls, THREE, EventSource) {
         finishUpdateLayout: {
             value: function() {
                 const aspect = this.width / this.height;
-                this._camera.aspect = aspect;
+                this._camera.aspect = aspect;     
+                this._fitAspect(); 
                 this._notify(View3DBase.Events.ASPECT_CHANGE, aspect);
-                this._camera.updateProjectionMatrix();
-                this._controls.update();
+            }
+        },
+
+        orientationWidget: {
+            get: function() {
+                return this._orientationWidget;
             }
         },
 
@@ -116,35 +177,13 @@ function(OrbitControls, THREE, EventSource) {
 
         onAnimationFrame: {
             value: function(now) {
-                if (!this._controls.autoRotate) {
-                    return;
-                } else {
-                    this._group.requestAnimationFrame();
-                }
-                this._controls.update();
+                this._group.requestAnimationFrame();        
             }
         },
 
         _onOrbitStart: {
             value: function() {
                 this._controls.autoRotate = false;
-            }
-        },
-
-        _onDoubleClick: {
-            value: function(event) {
-                if (this._controls.autoRotate) {
-                    this._controls.autoRotate = false;
-                } else {
-                    if (!event.ctrlKey) {
-                        this._controls.autoRotate = true;
-                        this._controls.autoRotateSpeed = Math.abs(this._controls.autoRotateSpeed) * (event.ctrlKey ? -1 : 1);
-                        this._group.requestAnimationFrame();
-                    } else {
-                        this._requestDefaultView();
-                        event.preventDefault();
-                    }
-                }
             }
         },
 
@@ -158,7 +197,8 @@ function(OrbitControls, THREE, EventSource) {
             value: function () {
                 return {
                     camera_coords: this._camera.position.toArray(),
-                    controls_target: this._controls.target.toArray(),
+                    camera_target: this._camera.getLookAt().toArray(),
+                    camera_up: this.camera.up.toArray(),
                     camera_zoom: this._camera.zoom
                 };
             }
@@ -166,10 +206,25 @@ function(OrbitControls, THREE, EventSource) {
 
         fromJSON: {
             value: function (json) {
-                this._camera.position.fromArray(json.camera_coords);
-                this._controls.target.fromArray(json.controls_target);
-                this._camera.zoom = json.camera_zoom;
-                this._controls.update();
+                const info = {
+                    position: new THREE.Vector3().fromArray(json.camera_coords),
+                    lookUp: new THREE.Vector3().fromArray(json.camera_up),
+                    lookAt: new THREE.Vector3().fromArray(json.camera_target),
+                    zoom: json.camera_zoom
+                };
+                this._camera.setup(info);
+                this._jsonCameraProperties = info;
+            }
+        },
+
+        _fitAspect: {
+            value: function() {
+                if (!this._boundingBox) {
+                    return;
+                }
+                CameraHelper.fitAspect(this._camera, this._boundingBox, 
+                    this._projectionInfo.horizontalIndex, 
+                    this._projectionInfo.verticalIndex);
             }
         }
     });

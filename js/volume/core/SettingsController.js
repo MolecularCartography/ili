@@ -16,14 +16,6 @@ function (SettingsControllerBase, Workspace, TabControllerSpots, TabController3D
 
         tabExamples.activate();
 
-        this._workspace.addEventListener(Workspace.Events.MODE_CHANGE, function () {
-            if (this._workspace.mode === Workspace.Mode.MODE_2D) {
-                tabMapping.activate();
-            } else if (this._workspace.mode === Workspace.Mode.MODE_3D) {
-                tab3D.activate();
-            }
-        }.bind(this));
-
         return this;
     }
 

@@ -17,8 +17,7 @@ define(
 
             setup: {
                 value: function(volume, buffer) {
-                    if (this._volume != volume) 
-                    {
+                    if (this._volume != volume) {
                         if (this._texture) {
                             this._texture.dispose();
                         }

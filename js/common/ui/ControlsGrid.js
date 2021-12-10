@@ -4,9 +4,11 @@ define([
     'bootstrap_colorpicker',
     'bootstrap_select',
     'bootstrap_slider',
-    'bootstrap_spinbox'
+    'bootstrap_spinbox',
+    'transferfunctioncontrol',
+    'transferfunction'
 ],
-function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
+function(bs_colorpicker, bs_select, bs_slider, bs_spinbox, transferFunctionControl, TransferFunction) {
     function ControlGrid($container) {
         this._$container = $container;
         this._params = {};
@@ -313,6 +315,47 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
             }
         },
 
+        addTransferFunctionControl: {
+            value: function (object, key, name) {
+                let controlId = this._generateControlId()['control-id'];
+                let div = document.createElement('div');
+                div.id = controlId;
+                div.classList.add('transfer-function-control');
+                let nameContainer = document.createElement('div');
+                nameContainer.classList.add('control-name-column', 'col-xs-3');
+                nameContainer.innerText = name;
+                let controlContainer = document.createElement('div');
+                controlContainer.classList.add('col-xs-7');
+                controlContainer.appendChild(div);
+                let container = document.createElement('div');
+                container.classList.add('col-xs-12');
+                container.append(nameContainer, controlContainer);
+                let row = document.createElement('div');
+                row.classList.add('row');
+                row.appendChild(container);
+                this._$container.append(row);
+
+                let control = new transferFunctionControl(div, 10, 25);
+                control.points = object[key].points;
+                control.addEventListener('update', () => object[key] = new TransferFunction(control.points));
+                $('#' + controlId).append('<link rel="stylesheet" type="text/css" href="/js/common/transferFunctionControl/TransferFunctionControlStyle.css">');
+
+                var result = {
+                    get: function () {
+                        return control.points;
+                    },
+                    set: function (val) {
+                        control.points = val;
+                    },
+                    refresh: function () {
+                        control.points = object[key];
+                    },
+                };
+                this._params[this._toKey(name)] = result;
+                return result;
+            }
+        },
+
         addHintBlock: {
             value: function (text) {
                 var layout = '<div class="row">';
@@ -337,8 +380,9 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 var controlId = controlIds['control-id'];
 
                 var subContainerId = 'sub-' + controlId;
+                var panelId = 'panel-' + controlId
                 var layout = '<div class="row"><div class="col-xs-12"><div class="panel-group">';
-                layout += '<div class="panel panel-default" data-toggle="collapse" data-target="#'
+                layout += '<div class="panel panel-default" id="' + panelId + '" data-toggle="collapse" data-target="#'
                     + subContainerId + '"><div id="' + controlId + '" class="panel-heading">';
                 layout += '<div class="panel-title btn-text">' + '<span id="arrow-' + controlId
                     + '" class="indicator glyphicon glyphicon-chevron-down pull-left"></span>&nbsp;'
@@ -351,7 +395,7 @@ function(bs_colorpicker, bs_select, bs_slider, bs_spinbox) {
                 this._params[this._toKey(name)] = result;
 
                 var collapseIndicator = this._$container.find('#arrow-' + controlId);
-                this._$container.find('div.panel.panel-default').on('click', function () {
+                this._$container.find('#' + panelId).on('click', function () {
                     collapseIndicator.toggleClass('glyphicon-chevron-down');
                     collapseIndicator.toggleClass('glyphicon-chevron-up');
                 });

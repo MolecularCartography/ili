@@ -81,7 +81,7 @@ function() {
             return (value < min) ? min : (value > max) ? max : value;
         }
     };
-
+    
     Utils.makeProxyProperty = function(field, properties, callback) {
         var proxyName = 'proxy' + field;
         this[proxyName] = null;

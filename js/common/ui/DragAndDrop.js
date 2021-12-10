@@ -48,7 +48,8 @@ function(Utils) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                this._fileHandler(Array.from(e.dataTransfer.files).map(function (file) { return new Utils.File(file, file.name); }));
+                const processedFiles = Array.from(e.dataTransfer.files).map(function (file) { return new Utils.File(file, file.name); });
+                this._fileHandler(processedFiles);
             }
         }
     });

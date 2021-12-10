@@ -37,7 +37,7 @@ function (Utils, THREE, Bounds, RawVolumeData, Indexer1D, VolumeNormalsProcessor
                 progressReportTime = now;
                 postMessage({
                     status: 'working',
-                    message: `Calculating normals - ${progress} operation of ${total}`
+                    message: `Calculating normals ${Math.ceil(Math.min(progress / total, 1) * 100)}%`
                 });
             },
 

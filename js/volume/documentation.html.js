@@ -71,7 +71,7 @@ define([], function() {
             '</tr>' +
             '<tr>' +
                 '<td>Set default view</td>' +
-                '<td>Double-click + <kbd>Ctrl</kbd></td>' +
+                '<td>Double-click + <kbd>Alt</kbd></td>' +
                 '<td>3D</td>' +
             '</tr>' +
         '</tbody>' +

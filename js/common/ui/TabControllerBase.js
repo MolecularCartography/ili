@@ -2,9 +2,11 @@
 
 define([
     'abcviewcontroller',
-    'controlsgrid'
+    'controlsgrid',
+    'utils',
+    'three'
 ],
-function (EmperorViewControllerABC, ControlGrid) {
+function (EmperorViewControllerABC, ControlGrid, Utils, THREE) {
     function TabControllerBase(container, title, description, workspace) {
         EmperorViewControllerABC['EmperorViewControllerABC'].call(this, container, title, description);
 
@@ -41,6 +43,12 @@ function (EmperorViewControllerABC, ControlGrid) {
         addFlag: {
             value: function (object, key, name) {
                 return this._controlGrid.addFlag(object, key, name);
+            }
+        },
+
+        addTransferFunctionControl: {
+            value: function (object, key, name) {
+                return this._controlGrid.addTransferFunctionControl(object, key, name);
             }
         },
 
@@ -83,6 +91,64 @@ function (EmperorViewControllerABC, ControlGrid) {
         fromJSON: {
             value: function (json) {
                 return this._controlGrid.fromJSON(json);
+            }
+        },
+
+        _makeProxyColorProperty: {
+            value: function(owner, key) {
+                const result = {};
+                const proxyKey = `proxy_${key}_hex`;
+                const proxyKeyColor = `proxy_${key}_color`;
+                Object.defineProperty(result, key, {
+                    get: () => {
+                        return result[proxyKey];
+                    },
+                    set: (value) => {
+                        value = new THREE.Color(value);
+                        const current = owner[proxyKeyColor];
+                        if (current && current.equals(value)) {
+                            return;
+                        }
+                        owner[key] = value;
+                        result[proxyKeyColor] = value;
+                        result[proxyKey] = '#' + value.getHexString();
+                    }
+                });
+                result[key] = owner[key];
+                return result;
+            }
+        },
+
+        _makeProxyProperty: {
+            value: function(owner, key, converter) {
+                const proxyResult = {};
+                const result = {};
+
+                const value = owner[key];
+                const properties = Object.keys(value);
+                for (let i = 0; i < properties.length; i++) {
+                    const property = properties[i];
+                    proxyResult[property] = owner[key][property];
+                    Object.defineProperty(result, properties[i], {
+                        get: function(prop) {
+                            return proxyResult[prop];
+                        }.bind(owner, properties[i]),
+        
+                        set: function(prop, value) {
+                            if (converter) {
+                                value = converter(value, prop);
+                            }
+                            proxyResult[prop] = value;
+                            owner[key] = Object.assign({}, proxyResult);
+                        }.bind(this, properties[i])
+                    });  
+                }
+                result.refresh = () => {
+                    for (let property in properties) {
+                        proxyResult[property] = owner[key][property];
+                    }
+                };
+                return result;
             }
         }
     });

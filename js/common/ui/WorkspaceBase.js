@@ -1,9 +1,9 @@
 'use strict';
 
 define([
-    'eventsource', 'utils'
+    'eventsource', 'utils', 'taskcontroller', 'inputfilesprocessor', 'filecombination'
 ],
-function (EventSource, Utils)
+function (EventSource, Utils, TaskController, InputFilesProcessor, FileCombination)
 {
     /**
      * Main application WorkspaceBase. It works in 3 modes:
@@ -21,21 +21,34 @@ function (EventSource, Utils)
      * the user on progress in long-running tasks.
      *
      */
-    function WorkspaceBase(spotsController, inputFilesProcessor, events) {
+    function WorkspaceBase(spotsController, fileFormats, events) {
         EventSource.call(this, events ? Object.create(WorkspaceBase.Events, events) : events);
 
         this._mode = null;
         this._errors = [];
         this._spotsController = spotsController;
         this._loadedSettings = null;
-        this._inputFilesProcessor = inputFilesProcessor;
-        this._workerCache = new Map();
 
         this._status = '';
-        this._tasks = {};
         this._settingsToLoad = null;
         this._currentSettings = null;
         this._settingsPatch = {};
+
+        // Initialize input files processor.
+        this._inputFilesProcessor = fileFormats ? new InputFilesProcessor(this, 
+            [...fileFormats, ...WorkspaceBase.FileFormats]) : 
+            null;
+
+        // Initialize task controller.
+        this.taskController = new TaskController({
+            setStatus: (status) => this.setStatus(status),
+            setError: (error) => this.setError(error),
+            onCancel: (taskCount) => {
+                if (taskCount == 0) {
+                    this._loadPendingSettings();
+                }
+            }
+        });
     }
 
     WorkspaceBase.Events = {
@@ -43,7 +56,8 @@ function (EventSource, Utils)
         MODE_CHANGE: 'mode-change',
         ERRORS_CHANGE: 'errors-change',
         SETTINGS_CHANGE: 'settings-change',
-        REQUEST_SETTINGS: 'request-settings'
+        REQUEST_SETTINGS: 'request-settings',
+        BOUNDS_CHANGE: 'bounds-change'
     };
 
     WorkspaceBase.SettingsPatch = {
@@ -60,6 +74,11 @@ function (EventSource, Utils)
         }
     };
 
+    
+    WorkspaceBase.FileFormats = [
+        new FileCombination('json', (owner, blob) => owner._onLoadSettings(blob))
+    ];
+
     WorkspaceBase.TaskType = {
         DOWNLOAD: {
             key: 'download',
@@ -72,27 +91,10 @@ function (EventSource, Utils)
     };
 
     WorkspaceBase.prototype = Object.create(EventSource.prototype, {
-        /**
-         * Starts loading intensities file.
-         */
-        loadIntensities: {
-            value: function(blob) {
-                this._doTask(WorkspaceBase.TaskType.LOAD_MEASURES, blob[0]).
-                    then(function (result) {
-                        this._spotsController.spots = result.spots;
-                        this._spotsController.measures = result.measures;
 
-                        if (this._mode == WorkspaceBase.Mode.MODE_3D) {
-                            this._mapMesh(Scene3D.RecoloringMode.USE_COLORMAP);
-                        }
-                    }.bind(this));
-            }
-        },
-
-        loadSettings: {
-            value: function (blob) {
-                this._settingsToLoad = blob[0];
-                this._loadPendingSettings();
+        getDataBoundingBox: {
+            value: function() {
+                return null;
             }
         },
 
@@ -114,7 +116,7 @@ function (EventSource, Utils)
                 }
 
                 var curPatch = this._settingsPatch;
-                this._doTask(WorkspaceBase.TaskType.DOWNLOAD, {
+                this.taskController.runTask(WorkspaceBase.TaskType.DOWNLOAD, {
                     fileNames: fileNames,
                     prefix: prefix ? prefix : Utils.FILE_SERVICE_PREFIX
                 }).
@@ -136,6 +138,33 @@ function (EventSource, Utils)
             },
             set: function (settings) {
                 this._currentSettings = settings;
+            }
+        },
+
+        setStatus: {
+            value: function(status) {
+                this._status = status;
+                this._notify(WorkspaceBase.Events.STATUS_CHANGE);
+            }
+        },
+
+        setError: {
+            value: function(message) {
+                this._errors.push(message);
+                this._notify(WorkspaceBase.Events.ERRORS_CHANGE);
+            }
+        },
+
+        errors: {
+            get: function() {
+                return this._errors;
+            }
+        },
+
+        clearErrors: {
+            value: function() {
+                this._errors = [];
+                this._notify(WorkspaceBase.Events.ERRORS_CHANGE);
             }
         },
 
@@ -161,44 +190,25 @@ function (EventSource, Utils)
             }
         },
 
-        errors: {
-            get: function() {
-                return this._errors;
+        
+        _onLoadSettings: {
+            value: function (blob) {
+                this._settingsToLoad = blob[0];
+                this._loadPendingSettings();
             }
         },
 
-        clearErrors: {
+        _onModeChange: {
             value: function() {
-                this._errors = [];
-                this._notify(WorkspaceBase.Events.ERRORS_CHANGE);
-            }
-        },
 
-        _addError: {
-            value: function(message) {
-                this._errors.push(message);
-                this._notify(WorkspaceBase.Events.ERRORS_CHANGE);
-            }
-        },
-
-        _cancelTask: {
-            value: function(taskType) {
-                if (taskType.key in this._tasks) {
-                    this._tasks[taskType.key].worker.onerror = null;
-                    this._tasks[taskType.key].worker.terminate();
-                    delete this._tasks[taskType.key];
-                }
-                if (Object.keys(this._tasks).length == 0) {
-                    this._loadPendingSettings();
-                }
             }
         },
 
         _loadPendingSettings: {
             value: function () {
-                if (Object.keys(this._tasks).length == 0) {
+                if (this.taskController.taskCount == 0) {
                     if (this._settingsToLoad !== null) {
-                        this._doTask(WorkspaceBase.TaskType.LOAD_SETTINGS, this._settingsToLoad).
+                        this.taskController.runTask(WorkspaceBase.TaskType.LOAD_SETTINGS, this._settingsToLoad).
                         then(function (result) {
                             this._loadedSettings = Object.assign(result.settings, this._settingsPatch);
                             this._settingsPatch = {};
@@ -216,76 +226,6 @@ function (EventSource, Utils)
             }
         },
 
-        /**
-         * Starts a new task (cancels an old one it it's running).
-         *
-         * @param {WorkspaceBase.TaskType} taskType Task to run.
-         * @param {Object} args Arguments to post to the task's worker.
-         * @param {Object} transfer Arguments to transfer to the task's worker.
-         * @return {Promise}
-         **/
-        _doTask: {
-            value: function(taskType, args, transfer) {
-                if (taskType.key in this._tasks) this._cancelTask(taskType);
-
-                var task = {
-                    worker: typeof taskType.worker == 'function' ?
-                        new taskType.worker() :
-                        new Worker(require.toUrl(taskType.worker)),
-                    status: '',
-                    cancel: this._cancelTask.bind(this, taskType),
-                    startTime: new Date().valueOf(),
-                };
-                this._tasks[taskType.key] = task;
-                var setStatus = this._setStatus.bind(this);
-                var addError = this._addError.bind(this);
-
-                setStatus('Initializing runtime for task [' + taskType.key + ']...');
-
-                if (typeof taskType.worker == 'function') {
-                    task.worker.postMessage(args, transfer);
-                }
-                return new Promise(function(resolve, reject) {
-                    task.worker.onmessage = function(event) {
-                        switch (event.data.status) {
-                            case 'completed':
-                                setStatus('');
-                                resolve(event.data);
-                                task.cancel();
-                                console.info('Task ' + taskType.key + ' completed in ' +
-                                    (new Date().valueOf() - task.startTime) /
-                                    1000 + ' sec');
-                                break;
-                            case 'failed':
-                                reject(event.data);
-                                task.cancel();
-                                setStatus('');
-                                addError('Operation failed: ' + event.data.message);
-                                break;
-                            case 'working':
-                                setStatus(event.data.message);
-                                break;
-                            case 'ready':
-                                setStatus('[' + taskType.key + '] task is ready to work');
-                                this.postMessage(args);
-                                break;
-                        };
-                    };
-                    task.worker.onerror = function(event) {
-                        setStatus('');
-                        addError('Operation failed. See log for details.');
-                    }.bind(this);
-                }.bind(this));
-            }
-        },
-
-        _setStatus: {
-            value: function(status) {
-                this._status = status;
-                this._notify(WorkspaceBase.Events.STATUS_CHANGE);
-            }
-        },
-
         mode: {
             get: function() {
                 return this._mode;
@@ -296,6 +236,7 @@ function (EventSource, Utils)
                     return;
                 }
                 this._mode = value;
+                this._onModeChange(value);
                 this._notify(WorkspaceBase.Events.MODE_CHANGE, this._mode);
             }
         },

@@ -2,20 +2,31 @@ const volumePathPrefix = 'js/volume/';
 requirejs.config({
     paths: {
         // Utilities
-        'rawvolumedata': 'js/volume/utility/RawVolumeData',
-        'threejsutils': 'js/volume/utility/ThreeJsUtils',
-        'volumenormalsprocessor': 'js/volume/utility/VolumeNormalsProcessor',
-        'volumeremappingprocessor':  'js/volume/utility/VolumeRemappingProcessor',
-        'colormaptexturerenderer': 'js/volume/utility/ColorMapTextureRenderer',
-        'volumedatacache': 'js/volume/utility/VolumeDataCache',
+        'sectiongeometrycache': volumePathPrefix + 'utility/SectionGeometryCache',
+        'rawvolumedata': volumePathPrefix + 'utility/RawVolumeData',
+        'threejsutils': volumePathPrefix + 'utility/ThreeJsUtils',
+        'volumenormalsprocessor': volumePathPrefix + 'utility/VolumeNormalsProcessor',
+        'volumesectionprocessor': volumePathPrefix + 'utility/VolumeSectionProcessor',
+        'volumeremappingprocessor':  volumePathPrefix + 'utility/VolumeRemappingProcessor',
+        'lazytexturerenderer': volumePathPrefix + '/utility/LazyTextureRenderer',
+        'transferfunctiontexturerenderer': volumePathPrefix + '/utility/TransferFunctionTextureRenderer',
+        'colormaptexturerenderer': volumePathPrefix + '/utility/ColorMapTextureRenderer',
+        'volumedatacache': volumePathPrefix + '/utility/VolumeDataCache',
 
-        // Core
-        'volumerendermesh': volumePathPrefix + 'core/VolumeRenderMesh',
+        // Render types.
+        'volumerendermesh': volumePathPrefix + 'render_types/VolumeRenderMesh',
+        'volumesectionrendermesh': volumePathPrefix + 'render_types/VolumeSectionRenderMesh',
+        'legocuboidsrendermesh': volumePathPrefix + 'render_types/LegoCuboidsRenderMesh',
+        'volumerendermeshbase': volumePathPrefix + 'render_types/VolumeRenderMeshBase',
+        'rendermeshbase': volumePathPrefix + 'render_types/RenderMeshBase',
+        'bordercubemesh': volumePathPrefix + 'render_types/BorderCubeMesh',
+        'volumesectionbordermesh': volumePathPrefix + 'render_types/VolumeSectionBorderMesh',
+
+        // Core    
+        'volumedatacontainer': volumePathPrefix + 'core/DataContainer',
         'volumesettingscontroller': volumePathPrefix + 'core/SettingsController',
         'volumeinputfilesprocessor': volumePathPrefix + 'core/InputFilesProcessor',
-        'volumescene2d': volumePathPrefix + 'core/Scene2D',
         'volumescene3d': volumePathPrefix + 'core/Scene3D',
-        'volumeview2d': volumePathPrefix + 'core/View2D',
         'volumeview3d': volumePathPrefix + 'core/View3D',
         'volumeviewcontainer': volumePathPrefix + 'core/ViewContainer',
         'volumeviewgroup3d': volumePathPrefix + 'core/ViewGroup3D',

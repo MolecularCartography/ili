@@ -12,64 +12,19 @@ function(THREE, View3DBase, Workspace) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div, workspace, cameraController) {
-        View3DBase.call(this, group, div, new THREE.OrthographicCamera());
-
-        this._workspace = workspace;
-        this._cameraController = cameraController;
-
-        this.addEventListener(View3DBase.Events.ASPECT_CHANGE, this._onAspectChange.bind(this));
-        this._workspace.addEventListener(Workspace.Events.SHAPE_LOAD, this._onShapeChange.bind(this));
+    function View3D(workspace, group, div, orientationWidget, projectionInfo) {
+        View3DBase.call(this, 
+            workspace, 
+            group, 
+            div, 
+            new THREE.OrthographicCamera(), 
+            orientationWidget, 
+            projectionInfo);
         return this;
     }
 
     View3D.prototype = Object.create(View3DBase.prototype, {
-        _onAspectChange: {
-            value: function(aspect) {
-                const shapeSize = this._shapeSize;
-                if (!shapeSize) {
-                    return;
-                }
-                this._cameraController.updateAspect(this.camera, aspect, shapeSize);
-                this.camera.updateProjectionMatrix();
-                this._updateControls();
-            }
-        },
-
-        _onShapeChange: {
-            value: function(shape) {
-                this._requestDefaultView();
-            }
-        },
-
-        _requestDefaultView: {
-            value: function() {
-                const shapeSize = this._shapeSize;
-                if (!shapeSize) {
-                    return;
-                }
-                this._cameraController.setDefaultView(this.camera, shapeSize);
-                this._cameraController.updateAspect(this.camera, this.camera.aspect, shapeSize);
-                this.camera.updateProjectionMatrix();
-                this._updateControls();
-            }
-        },
-
-        _shape: {
-            get: function() {
-                return this._workspace.shape;
-            }
-        },
-
-        _shapeSize: {
-            get: function() {
-                const shape = this._shape;
-                if (!shape) {
-                    return null;
-                }
-                return new THREE.Vector3(shape.sizeX, shape.sizeY, shape.sizeZ);
-            }
-        }
+        
     });
 
     return View3D;

@@ -1,3 +1,5 @@
+const pathPrefix = 'js/common/';
+
 require.config({
     paths: {
         // Utilities.
@@ -9,6 +11,18 @@ require.config({
         'bounds': 'js/common/utility/Bounds',
         'indexer1d': 'js/common/utility/Indexer1D',
         'shaderloader': 'js/common/utility/ShaderLoader',
+
+        'tween': 'js/lib/tween.min',
+        'transferfunctioncontrol': 'js/common/transferFunctionControl/TransferFunctionControl',
+        'drawing': 'js/common/transferFunctionControl/Drawing',
+        'coordstransformer': 'js/common/transferFunctionControl/CoordsTransformer',
+        'objectcache': 'js/common/transferFunctionControl/ObjectCache',
+        'actioncontroller' : 'js/common/interactivitySystem/ActionController',
+        'rotatestate' : 'js/common/interactivitySystem/RotateState',
+        'zoombymousemovestate' : 'js/common/interactivitySystem/ZoomByMouseMoveState',
+        'zoombymousewheelstate' : 'js/common/interactivitySystem/ZoomByMouseWheelState',
+        'panstate' : 'js/common/interactivitySystem/PanState',
+        'camerahelper': 'js/common/interactivitySystem/CameraHelper',
 
         // Ui.
         'appbase': 'js/common/ui/AppBase',
@@ -30,6 +44,23 @@ require.config({
         'workspacebase': 'js/common/ui/WorkspaceBase',
         'viewlegendbase': 'js/common/ui/ViewLegendBase',
         'settingscontrollerbase': 'js/common/ui/SettingsControllerBase',
+
+        // Utilities.
+        'colormaps': 'js/common/utility/ColorMaps',
+        'transferfunction': 'js/common/utility/TransferFunction',
+        'eventsource': 'js/common/utility/EventSource',
+        'inputfilesprocessor': 'js/common/utility/InputFilesProcessor',
+        'utils': 'js/common/utility/utils',
+        'filecombination': 'js/common/utility/FileCombination',
+        'bounds': 'js/common/utility/Bounds',
+        'indexer1d': 'js/common/utility/Indexer1D',
+        'shaderloader': 'js/common/utility/ShaderLoader',
+        'shaderschunk': 'js/common/utility/ShadersChunk',
+        'taskcontroller': 'js/common/utility/TaskController',
+        'workercontroller': 'js/common/utility/WorkerController',
+        'propertychangedmanager': 'js/common/utility/PropertyChangedManager',
+        'commoneventlisteners': 'js/common/interactivitySystem/CommonEventListeners',
+        'animationloopmanager': 'js/common/utility/AnimationLoopManager',
 
         // Workers.
         'downloader': 'js/common/workers/Downloader',

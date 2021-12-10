@@ -12,22 +12,19 @@ function(THREE, View3DBase) {
      * @param {ViewGroup3D} droup.
      * @param {HTMLDivElement} div.
      */
-    function View3D(group, div) {
-        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-        camera.position.x = -30;
-        camera.position.y = 40;
-        camera.position.z = 30;
-
-        View3DBase.call(this, group, div, camera);
+     function View3D(workspace, group, div, orientationWidget, projectionInfo) {
+        View3DBase.call(this, 
+            workspace, 
+            group, 
+            div, 
+            new THREE.PerspectiveCamera(), 
+            orientationWidget, 
+            projectionInfo);
         return this;
     }
 
     View3D.prototype = Object.create(View3DBase.prototype, {
-        _requestDefaultView: {
-            value: function() {
-                
-            }
-        },
+     
     });
 
     return View3D;

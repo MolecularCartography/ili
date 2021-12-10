@@ -1,13 +1,18 @@
 'use strict';
 
 define([
-    'scene3dbase', 'three', 'utils'
+    'scene3dbase', 'three', 'utils', 'surfacespotscontroller'
 ],
-function(Scene3DBase, THREE, Utils) {
+function(Scene3DBase, THREE, Utils, SpotsController) {
     function Scene3D(spotsController) {
         Scene3DBase.call(this, spotsController);
 
-        this._frontLight = new THREE.PointLight(0xffffff, 1.5, 0);
+        this._frontLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+        this._frontLight1.position.set(0, 0, -1);
+
+        this._frontLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
+        this._frontLight2.position.set(0, 0, 1);
+
         this._mesh = null;
         this._meshScaleFactor = 1.0;
         this._MAX_MESH_SIZE = 80;
@@ -26,31 +31,54 @@ function(Scene3DBase, THREE, Utils) {
         this._adjustment = { x: 0, y: 0, z: 0, alpha: 0, beta: 0, gamma: 0 };
 
         this._mapping = null;
+        this.lightIntensity = 1.0;
 
         this._raycastWorker = new Worker(require.toUrl('js/surface/workers/Raycaster.js'));
 
-        this._axisHelper = new THREE.AxesHelper(20);
+        this._axisHelper = new THREE.AxesHelper(1);
         this._scene.add(this._axisHelper);
-        this._scene.add(this._frontLight);
+        this._scene.add(this._frontLight1);
+        this._scene.add(this._frontLight2);
+
+        this._spotsController.addEventListener(SpotsController.Events.SPOTS_CHANGE, this._onSpotsChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.ATTR_CHANGE, this._onAttrChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.INTENSITIES_CHANGE, this._onIntensitiesChange.bind(this));
+        this._spotsController.addEventListener(SpotsController.Events.MAPPING_CHANGE, this._onMappingChange.bind(this));
     };
 
     Object.assign(Scene3D, Scene3DBase);
 
+    Scene3D.RecoloringMode = {
+        USE_COLORMAP: 'colormap',
+        NO_COLORMAP: 'no-colormap'
+    };
+
     Scene3D.prototype = Object.create(Scene3DBase.prototype, {
 
+        lightIntensity: {
+            get: function() {
+                return this._lightIntensity;
+            },
+            set: function(value) {
+                this._lightIntensity = value;
+                this._frontLight1.intensity = 1.5 * this._lightIntensity;
+                this._frontLight2.intensity = 1.5 * this._lightIntensity;
+            }
+        },
+
+        getDataBoundingBox: {
+            value: function() {
+                if (!this._geometry) {
+                    return null;
+                }
+                return this._geometry.boundingBox;
+            }
+        },
+
         clone: {
-            value: function(eventName, listener) {
-                var result = new Scene3D(this._spotsController);
-                result.frontLight = this.frontLight;
-                result.color = this.color;
-                result.backgroundColor = this.backgroundColor;
-                result.adjustment = this.adjustment;
-                result._meshMaterialName = this._meshMaterialName;
-                result._meshMaterials = this._meshMaterials.map(function (m) { return m.clone(); });
-                result.geometry = this.geometry.clone();
-                result.mapping = this.mapping;
-                result.axisHelper = this.axisHelper;
-                return result;
+            value: function() {
+                // Clone is too expensive for the scene.
+                return null;
             }
         },
 
@@ -60,15 +88,14 @@ function(Scene3DBase, THREE, Utils) {
 
         color: {
             get: function() {
-                return '#' + this._color.getHexString();
+                return this._color;
             },
 
             set: function(value) {
-                var color = new THREE.Color(value);
-                if (!color.equals(this._color)) {
-                    this._color.set(color);
-                    this._onGeometryColorChange();
-                }
+                this._color = value;
+                if (this._mesh) {
+                    this._recolor();
+                }                      
             }
         },
 
@@ -164,21 +191,25 @@ function(Scene3DBase, THREE, Utils) {
 
         geometry: {
             get: function() {
-                return this._mesh ? this._mesh.geometry : null;
+                return this._geometry;
             },
 
             set: function(geometry) {
+                this._geometry = geometry;
                 if (!this._mesh && !geometry) return;
-                if (this._mesh) this._meshContainer.remove(this._mesh);
+                if (this._mesh) this._meshContainer.remove(this._mesh); 
                 this._mapping = null;
                 if (geometry) {
                     geometry.computeBoundingBox();
                     this._mesh = new THREE.Mesh(geometry, this._getMeshMaterial(this._meshMaterialName));
-                    this._meshScaleFactor = this._MAX_MESH_SIZE / geometry.boundingBox.getSize().length();
-                    // bounding box is invalid after the scaling below. Needs to be recomputed for further use
-                    this._mesh.scale.set(this._meshScaleFactor, this._meshScaleFactor, this._meshScaleFactor);
-                    this._mesh.position.copy(geometry.boundingBox.getCenter().negate().multiplyScalar(this._meshScaleFactor));
-                   
+                    this._frontLight1.target = this._mesh;
+                    this._frontLight2.target = this._mesh;
+
+                    this._axisHelper.scale.copy(geometry.boundingBox.getSize(new THREE.Vector3()));
+                    this._axisHelper.position.copy(geometry.boundingBox.min);
+                    this._axisHelper.updateMatrix();
+
+                    this._meshScaleFactor = 1.0; 
                     this._meshContainer.add(this._mesh);
                     this._applyAdjustment();
                     this._recolor();
@@ -221,6 +252,7 @@ function(Scene3DBase, THREE, Utils) {
 
         raycast: {
             value: function(raycaster) {
+                console.log("raycast");
                 if (!this._mesh || !this._spotsController.spots || !this._mapping) {
                     return null;
                 }
