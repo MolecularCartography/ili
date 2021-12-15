@@ -137,13 +137,12 @@ define(['three', 'camerahelper'],
 					return null;
 				}
 
+				const wheelDelta = event.wheelDelta;
+				const defaultScalingCoeff = 0.15 / 120;
+				const scalingCoefficient = 1 - wheelDelta * defaultScalingCoeff;
 				const camera = this.camera;
-				const wheelDelta = event.deltaY / this.domElement.clientHeight;
-				const usualWheelDeltaValue = 0.2;
-				const defaultScalingCoefficient = 0.8;
-				const scalingCoefficient = defaultScalingCoefficient /
-					Math.pow(Math.abs(wheelDelta) / usualWheelDeltaValue, 0.3);
-				CameraHelper.zoom(camera, wheelDelta, scalingCoefficient);
+				CameraHelper.zoom(camera, wheelDelta, 1.0 / scalingCoefficient);
+
 				this.requestRedraw();
 				return {
 					context: null,
@@ -164,6 +163,9 @@ define(['three', 'camerahelper'],
 				const zoomSpeed = 1.2;
 				let scalingCoefficient = Math.pow(0.95, zoomSpeed);
 				const wheelDelta = startLocation.y - stopLocation.y;
+				if (wheelDelta < 0) {
+					scalingCoefficient = 1.0 / scalingCoefficient;
+				}
 				CameraHelper.zoom(camera, wheelDelta, scalingCoefficient);
 			}
 
