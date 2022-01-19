@@ -95,8 +95,6 @@ define([
 			static zoom(camera, wheelDelta, scalingCoefficient) {
 				const minZoom = 0.1;
 				const maxZoom = 4.0;
-				if (wheelDelta < 0)
-					scalingCoefficient = 1.0 / scalingCoefficient;
 
 				let zoom = camera.zoom * scalingCoefficient;
 				zoom = Math.min(zoom, maxZoom);
