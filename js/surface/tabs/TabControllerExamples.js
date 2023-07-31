@@ -9,32 +9,33 @@ function (TabControllerBase, Workspace, Utils) {
         var title = 'Examples';
         TabControllerBase.call(this, container, title, description, workspace);
 
-        const fileServicePrefix = Utils.FILE_SERVICE_PREFIX;
+        const wwwUrl = document.location.origin + '/';
+
         var items = [
             {
                 name: '3D-MASSOMICS meeting mockup',
-                files: ['3dmassomics/bg.png', '3dmassomics/intensities.csv', '3dmassomics/example.json'],
-                prefix: fileServicePrefix
+                files: ['data/3dmassomics/bg.png', 'data/3dmassomics/intensities.csv', 'data/3dmassomics/example.json'],
+                prefix: wwwUrl
             },
             {
                 name: 'Stingless bee',
-                files: ['bee/model.stl', 'bee/intensities.csv', , 'bee/example.json'],
-                prefix: fileServicePrefix
+                files: ['data/bee/model.stl', 'data/bee/intensities.csv', 'data/bee/example.json'],
+                prefix: wwwUrl
             },
             {
                 name: 'Diseased coral',
-                files: ['coral/bg.png', 'coral/intensities.csv', 'coral/example.json'],
-                prefix: fileServicePrefix
+                files: ['data/coral/bg.png', 'data/coral/intensities.csv', 'data/coral/example.json'],
+                prefix: wwwUrl
             },
             {
                 name: 'Cyanobacteria natural products',
-                files: ['cyano/bg.png', 'cyano/intensities.csv', 'cyano/example.json'],
-                prefix: fileServicePrefix
+                files: ['data/cyano/bg.png', 'data/cyano/intensities.csv', 'data/cyano/example.json'],
+                prefix: wwwUrl
             },
             {
                 name: 'Human skin metabolome',
-                files: ['human/man.stl', 'human/man_LCMS_small.csv', 'human/example.json'],
-                prefix: fileServicePrefix
+                files: ['data/human/man.stl', 'data/human/man_LCMS_small.csv', 'data/human/example.json'],
+                prefix: wwwUrl
             }
         ];
 
